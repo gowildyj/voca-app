@@ -1,32 +1,18 @@
-// utils/tts.js
-
-export const speak = (text, deckName = "") => {
-  if (typeof window === "undefined" || !window.speechSynthesis) return;
-
-  // 1. 현재 재생 중인 모든 음성을 즉시 중단 (중첩 방지)
+export const speak = (text, langCode) => {
+  if (!langCode || typeof window === "undefined" || !window.speechSynthesis)
+    return;
   window.speechSynthesis.cancel();
-
-  // 2. 언어 코드 설정
-  let langCode = "en-US";
-  if (deckName.includes("프랑스")) langCode = "fr-FR";
-  else if (deckName.includes("스페인")) langCode = "es-ES";
-  else if (deckName.includes("영어")) langCode = "en-US";
-  else if (deckName.includes("한국")) langCode = "ko-KR";
 
   const play = () => {
     const utterance = new SpeechSynthesisUtterance(text);
+
+    // ✅ 전달받은 langCode를 즉시 적용 (예: "fr-FR")
     utterance.lang = langCode;
 
-    // 브라우저에서 사용 가능한 음성 목록 가져오기
     const voices = window.speechSynthesis.getVoices();
-
-    // ✅ 복잡한 필터링 없이 해당 언어의 첫 번째 음성을 바로 선택
     const selectedVoice = voices.find((v) => v.lang.startsWith(langCode));
 
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-      // console.log(`🎙 재생 음성: [${selectedVoice.name}] | 텍스트: "${text}"`);
-    }
+    if (selectedVoice) utterance.voice = selectedVoice;
 
     // 재생 설정 (가장 표준적인 값)
     utterance.rate = 1.0; // 속도 1.0 (표준)

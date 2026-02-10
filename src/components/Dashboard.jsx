@@ -12,7 +12,11 @@ const Dashboard = ({
   onRenameDeck,
 }) => {
   const [isRenameOpen, setIsRenameOpen] = useState(false);
-  const [targetDeck, setTargetDeck] = useState({ id: "", name: "" });
+  const [targetDeck, setTargetDeck] = useState({
+    id: "",
+    name: "",
+    lang_code: "",
+  });
 
   // ✅ 덱 기반으로 통계 계산
   const deckStats = useMemo(() => {
@@ -28,6 +32,7 @@ const Dashboard = ({
       return {
         id: deck.id,
         name: deck.name,
+        lang_code: deck.lang_code,
         total,
         known,
         progress,
@@ -78,7 +83,11 @@ const Dashboard = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setTargetDeck({ id: deck.id, name: deck.name });
+                  setTargetDeck({
+                    id: deck.id,
+                    name: deck.name,
+                    lang_code: deck.lang_code,
+                  });
                   setIsRenameOpen(true);
                 }}
                 className="deck-action-btn"
@@ -126,9 +135,11 @@ const Dashboard = ({
       </div>
 
       <RenameDeckModal
+        key={targetDeck.id}
         isOpen={isRenameOpen}
         deckId={targetDeck.id}
         oldName={targetDeck.name}
+        oldLangCode={targetDeck.lang_code}
         onClose={() => setIsRenameOpen(false)}
         onRename={onRenameDeck}
       />

@@ -1,9 +1,16 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, speak } from "react";
 import { Play, Search, X, ArrowLeft, PlusCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import WordItem from "./WordItem";
 
-const WordList = ({ words, onStartStudy, onDeleteWord, onBack, deckName }) => {
+const WordList = ({
+  words,
+  onStartStudy,
+  onDeleteWord,
+  onBack,
+  deckName,
+  langCode,
+}) => {
   const [filter, setFilter] = useState("all");
   const [sortType, setSortType] = useState("default");
   const [shuffleSeed, setShuffleSeed] = useState(0);
@@ -15,6 +22,11 @@ const WordList = ({ words, onStartStudy, onDeleteWord, onBack, deckName }) => {
     { id: "unknown", label: "모름" },
     { id: "know", label: "아는단어" },
   ];
+
+  const handleSpeak = (text) => {
+    console.log(`TTS 재생 시도 - 문구: ${text}, 언어코드: ${langCode}`);
+    speak(text, langCode);
+  };
 
   // 1. 현재 덱의 진짜 데이터만 필터링 (DB 원본 보존)
   const deckWords = useMemo(() => {

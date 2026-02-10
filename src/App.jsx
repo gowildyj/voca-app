@@ -88,6 +88,10 @@ function AppContent() {
     navigate("/list");
   };
 
+  const currentDeckInfo = decks.find((d) => d.name === selectedDeck);
+
+  console.log("현재 선택된 덱 정보:", currentDeckInfo);
+
   if (loading)
     return <div className="loading-screen">데이터를 불러오는 중...</div>;
 
@@ -135,6 +139,7 @@ function AppContent() {
                 <WordList
                   words={words} // 내부에서 filter 하므로 전체 전달
                   deckName={selectedDeck} // ✅ 덱 이름을 명시적으로 전달
+                  langCode={currentDeckInfo?.lang_code}
                   onBack={() => navigate("/")}
                   onStartStudy={handleStartStudy}
                   onDeleteWord={deleteWord}
@@ -160,6 +165,7 @@ function AppContent() {
           element={
             <StudySession
               words={studyWords}
+              langCode={currentDeckInfo?.lang_code}
               onFinish={() => navigate("/list")}
               onUpdateStatus={updateWordStatus}
             />

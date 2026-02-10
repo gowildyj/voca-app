@@ -17,6 +17,7 @@ const AddWordModal = ({
   const [bulkText, setBulkText] = useState("");
   const [newDeckName, setNewDeckName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [langCode, setLangCode] = useState("");
 
   if (!isOpen) return null;
 
@@ -67,7 +68,7 @@ const AddWordModal = ({
     setIsSubmitting(true);
     try {
       // 이제 'decks' 테이블에 이름만 등록합니다.
-      await onAddDeck(newDeckName);
+      await onAddDeck(newDeckName, langCode);
       setNewDeckName("");
       onClose();
     } catch (error) {
@@ -115,16 +116,39 @@ const AddWordModal = ({
           {/* 1️⃣ 덱 추가 모드 */}
           {mode === "deck" ? (
             <form onSubmit={handleDeckSubmit} style={formStyle}>
-              <p style={guideTextStyle}>
-                공부할 주제나 언어 이름을 적어주세요.
-              </p>
-              <input
-                placeholder="예: 프랑스어 회화, 토익 필수"
-                value={newDeckName}
-                onChange={(e) => setNewDeckName(e.target.value)}
-                style={inputStyle}
-                autoFocus
-              />
+              <p style={guideTextStyle}>공부할 주제와 언어를 선택해 주세요.</p>
+
+              {/* 언어 선택 셀렉트 박스 */}
+              <div style={{ marginBottom: "16px" }}>
+                <label style={labelStyle}>학습 언어</label>
+                <select
+                  value={langCode}
+                  onChange={(e) => setLangCode(e.target.value)}
+                  style={selectStyle}
+                >
+                  <option value="">음성 지원 안함</option>
+                  <option value="en-US">영어 (US)</option>
+                  <option value="ko-KR">한국어</option>
+                  <option value="fr-FR">프랑스어</option>
+                  <option value="ja-JP">일본어</option>
+                  <option value="zh-CN">중국어</option>
+                  <option value="es-ES">스페인어</option>
+                  <option value="th-TH">태국어</option>
+                  <option value="vi-VN">베트남어</option>
+                </select>
+              </div>
+
+              <div style={{ marginBottom: "20px" }}>
+                <label style={labelStyle}>덱 이름</label>
+                <input
+                  placeholder="예: 파리 여행 준비, 토익 필수"
+                  value={newDeckName}
+                  onChange={(e) => setNewDeckName(e.target.value)}
+                  style={inputStyle}
+                  autoFocus
+                />
+              </div>
+
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -272,6 +296,31 @@ const closeBtnStyle = {
   opacity: 0.5,
   cursor: "pointer",
 };
+const labelStyle = {
+  fontSize: "0.75rem",
+  fontWeight: "700",
+  color: "var(--primary)",
+  marginBottom: "6px",
+  display: "block",
+  opacity: 0.8,
+};
+
+const selectStyle = {
+  width: "100%",
+  padding: "14px",
+  borderRadius: "12px",
+  border: "1px solid rgba(0,0,0,0.1)",
+  background: "var(--bg)",
+  color: "var(--text)",
+  fontSize: "0.95rem",
+  outline: "none",
+  appearance: "none", // 기본 화살표 숨기기 (커스텀 디자인 위해)
+  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+  backgroundRepeat: "no-repeat",
+  backgroundPosition: "right 12px center",
+  backgroundSize: "16px",
+};
+
 const formStyle = { display: "flex", flexDirection: "column" };
 
 export default AddWordModal;

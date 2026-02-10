@@ -268,3 +268,18 @@ body {
   background: var(--primary);
   border-radius: 3px;
 }
+
+.deck-action-btn {
+  background: none;
+  border: none;
+  color: var(--text);
+  opacity: 0.3;
+  cursor: pointer;
+  padding: 4px;
+  transition: opacity 0.2s;
+}
+
+.deck-action-btn:hover {
+  opacity: 1;
+  color: var(--primary);
+}

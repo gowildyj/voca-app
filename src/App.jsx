@@ -13,6 +13,7 @@ import StudySession from "./components/StudySession";
 import AddWordModal from "./components/AddWordModal";
 import { useWords } from "./hooks/useWords";
 import { Settings, Plus } from "lucide-react";
+import { motion } from "framer-motion";
 import "./styles/index.css";
 
 // 라우팅 기능을 사용하기 위해 별도의 컴포넌트로 분리
@@ -23,7 +24,14 @@ function AppContent() {
   const [selectedDeck, setSelectedDeck] = useState(null);
   const [studyWords, setStudyWords] = useState([]);
 
-  const { words, addWord, deleteWord, updateWordStatus } = useWords();
+  const {
+    words,
+    addWord,
+    deleteWord,
+    updateWordStatus,
+    deleteDeck,
+    renameDeck,
+  } = useWords();
 
   // 학습 시작 시 동작
   const handleStartStudy = (filteredList) => {
@@ -89,6 +97,8 @@ function AppContent() {
                 setSelectedDeck(null);
                 setIsModalOpen(true);
               }}
+              onDeleteDeck={deleteDeck}
+              onRenameDeck={renameDeck}
             />
           }
         />
@@ -105,12 +115,33 @@ function AppContent() {
                   onStartStudy={handleStartStudy}
                   onDeleteWord={deleteWord}
                 />
-                <button
+                <motion.button
                   onClick={() => setIsModalOpen(true)}
-                  className="floating-add-btn"
+                  whileHover={{ scale: 1.1 }} // 마우스 올리면 커지고
+                  whileTap={{ scale: 0.9 }} // 누를 때 쫀득하게 작아짐
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  style={{
+                    position: "fixed",
+                    bottom: "40px",
+                    right: "30px",
+                    width: "65px",
+                    height: "65px",
+                    borderRadius: "22px", // 완전 원형보다 살짝 각진 '스쿼클' 형태가 요즘 트렌드!
+                    background:
+                      "linear-gradient(135deg, var(--primary), #a29bfe)", // 은은한 그라데이션
+                    color: "white",
+                    border: "none",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 10px 25px -5px rgba(108, 92, 231, 0.4)", // 깊이감 있는 그림자
+                    zIndex: 100,
+                  }}
                 >
-                  <Plus size={30} />
-                </button>
+                  <Plus size={32} strokeWidth={2.5} />
+                </motion.button>
               </>
             ) : (
               <Navigate to="/" replace /> // 선택된 덱이 없으면 대시보드로 튕겨냄

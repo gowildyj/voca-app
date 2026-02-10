@@ -1,9 +1,18 @@
-import React, { useMemo } from "react"; // ✅ useMemo 추가됨
+import React, { useState, useMemo } from "react";
+import RenameDeckModal from "./RenameDeckModal";
 import { motion } from "framer-motion";
-import { Book, ChevronRight, PlusCircle } from "lucide-react";
+import { Book, ChevronRight, PlusCircle, Trash2, Edit3 } from "lucide-react";
 
-const Dashboard = ({ words, onSelectDeck, onAddDeck }) => {
-  // 단어 데이터를 덱별로 그룹화하고 통계 계산
+const Dashboard = ({
+  words,
+  onSelectDeck,
+  onAddDeck,
+  onDeleteDeck,
+  onRenameDeck,
+}) => {
+  const [isRenameOpen, setIsRenameOpen] = useState(false);
+  const [targetDeck, setTargetDeck] = useState("");
+
   const deckStats = useMemo(() => {
     if (!words) return [];
     const groups = words.reduce((acc, word) => {
@@ -29,7 +38,6 @@ const Dashboard = ({ words, onSelectDeck, onAddDeck }) => {
       </header>
 
       <div className="deck-grid">
-        {/* 새 덱 추가 카드 */}
         <motion.div
           className="deck-card add-card"
           whileHover={{ y: -5 }}
@@ -41,14 +49,46 @@ const Dashboard = ({ words, onSelectDeck, onAddDeck }) => {
           </span>
         </motion.div>
 
-        {/* 기존 덱 카드들 */}
         {deckStats.map((deck) => (
           <motion.div
             key={deck.name}
             className="deck-card"
             whileHover={{ y: -5 }}
+            style={{ position: "relative" }}
             onClick={() => onSelectDeck(deck.name)}
           >
+            {/* 버튼 그룹 */}
+            <div
+              style={{
+                position: "absolute",
+                top: "15px",
+                right: "15px",
+                display: "flex",
+                gap: "8px",
+                zIndex: 10, // 카드 클릭보다 우선순위 높임
+              }}
+            >
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // 카드 클릭 방지
+                  setTargetDeck(deck.name);
+                  setIsRenameOpen(true);
+                }}
+                className="deck-action-btn"
+              >
+                <Edit3 size={16} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // 카드 클릭 방지
+                  onDeleteDeck(deck.name);
+                }}
+                className="deck-action-btn"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+
             <div className="deck-info">
               <div className="deck-icon">
                 <Book size={20} />
@@ -76,6 +116,14 @@ const Dashboard = ({ words, onSelectDeck, onAddDeck }) => {
           </motion.div>
         ))}
       </div>
+
+      {/* ✅ 중요: 모달은 map 밖으로 꺼내서 딱 하나만 렌더링합니다! */}
+      <RenameDeckModal
+        isOpen={isRenameOpen}
+        oldName={targetDeck}
+        onClose={() => setIsRenameOpen(false)}
+        onRename={onRenameDeck}
+      />
     </div>
   );
 };

@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
 import WordList from "./components/WordList";
 import StudySession from "./components/StudySession";
-import { Settings } from "lucide-react";
+import AddWordModal from "./components/AddWordModal"; // 1. 모달 임포트
+import { useWords } from "./hooks/useWords"; // 2. 커스텀 훅 임포트
+import { Settings, Plus } from "lucide-react"; // Plus 아이콘 추가
 import "./index.css";
 
 function App() {
   const [theme, setTheme] = useState("modern");
   const [mode, setMode] = useState("list");
+  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 추가
 
+  // 3. 훅에서 데이터와 추가 함수 가져오기
+  const { words, addWord, deleteWord } = useWords();
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
@@ -22,14 +27,7 @@ function App() {
           gap: "10px",
         }}
       >
-        <div
-          style={{
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
-        >
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <Settings size={18} opacity={0.5} />
           <select
             value={theme}
@@ -40,7 +38,6 @@ function App() {
               fontSize: "0.85rem",
               fontWeight: "600",
               color: "var(--text)",
-              cursor: "pointer",
               outline: "none",
             }}
           >
@@ -53,12 +50,47 @@ function App() {
         </div>
       </nav>
 
-      {/* 화면 전환 로직 */}
+      {/* 4. 화면 전환 로직 - words 데이터를 자식들에게 넘겨줌 */}
       {mode === "list" ? (
-        <WordList onStartStudy={() => setMode("study")} />
+        <>
+          <WordList
+            words={words}
+            onStartStudy={() => setMode("study")}
+            onDeleteWord={deleteWord}
+          />
+          {/* 단어 추가 플로팅 버튼 */}
+          <button
+            onClick={() => setIsModalOpen(true)}
+            style={{
+              position: "fixed",
+              bottom: "30px",
+              right: "30px",
+              width: "60px",
+              height: "60px",
+              borderRadius: "50%",
+              backgroundColor: "var(--primary)",
+              color: "white",
+              border: "none",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Plus size={30} />
+          </button>
+        </>
       ) : (
-        <StudySession onFinish={() => setMode("list")} />
+        <StudySession words={words} onFinish={() => setMode("list")} />
       )}
+
+      {/* 5. 단어 추가 모달 연결 */}
+      <AddWordModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAdd={addWord}
+      />
     </div>
   );
 }

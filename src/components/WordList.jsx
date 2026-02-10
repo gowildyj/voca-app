@@ -1,9 +1,8 @@
 import React from "react";
-import wordData from "../data/words.json";
-import { Play, BookOpen, ChevronRight } from "lucide-react";
+import { Play, BookOpen, ChevronRight, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 
-const WordList = ({ onStartStudy }) => {
+const WordList = ({ words, onStartStudy, onDeleteWord }) => {
   return (
     <div className="word-list-page">
       <header style={{ padding: "40px 0 20px" }}>
@@ -45,7 +44,8 @@ const WordList = ({ onStartStudy }) => {
             오늘의 학습을 시작할까요?
           </h3>
           <p style={{ margin: "5px 0 0", opacity: 0.8, fontSize: "0.9rem" }}>
-            {wordData.length}개의 단어가 기다리고 있어요
+            {/* 이 부분을 words.length로 수정했습니다 */}
+            {words ? words.length : 0}개의 단어가 기다리고 있어요
           </p>
         </div>
         <div
@@ -60,46 +60,65 @@ const WordList = ({ onStartStudy }) => {
       </motion.div>
 
       <div className="list-container">
-        {wordData.map((item, index) => (
-          <motion.div
-            key={item.id}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.1 }}
-            style={{
-              backgroundColor: "var(--card)",
-              marginBottom: "12px",
-              padding: "18px 20px",
-              borderRadius: "16px",
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-              boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)",
-            }}
-          >
-            <div
+        {/* 만약 words가 배열일 때만 맵을 돌리도록 안전장치를 추가하는 것이 좋습니다 */}
+        {words &&
+          words.map((item, index) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
               style={{
-                backgroundColor: "var(--bg)",
-                padding: "10px",
-                borderRadius: "12px",
-                color: "var(--primary)",
+                backgroundColor: "var(--card)",
+                marginBottom: "12px",
+                padding: "18px 20px",
+                borderRadius: "16px",
+                display: "flex",
+                alignItems: "center",
+                gap: "16px",
+                boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)",
               }}
             >
-              <BookOpen size={20} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: "700", fontSize: "1.1rem" }}>
-                {item.word}
-              </div>
               <div
-                style={{ fontSize: "0.9rem", opacity: 0.6, marginTop: "2px" }}
+                style={{
+                  backgroundColor: "var(--bg)",
+                  padding: "10px",
+                  borderRadius: "12px",
+                  color: "var(--primary)",
+                }}
               >
-                {item.meaning}
+                <BookOpen size={20} />
               </div>
-            </div>
-            <ChevronRight size={18} opacity={0.3} />
-          </motion.div>
-        ))}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: "700", fontSize: "1.1rem" }}>
+                  {item.word}
+                </div>
+                <div
+                  style={{ fontSize: "0.9rem", opacity: 0.6, marginTop: "2px" }}
+                >
+                  {item.meaning}
+                </div>
+              </div>
+              <button
+                onClick={() => onDeleteWord(item.id)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#ef4444", // 빨간색
+                  cursor: "pointer",
+                  padding: "8px",
+                  opacity: 0.5,
+                  transition: "opacity 0.2s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.5")}
+              >
+                <Trash2 size={18} />
+              </button>
+
+              <ChevronRight size={18} opacity={0.1} />
+            </motion.div>
+          ))}
       </div>
     </div>
   );

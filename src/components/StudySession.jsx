@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-// 기본 데이터를 wordData로 가져오지만, 상태로 관리해서 변경 가능하게 만듭니다.
-import defaultWordData from "../data/words.json";
 import StudyCard from "./StudyCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, RotateCcw, XCircle, CheckCircle } from "lucide-react";
 
-const StudySession = ({ onFinish }) => {
+const StudySession = ({ words, onFinish }) => {
   // 현재 학습 중인 단어 목록을 상태로 관리 (처음엔 전체 데이터)
-  const [currentWords, setCurrentWords] = useState(defaultWordData);
+  const [currentWords, setCurrentWords] = useState(words);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [unknownWords, setUnknownWords] = useState([]);
 

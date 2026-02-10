@@ -11,5 +11,7 @@
     "word": "Journey",
     "meaning": "여정/여행",
     "example": "Enjoy your journey."
-  }
+  },
+  { "word": "hola", "meaning": "안녕", "example": "", "id": 1770726325362 },
+  { "word": "frog", "meaning": "개구리", "example": "", "id": 1770726423245 }
 ]

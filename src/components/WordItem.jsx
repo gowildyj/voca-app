@@ -3,6 +3,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { BookOpen, ChevronRight, Trash2 } from "lucide-react";
 import IconButton from "./common/IconButton";
+import { Volume2 } from "lucide-react";
+import { speak } from "../utils/tts";
 
 const WordItem = ({ item, index, onDelete }) => {
   return (
@@ -17,7 +19,25 @@ const WordItem = ({ item, index, onDelete }) => {
       </div>
 
       <div className="word-item-content">
-        <div className="word-text">{item.word}</div>
+        <div className="word-text">
+          {item.word}
+          {/* ✅ 스피커 아이콘 버튼 */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              speak(item.word, item.deck);
+            }}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--primary)",
+              opacity: 0.6,
+            }}
+          >
+            <Volume2 size={18} />
+          </button>
+        </div>
         <div className="word-meaning">{item.meaning}</div>
       </div>
 

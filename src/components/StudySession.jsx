@@ -1,37 +1,68 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { speak } from "../utils/tts";
 import StudyCard from "./StudyCard";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, RotateCcw, XCircle, CheckCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  RotateCcw,
+  XCircle,
+  CheckCircle,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 
 const StudySession = ({ words, onFinish, onUpdateStatus }) => {
   const [currentWords, setCurrentWords] = useState(words);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [unknownWords, setUnknownWords] = useState([]);
+  const [autoPlay, setAutoPlay] = useState(true);
+  const lastPlayedIndex = useRef(-1);
 
   const isFinished = currentIndex >= currentWords.length;
+  const currentWord = currentWords[currentIndex];
+
+  // ✅ 음성 자동 재생 로직 (안정성을 위해 50ms 지연)
+  useEffect(() => {
+    // 1. 단어가 있고, 자동재생이 켜져 있고, 아직 종료 전일 때
+    // 2. ✅ 핵심: 마지막으로 소리 낸 인덱스가 현재 인덱스와 다를 때만 실행
+    if (
+      currentWord &&
+      autoPlay &&
+      !isFinished &&
+      lastPlayedIndex.current !== currentIndex
+    ) {
+      const timer = setTimeout(() => {
+        speak(currentWord.word, currentWord.deck);
+        // 소리를 냈다면 현재 인덱스를 기록
+        lastPlayedIndex.current = currentIndex;
+      }, 50);
+
+      return () => clearTimeout(timer);
+    }
+  }, [currentIndex, currentWord, autoPlay, isFinished]);
 
   const handleSwipe = (direction) => {
-    const currentWord = currentWords[currentIndex];
+    if (isFinished) return;
+    const wordToUpdate = currentWords[currentIndex];
 
     if (direction === "left") {
-      // 왼쪽 스와이프: 모르는 단어
-      setUnknownWords([...unknownWords, currentWord]);
-      onUpdateStatus(currentWord.id, "unknown");
+      setUnknownWords((prev) => [...prev, wordToUpdate]);
+      onUpdateStatus(wordToUpdate.id, "unknown");
     } else {
-      // 오른쪽 스와이프: 아는 단어
-      onUpdateStatus(currentWord.id, "know");
+      onUpdateStatus(wordToUpdate.id, "know");
     }
 
-    setCurrentIndex(currentIndex + 1);
+    setCurrentIndex((prev) => prev + 1);
   };
 
   const handleReviewUnknown = () => {
+    lastPlayedIndex.current = -1;
     setCurrentWords(unknownWords);
     setCurrentIndex(0);
     setUnknownWords([]);
   };
 
-  // ✅ 여기가 에러가 났던 지점입니다. 함수 블록 내부여야 합니다.
+  // ✅ 학습 완료 화면 (중략 없이 전체 포함)
   if (isFinished) {
     return (
       <motion.div
@@ -39,16 +70,19 @@ const StudySession = ({ words, onFinish, onUpdateStatus }) => {
         animate={{ opacity: 1 }}
         style={{ textAlign: "center", padding: "40px 20px" }}
       >
-        <h2 style={{ fontSize: "2rem" }}>학습 완료! 🎉</h2>
+        <h2 style={{ fontSize: "2rem", fontWeight: "800" }}>학습 완료! 🎉</h2>
         <div
           style={{
             margin: "30px 0",
-            padding: "20px",
+            padding: "24px",
             backgroundColor: "var(--card)",
-            borderRadius: "20px",
+            borderRadius: "24px",
+            boxShadow: "0 10px 20px rgba(0,0,0,0.05)",
           }}
         >
-          <p>전체 단어: {currentWords.length}</p>
+          <p style={{ marginBottom: "10px" }}>
+            전체 단어: <strong>{currentWords.length}</strong>
+          </p>
           <p style={{ color: "#ef4444", fontWeight: "bold" }}>
             모르는 단어: {unknownWords.length}
           </p>
@@ -60,8 +94,8 @@ const StudySession = ({ words, onFinish, onUpdateStatus }) => {
               onClick={handleReviewUnknown}
               style={{
                 width: "100%",
-                padding: "16px",
-                borderRadius: "16px",
+                padding: "18px",
+                borderRadius: "18px",
                 backgroundColor: "var(--text)",
                 color: "var(--bg)",
                 border: "none",
@@ -81,8 +115,8 @@ const StudySession = ({ words, onFinish, onUpdateStatus }) => {
             onClick={onFinish}
             style={{
               width: "100%",
-              padding: "16px",
-              borderRadius: "16px",
+              padding: "18px",
+              borderRadius: "18px",
               backgroundColor: "var(--primary)",
               color: "white",
               border: "none",
@@ -97,10 +131,16 @@ const StudySession = ({ words, onFinish, onUpdateStatus }) => {
     );
   }
 
+  // ✅ 학습 진행 화면 (안전 장치 추가)
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "20px", maxWidth: "500px", margin: "0 auto" }}>
       <header
-        style={{ display: "flex", alignItems: "center", marginBottom: "40px" }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "40px",
+        }}
       >
         <button
           onClick={onFinish}
@@ -113,36 +153,63 @@ const StudySession = ({ words, onFinish, onUpdateStatus }) => {
         >
           <ArrowLeft size={24} />
         </button>
-        <div style={{ flex: 1, textAlign: "center", fontWeight: "700" }}>
+
+        <div style={{ fontWeight: "800", fontSize: "1.1rem" }}>
           {currentIndex + 1} / {currentWords.length}
         </div>
+
+        <button
+          onClick={() => setAutoPlay(!autoPlay)}
+          style={{
+            background: autoPlay ? "rgba(108, 92, 231, 0.1)" : "#eee",
+            border: "none",
+            padding: "8px",
+            borderRadius: "12px",
+            color: autoPlay ? "var(--primary)" : "#999",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+          }}
+        >
+          {autoPlay ? <Volume2 size={20} /> : <VolumeX size={20} />}
+        </button>
       </header>
 
       <AnimatePresence mode="wait">
-        <StudyCard
-          key={currentWords[currentIndex].id}
-          word={currentWords[currentIndex]}
-          onSwipe={handleSwipe}
-        />
+        {/* currentWord가 존재할 때만 StudyCard를 렌더링하도록 방어 */}
+        {currentWord && (
+          <StudyCard
+            key={currentWord.id}
+            word={currentWord}
+            onSwipe={handleSwipe}
+          />
+        )}
       </AnimatePresence>
 
       <div
         style={{
-          marginTop: "50px",
+          marginTop: "60px",
           display: "flex",
           justifyContent: "center",
           gap: "40px",
-          opacity: 0.4,
+          opacity: 0.3,
         }}
       >
         <div style={{ textAlign: "center" }}>
           <XCircle size={32} />
-          <div style={{ fontSize: "0.8rem", marginTop: "5px" }}>모름 (좌)</div>
+          <div
+            style={{ fontSize: "0.75rem", marginTop: "8px", fontWeight: "600" }}
+          >
+            모름 (좌)
+          </div>
         </div>
         <div style={{ textAlign: "center" }}>
           <CheckCircle size={32} />
-          <div style={{ fontSize: "0.8rem", marginTop: "5px" }}>
-            아는 단어 (우)
+          <div
+            style={{ fontSize: "0.75rem", marginTop: "8px", fontWeight: "600" }}
+          >
+            알음 (우)
           </div>
         </div>
       </div>

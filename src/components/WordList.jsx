@@ -80,6 +80,7 @@ const WordList = ({ words, onStartStudy, onDeleteWord, onBack }) => {
         >
           <ArrowLeft size={24} />
         </button>
+
         <div>
           <span className="header-label">MY VOCABULARY</span>
           <h1 style={{ fontSize: "1.8rem", margin: "0", fontWeight: "800" }}>

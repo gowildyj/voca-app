@@ -43,8 +43,33 @@ function AppContent() {
     navigate("/study"); // URL 이동
   };
 
+  const handleSelectDeck = (deckName) => {
+    // ✅ 크롬 잠금 해제의 핵심: 실제 음성 엔진을 한 번 '시동' 겁니다.
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel(); // 초기화
+      const initialUtter = new SpeechSynthesisUtterance(" "); // 공백 한 글자
+      initialUtter.volume = 0; // 무음 처리
+      window.speechSynthesis.speak(initialUtter);
+
+      // 크롬에서 오디오 컨텍스트를 강제로 resume 시킴
+      if (window.speechSynthesis.resume) {
+        window.speechSynthesis.resume();
+      }
+    }
+
+    setSelectedDeck(deckName);
+    navigate("/list");
+  };
+
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      // 크롬/사파리에서 음성 목록을 로드하기 위한 초기화
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
   }, [theme]);
 
   return (
@@ -89,10 +114,7 @@ function AppContent() {
           element={
             <Dashboard
               words={words}
-              onSelectDeck={(deckName) => {
-                setSelectedDeck(deckName);
-                navigate("/list"); // 리스트 페이지로 이동
-              }}
+              onSelectDeck={handleSelectDeck}
               onAddDeck={() => {
                 setSelectedDeck(null);
                 setIsModalOpen(true);

@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { RotateCw, CheckCircle, XCircle } from "lucide-react";
+import { motion } from "framer-motion";
+import { RotateCw, Volume2 } from "lucide-react";
+import { speak } from "../utils/tts";
 
 const StudyCard = ({ word, onSwipe }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
-  // 카드를 던지는 로직
+  // 데이터가 없을 경우 에러 방지
+  if (!word) return null;
+
   const handleDragEnd = (event, info) => {
     if (info.offset.x > 100) {
       onSwipe("right"); // 아는 단어
@@ -67,9 +70,34 @@ const StudyCard = ({ word, onSwipe }) => {
               alignItems: "center",
               boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
               border: "2px solid var(--bg)",
+              overflow: "hidden",
             }}
           >
-            <h2 style={{ fontSize: "3rem", margin: 0 }}>{word.word}</h2>
+            {/* ✅ 스피커 아이콘: 우측 상단 배치 */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); // 카드 뒤집기 이벤트 전파 차단
+                speak(word.word, word.deck);
+              }}
+              style={{
+                position: "absolute",
+                top: "20px",
+                right: "20px",
+                background: "rgba(108, 92, 231, 0.1)",
+                border: "none",
+                borderRadius: "12px",
+                padding: "10px",
+                color: "var(--primary)",
+                cursor: "pointer",
+                zIndex: 10,
+              }}
+            >
+              <Volume2 size={20} />
+            </button>
+
+            <h2 style={{ fontSize: "3rem", margin: 0, fontWeight: "800" }}>
+              {word?.word}
+            </h2>
             <div
               style={{
                 marginTop: "20px",
@@ -101,39 +129,17 @@ const StudyCard = ({ word, onSwipe }) => {
               alignItems: "center",
               transform: "rotateY(180deg)",
               boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+              padding: "20px",
+              textAlign: "center",
             }}
           >
-            <h2 style={{ fontSize: "2.5rem", margin: 0 }}>{word.meaning}</h2>
+            <h2 style={{ fontSize: "2.5rem", margin: 0 }}>{word?.meaning}</h2>
             <p style={{ marginTop: "15px", opacity: 0.9, fontSize: "1.1rem" }}>
-              {word.example}
+              {word?.example}
             </p>
           </div>
         </motion.div>
       </motion.div>
-
-      {/* 가이드 아이콘 (드래그 시 살짝 보이면 좋음) */}
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "-60px",
-          color: "#ef4444",
-          opacity: 0.2,
-        }}
-      >
-        <XCircle size={48} />
-      </div>
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          right: "-60px",
-          color: "#10b981",
-          opacity: 0.2,
-        }}
-      >
-        <CheckCircle size={48} />
-      </div>
     </div>
   );
 };

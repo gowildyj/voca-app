@@ -1,0 +1,15 @@
+[
+  { "id": 1, "word": "Apple", "meaning": "사과", "example": "I eat an apple." },
+  {
+    "id": 2,
+    "word": "Developer",
+    "meaning": "개발자",
+    "example": "I am a web developer."
+  },
+  {
+    "id": 3,
+    "word": "Journey",
+    "meaning": "여정/여행",
+    "example": "Enjoy your journey."
+  }
+]

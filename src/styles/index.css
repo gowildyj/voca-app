@@ -1,0 +1,61 @@
+/* src/index.css */
+:root {
+  --bg: #ffffff;
+  --text: #000000;
+  --primary: #3b82f6;
+  --card: #f3f4f6;
+}
+
+[data-theme="modern"] {
+  --bg: #f8fafc;
+  --text: #1e293b;
+  --primary: #0f172a;
+  --card: #ffffff;
+}
+[data-theme="bw"] {
+  --bg: #ffffff;
+  --text: #000000;
+  --primary: #000000;
+  --card: #eeeeee;
+}
+[data-theme="pastel"] {
+  --bg: #fffcf2;
+  --text: #403d39;
+  --primary: #eb5e28;
+  --card: #fffcf2;
+}
+[data-theme="pink"] {
+  --bg: #fff1f2;
+  --text: #881337;
+  --primary: #fb7185;
+  --card: #ffffff;
+}
+[data-theme="blue"] {
+  --bg: #eff6ff;
+  --text: #1e3a8a;
+  --primary: #3b82f6;
+  --card: #ffffff;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  transition: all 0.3s ease; /* 테마 전환 시 부드럽게 */
+}
+
+/* src/index.css 추가 */
+.App {
+  width: 100%;
+  max-width: 600px; /* PC에서도 모바일 앱 같은 느낌을 유지하려면 600px 내외가 적당합니다 */
+  margin: 0 auto; /* 가운데 정렬 */
+  min-height: 100vh;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+/* 만약 PC에서는 넓게 보고 싶다면 미디어 쿼리 활용 */
+@media (min-width: 1024px) {
+  .App {
+    max-width: 1000px; /* PC 버전은 좀 더 넓게 */
+  }
+}

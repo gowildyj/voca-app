@@ -1,17 +1,107 @@
 [
-  { "id": 1, "word": "Apple", "meaning": "사과", "example": "I eat an apple." },
+  {
+    "id": 1,
+    "word": "Bonjour",
+    "meaning": "안녕하세요",
+    "deck": "프랑스어",
+    "status": "none"
+  },
   {
     "id": 2,
-    "word": "Developer",
-    "meaning": "개발자",
-    "example": "I am a web developer."
+    "word": "Merci",
+    "meaning": "감사합니다",
+    "deck": "프랑스어",
+    "status": "none"
   },
   {
     "id": 3,
-    "word": "Journey",
-    "meaning": "여정/여행",
-    "example": "Enjoy your journey."
+    "word": "Pain",
+    "meaning": "빵",
+    "deck": "프랑스어",
+    "status": "none"
   },
-  { "word": "hola", "meaning": "안녕", "example": "", "id": 1770726325362 },
-  { "word": "frog", "meaning": "개구리", "example": "", "id": 1770726423245 }
+  {
+    "id": 4,
+    "word": "Amour",
+    "meaning": "사랑",
+    "deck": "프랑스어",
+    "status": "none"
+  },
+  {
+    "id": 5,
+    "word": "Étoile",
+    "meaning": "별",
+    "deck": "프랑스어",
+    "status": "none"
+  },
+  {
+    "id": 101,
+    "word": "Abundant",
+    "meaning": "풍부한",
+    "deck": "영어",
+    "status": "none"
+  },
+  {
+    "id": 102,
+    "word": "Challenge",
+    "meaning": "도전",
+    "deck": "영어",
+    "status": "none"
+  },
+  {
+    "id": 103,
+    "word": "Discover",
+    "meaning": "발견하다",
+    "deck": "영어",
+    "status": "none"
+  },
+  {
+    "id": 104,
+    "word": "Efficient",
+    "meaning": "효율적인",
+    "deck": "영어",
+    "status": "none"
+  },
+  {
+    "id": 105,
+    "word": "Genuine",
+    "meaning": "진실된",
+    "deck": "영어",
+    "status": "none"
+  },
+  {
+    "id": 201,
+    "word": "Hola",
+    "meaning": "안녕",
+    "deck": "스페인어",
+    "status": "none"
+  },
+  {
+    "id": 202,
+    "word": "Gracias",
+    "meaning": "고마워",
+    "deck": "스페인어",
+    "status": "none"
+  },
+  {
+    "id": 203,
+    "word": "Mañana",
+    "meaning": "내일 / 아침",
+    "deck": "스페인어",
+    "status": "none"
+  },
+  {
+    "id": 204,
+    "word": "Corazón",
+    "meaning": "심장 / 마음",
+    "deck": "스페인어",
+    "status": "none"
+  },
+  {
+    "id": 205,
+    "word": "Felicidad",
+    "meaning": "행복",
+    "deck": "스페인어",
+    "status": "none"
+  }
 ]

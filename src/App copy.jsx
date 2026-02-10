@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
-import Dashboard from "./components/Dashboard";
 import WordList from "./components/WordList";
 import StudySession from "./components/StudySession";
-import AddWordModal from "./components/AddWordModal";
-import { useWords } from "./hooks/useWords";
-import { Settings, Plus } from "lucide-react";
+import AddWordModal from "./components/AddWordModal"; // 1. 모달 임포트
+import { useWords } from "./hooks/useWords"; // 2. 커스텀 훅 임포트
+import { Settings, Plus } from "lucide-react"; // Plus 아이콘 추가
 import "./styles/index.css";
 
 function App() {
   const [theme, setTheme] = useState("modern");
-  const [mode, setMode] = useState("dashboard");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDeck, setSelectedDeck] = useState(null);
+  const [mode, setMode] = useState("list");
+  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 추가
+
   const [studyWords, setStudyWords] = useState([]);
 
+  // 3. 훅에서 데이터와 추가 함수 가져오기
   const { words, addWord, deleteWord, updateWordStatus } = useWords();
 
   const handleStartStudy = (filteredList) => {
@@ -21,8 +21,8 @@ function App() {
       alert("학습할 단어가 없습니다!");
       return;
     }
-    setStudyWords(filteredList);
-    setMode("study");
+    setStudyWords(filteredList); // 필터링된 단어들만 저장
+    setMode("study"); // 학습 모드로 전환
   };
 
   useEffect(() => {
@@ -62,32 +62,33 @@ function App() {
         </div>
       </nav>
 
-      {mode === "dashboard" ? (
-        <Dashboard
-          words={words}
-          onSelectDeck={(deckName) => {
-            setSelectedDeck(deckName);
-            setMode("list");
-          }}
-          onAddDeck={() => {
-            setSelectedDeck(null); // 새 덱을 만들 때는 덱 선택 초기화
-            setIsModalOpen(true);
-          }}
-        />
-      ) : mode === "list" ? (
+      {/* 4. 화면 전환 로직 - words 데이터를 자식들에게 넘겨줌 */}
+      {mode === "list" ? (
         <>
           <WordList
-            // 선택된 덱의 단어만 보여줌
-            words={words.filter((w) =>
-              selectedDeck ? w.deck === selectedDeck : true,
-            )}
-            onBack={() => setMode("dashboard")}
+            words={words}
             onStartStudy={handleStartStudy}
             onDeleteWord={deleteWord}
           />
+          {/* 단어 추가 플로팅 버튼 */}
           <button
             onClick={() => setIsModalOpen(true)}
-            className="floating-add-btn"
+            style={{
+              position: "fixed",
+              bottom: "30px",
+              right: "30px",
+              width: "60px",
+              height: "60px",
+              borderRadius: "50%",
+              backgroundColor: "var(--primary)",
+              color: "white",
+              border: "none",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
             <Plus size={30} />
           </button>
@@ -100,11 +101,11 @@ function App() {
         />
       )}
 
+      {/* 5. 단어 추가 모달 연결 */}
       <AddWordModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAdd={addWord}
-        defaultDeck={selectedDeck} // 현재 보고 있는 덱 정보를 모달에 전달
       />
     </div>
   );

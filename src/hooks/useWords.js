@@ -36,5 +36,16 @@ export const useWords = () => {
     }
   };
 
-  return { words, addWord, deleteWord };
+  // 단어 상태 업데이트 (아는단어, 모르는단어)
+  const updateWordStatus = (id, newStatus) => {
+    setWords((prevWords) => {
+      const updated = prevWords.map((word) =>
+        word.id === id ? { ...word, status: newStatus } : word,
+      );
+      localStorage.setItem("my-voca-words", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  return { words, addWord, deleteWord, updateWordStatus };
 };

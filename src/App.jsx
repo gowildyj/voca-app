@@ -4,15 +4,27 @@ import StudySession from "./components/StudySession";
 import AddWordModal from "./components/AddWordModal"; // 1. 모달 임포트
 import { useWords } from "./hooks/useWords"; // 2. 커스텀 훅 임포트
 import { Settings, Plus } from "lucide-react"; // Plus 아이콘 추가
-import "./index.css";
+import "./styles/index.css";
 
 function App() {
   const [theme, setTheme] = useState("modern");
   const [mode, setMode] = useState("list");
   const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 추가
 
+  const [studyWords, setStudyWords] = useState([]);
+
   // 3. 훅에서 데이터와 추가 함수 가져오기
-  const { words, addWord, deleteWord } = useWords();
+  const { words, addWord, deleteWord, updateWordStatus } = useWords();
+
+  const handleStartStudy = (filteredList) => {
+    if (filteredList.length === 0) {
+      alert("학습할 단어가 없습니다!");
+      return;
+    }
+    setStudyWords(filteredList); // 필터링된 단어들만 저장
+    setMode("study"); // 학습 모드로 전환
+  };
+
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
@@ -55,7 +67,7 @@ function App() {
         <>
           <WordList
             words={words}
-            onStartStudy={() => setMode("study")}
+            onStartStudy={handleStartStudy}
             onDeleteWord={deleteWord}
           />
           {/* 단어 추가 플로팅 버튼 */}
@@ -82,7 +94,11 @@ function App() {
           </button>
         </>
       ) : (
-        <StudySession words={words} onFinish={() => setMode("list")} />
+        <StudySession
+          words={studyWords}
+          onFinish={() => setMode("list")}
+          onUpdateStatus={updateWordStatus}
+        />
       )}
 
       {/* 5. 단어 추가 모달 연결 */}

@@ -1,61 +1,180 @@
-/* src/index.css */
+/* 1. 글로벌 폰트 및 리셋 */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");
+
 :root {
-  --bg: #ffffff;
-  --text: #000000;
-  --primary: #3b82f6;
-  --card: #f3f4f6;
+  --bg: #f8fafc;
+  --text: #1e293b;
+  --primary: #0f172a;
+  --card: #ffffff;
+  --accent: #6366f1; /* 반드시 필요! */
 }
 
+/* 2. 테마 설정 */
 [data-theme="modern"] {
   --bg: #f8fafc;
   --text: #1e293b;
   --primary: #0f172a;
   --card: #ffffff;
+  --accent: #6366f1;
 }
 [data-theme="bw"] {
   --bg: #ffffff;
   --text: #000000;
   --primary: #000000;
-  --card: #eeeeee;
+  --card: #f1f1f1;
+  --accent: #555555;
 }
 [data-theme="pastel"] {
   --bg: #fffcf2;
   --text: #403d39;
   --primary: #eb5e28;
   --card: #fffcf2;
+  --accent: #ffb085;
 }
 [data-theme="pink"] {
   --bg: #fff1f2;
   --text: #881337;
   --primary: #fb7185;
   --card: #ffffff;
+  --accent: #fda4af;
 }
 [data-theme="blue"] {
   --bg: #eff6ff;
   --text: #1e3a8a;
   --primary: #3b82f6;
   --card: #ffffff;
+  --accent: #93c5fd;
 }
 
+/* 3. 기본 레이아웃 */
 body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
   background-color: var(--bg);
   color: var(--text);
-  transition: all 0.3s ease; /* 테마 전환 시 부드럽게 */
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
-/* src/index.css 추가 */
 .App {
   width: 100%;
-  max-width: 600px; /* PC에서도 모바일 앱 같은 느낌을 유지하려면 600px 내외가 적당합니다 */
-  margin: 0 auto; /* 가운데 정렬 */
+  max-width: 600px;
+  margin: 0 auto;
   min-height: 100vh;
-  padding: 0 16px;
+  padding: 0 20px;
   box-sizing: border-box;
 }
 
-/* 만약 PC에서는 넓게 보고 싶다면 미디어 쿼리 활용 */
 @media (min-width: 1024px) {
   .App {
-    max-width: 1000px; /* PC 버전은 좀 더 넓게 */
+    max-width: 800px;
   }
+}
+
+/* 4. 단어 목록 페이지 스타일 */
+.word-list-page header {
+  padding: 40px 0 24px;
+}
+
+.header-label {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  display: block;
+}
+
+/* 학습 시작 카드 */
+.study-start-card {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  padding: 24px;
+  border-radius: 24px;
+  color: white;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.study-start-card:active {
+  transform: scale(0.98);
+}
+
+/* 5. 개별 단어 카드 (WordItem) */
+.word-item-card {
+  background-color: var(--card);
+  margin-bottom: 12px;
+  padding: 16px 20px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.word-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.word-item-icon {
+  background-color: var(--bg);
+  padding: 10px;
+  border-radius: 14px;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.word-item-content {
+  flex: 1;
+}
+
+.word-text {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.word-meaning {
+  font-size: 0.9rem;
+  opacity: 0.6;
+  margin-top: 2px;
+  color: var(--text);
+}
+
+/* 6. 공통 버튼 스타일 */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  opacity: 0.4;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-button:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+.chevron-icon {
+  opacity: 0.2;
+  color: var(--text);
+}
+
+/* 모달 및 기타 UI를 위한 box-sizing 전역 설정 */
+* {
+  box-sizing: border-box;
 }

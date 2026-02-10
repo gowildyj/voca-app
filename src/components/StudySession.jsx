@@ -3,8 +3,7 @@ import StudyCard from "./StudyCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, RotateCcw, XCircle, CheckCircle } from "lucide-react";
 
-const StudySession = ({ words, onFinish }) => {
-  // 현재 학습 중인 단어 목록을 상태로 관리 (처음엔 전체 데이터)
+const StudySession = ({ words, onFinish, onUpdateStatus }) => {
   const [currentWords, setCurrentWords] = useState(words);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [unknownWords, setUnknownWords] = useState([]);
@@ -12,19 +11,27 @@ const StudySession = ({ words, onFinish }) => {
   const isFinished = currentIndex >= currentWords.length;
 
   const handleSwipe = (direction) => {
+    const currentWord = currentWords[currentIndex];
+
     if (direction === "left") {
-      setUnknownWords([...unknownWords, currentWords[currentIndex]]);
+      // 왼쪽 스와이프: 모르는 단어
+      setUnknownWords([...unknownWords, currentWord]);
+      onUpdateStatus(currentWord.id, "unknown");
+    } else {
+      // 오른쪽 스와이프: 아는 단어
+      onUpdateStatus(currentWord.id, "know");
     }
+
     setCurrentIndex(currentIndex + 1);
   };
 
-  // [추가] 모르는 단어만 다시 하기 함수
   const handleReviewUnknown = () => {
-    setCurrentWords(unknownWords); // 학습 대상을 모르는 단어로 변경
-    setCurrentIndex(0); // 인덱스 초기화
-    setUnknownWords([]); // 모르는 단어 보관함 비우기
+    setCurrentWords(unknownWords);
+    setCurrentIndex(0);
+    setUnknownWords([]);
   };
 
+  // ✅ 여기가 에러가 났던 지점입니다. 함수 블록 내부여야 합니다.
   if (isFinished) {
     return (
       <motion.div
@@ -48,7 +55,6 @@ const StudySession = ({ words, onFinish }) => {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          {/* 모르는 단어가 있을 때만 이 버튼을 보여줍니다 */}
           {unknownWords.length > 0 && (
             <button
               onClick={handleReviewUnknown}

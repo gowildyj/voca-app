@@ -1,26 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Play } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import WordItem from "./WordItem";
 
 const WordList = ({ words, onStartStudy, onDeleteWord }) => {
-  // 1. 현재 선택된 필터 상태 (all, none, unknown, know)
   const [filter, setFilter] = useState("all");
+  const [sortType, setSortType] = useState("default");
+  const [shuffleSeed, setShuffleSeed] = useState(0);
 
-  // 2. 필터링 로직
-  const filteredWords = words.filter((word) => {
-    if (filter === "all") return true;
-    if (filter === "none") return !word.status || word.status === "none";
-    return word.status === filter;
-  });
-
-  // 필터 버튼 데이터
+  // 1. 필터 버튼 데이터
   const filters = [
     { id: "all", label: "전체" },
     { id: "none", label: "미학습" },
     { id: "unknown", label: "모름" },
     { id: "know", label: "아는단어" },
   ];
+
+  // 2. 필터링 로직 (useMemo)
+  const filteredWords = useMemo(() => {
+    return words.filter((word) => {
+      if (filter === "all") return true;
+      if (filter === "none") return !word.status || word.status === "none";
+      return word.status === filter;
+    });
+  }, [words, filter]);
+
+  // 3. 정렬 및 셔플 로직 (useMemo로 통합)
+  // useMemo 외부의 불필요한 getSortedWords 함수는 제거했습니다.
+  const finalWords = useMemo(() => {
+    const newList = [...filteredWords];
+
+    if (sortType === "alpha") {
+      return newList.sort((a, b) => a.word.localeCompare(b.word));
+    } else if (sortType === "shuffle") {
+      for (let i = newList.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newList[i], newList[j]] = [newList[j], newList[i]];
+      }
+      return newList;
+    }
+    return newList; // 'default'
+  }, [filteredWords, sortType, shuffleSeed]);
+
+  const handleSortChange = (e) => {
+    const nextSort = e.target.value;
+    setSortType(nextSort);
+    if (nextSort === "shuffle") setShuffleSeed(Math.random());
+  };
 
   return (
     <div className="word-list-page">
@@ -36,7 +62,7 @@ const WordList = ({ words, onStartStudy, onDeleteWord }) => {
         className="study-start-card"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        onClick={() => onStartStudy(filteredWords)}
+        onClick={() => onStartStudy(finalWords)}
       >
         <div>
           <h3 style={{ margin: 0, fontSize: "1.2rem" }}>
@@ -46,7 +72,7 @@ const WordList = ({ words, onStartStudy, onDeleteWord }) => {
             시작
           </h3>
           <p style={{ margin: "5px 0 0", opacity: 0.8, fontSize: "0.9rem" }}>
-            {filteredWords.length}개의 단어가 기다리고 있어요
+            {finalWords.length}개의 단어가 기다리고 있어요
           </p>
         </div>
         <div
@@ -61,7 +87,7 @@ const WordList = ({ words, onStartStudy, onDeleteWord }) => {
         </div>
       </motion.div>
 
-      {/* 3. 필터 탭 UI 추가 */}
+      {/* 필터 탭 UI */}
       <div
         style={{
           display: "flex",
@@ -69,8 +95,6 @@ const WordList = ({ words, onStartStudy, onDeleteWord }) => {
           marginBottom: "20px",
           overflowX: "auto",
           paddingBottom: "8px",
-          msOverflowStyle: "none",
-          scrollbarWidth: "none",
         }}
       >
         {filters.map((f) => (
@@ -85,12 +109,7 @@ const WordList = ({ words, onStartStudy, onDeleteWord }) => {
                 filter === f.id ? "var(--primary)" : "var(--card)",
               color: filter === f.id ? "white" : "var(--text)",
               fontWeight: "600",
-              fontSize: "0.9rem",
-              whiteSpace: "nowrap",
               cursor: "pointer",
-              transition: "all 0.2s",
-              boxShadow:
-                filter === f.id ? "0 4px 12px rgba(0,0,0,0.1)" : "none",
             }}
           >
             {f.label}
@@ -98,11 +117,56 @@ const WordList = ({ words, onStartStudy, onDeleteWord }) => {
         ))}
       </div>
 
-      {/* 4. 필터링된 목록 표시 */}
+      {/* 정렬 옵션 UI */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          gap: "10px",
+          marginBottom: "15px",
+        }}
+      >
+        {sortType === "shuffle" && (
+          <button
+            onClick={() => setShuffleSeed(Math.random())}
+            style={{
+              border: "none",
+              background: "none",
+              color: "var(--primary)",
+              fontSize: "0.75rem",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            새로 섞기 🔄
+          </button>
+        )}
+
+        <select
+          value={sortType}
+          onChange={handleSortChange}
+          style={{
+            padding: "5px 10px",
+            borderRadius: "8px",
+            border: "1px solid var(--card)",
+            backgroundColor: "transparent",
+            color: "var(--text)",
+            fontSize: "0.8rem",
+            fontWeight: "600",
+          }}
+        >
+          <option value="default">등록순</option>
+          <option value="alpha">알파벳순</option>
+          <option value="shuffle">무작위 셔플</option>
+        </select>
+      </div>
+
+      {/* 필터링 및 정렬된 목록 표시 */}
       <div className="list-container">
         <AnimatePresence mode="popLayout">
-          {filteredWords.length > 0 ? (
-            filteredWords.map((item, index) => (
+          {finalWords.length > 0 ? (
+            finalWords.map((item, index) => (
               <WordItem
                 key={item.id}
                 item={item}

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// 1. react-router-dom 관련 컴포넌트 임포트
 import {
   HashRouter as Router,
   Routes,
@@ -16,88 +15,95 @@ import { Settings, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import "./styles/index.css";
 
-// 라우팅 기능을 사용하기 위해 별도의 컴포넌트로 분리
 function AppContent() {
-  const navigate = useNavigate(); // 페이지 이동을 위한 훅
-  const [theme, setTheme] = useState("modern");
+  const navigate = useNavigate();
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("app-theme") || "system";
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDeck, setSelectedDeck] = useState(null);
   const [studyWords, setStudyWords] = useState([]);
+  const [modalMode, setModalMode] = useState("word");
 
+  // ✅ useWords에서 decks와 addDeck을 추가로 가져옵니다.
   const {
     words,
+    decks, // 추가
+    addDeck, // 추가
     addWord,
     deleteWord,
     updateWordStatus,
     deleteDeck,
     renameDeck,
+    addWordsBulk,
+    loading,
   } = useWords();
 
-  // 학습 시작 시 동작
+  // 테마 적용 로직
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "system") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const applySystemTheme = () => {
+        root.removeAttribute("data-theme");
+      };
+      applySystemTheme();
+      mediaQuery.addEventListener("change", applySystemTheme);
+      return () => mediaQuery.removeEventListener("change", applySystemTheme);
+    } else {
+      root.setAttribute("data-theme", theme);
+    }
+    localStorage.setItem("app-theme", theme);
+  }, [theme]);
+
+  // 모달 열기 핸들러
+  const handleOpenWordModal = () => {
+    setModalMode("word");
+    setIsModalOpen(true);
+  };
+
+  const handleOpenDeckModal = () => {
+    setModalMode("deck");
+    setIsModalOpen(true);
+  };
+
   const handleStartStudy = (filteredList) => {
     if (filteredList.length === 0) {
       alert("학습할 단어가 없습니다!");
       return;
     }
     setStudyWords(filteredList);
-    navigate("/study"); // URL 이동
+    navigate("/study");
   };
 
   const handleSelectDeck = (deckName) => {
-    // ✅ 크롬 잠금 해제의 핵심: 실제 음성 엔진을 한 번 '시동' 겁니다.
+    // TTS 엔진 활성화 (크롬 대응)
     if (window.speechSynthesis) {
-      window.speechSynthesis.cancel(); // 초기화
-      const initialUtter = new SpeechSynthesisUtterance(" "); // 공백 한 글자
-      initialUtter.volume = 0; // 무음 처리
+      window.speechSynthesis.cancel();
+      const initialUtter = new SpeechSynthesisUtterance(" ");
+      initialUtter.volume = 0;
       window.speechSynthesis.speak(initialUtter);
-
-      // 크롬에서 오디오 컨텍스트를 강제로 resume 시킴
-      if (window.speechSynthesis.resume) {
-        window.speechSynthesis.resume();
-      }
     }
-
     setSelectedDeck(deckName);
     navigate("/list");
   };
 
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      // 크롬/사파리에서 음성 목록을 로드하기 위한 초기화
-      window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-      };
-    }
-  }, [theme]);
+  if (loading)
+    return <div className="loading-screen">데이터를 불러오는 중...</div>;
 
   return (
     <div className="App">
-      {/* 상단 네비게이션 (공통) */}
-      <nav
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          padding: "20px 0",
-          gap: "10px",
-        }}
-      >
+      <nav style={navStyle}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <Settings size={18} opacity={0.5} />
           <select
             value={theme}
             onChange={(e) => setTheme(e.target.value)}
-            style={{
-              border: "none",
-              background: "transparent",
-              fontSize: "0.85rem",
-              fontWeight: "600",
-              color: "var(--text)",
-              outline: "none",
-            }}
+            style={selectStyle}
           >
-            <option value="modern">Modern</option>
+            <option value="system">자동 (시스템 설정)</option>
+            <option value="dark">다크 모드 🌙</option>
+            <option value="modern">Modern (Light)</option>
             <option value="bw">B&W</option>
             <option value="pastel">Pastel</option>
             <option value="pink">Pink</option>
@@ -106,96 +112,107 @@ function AppContent() {
         </div>
       </nav>
 
-      {/* 2. 라우트 경로 설정 */}
       <Routes>
-        {/* 메인 대시보드 */}
         <Route
           path="/"
           element={
             <Dashboard
-              words={words}
+              decks={decks} // ✅ 이제 words가 아닌 decks 테이블 데이터를 넘깁니다.
+              words={words} // 통계 계산을 위해 words도 함께 넘깁니다.
               onSelectDeck={handleSelectDeck}
-              onAddDeck={() => {
-                setSelectedDeck(null);
-                setIsModalOpen(true);
-              }}
+              onAddDeck={handleOpenDeckModal}
               onDeleteDeck={deleteDeck}
               onRenameDeck={renameDeck}
             />
           }
         />
 
-        {/* 단어 리스트 페이지 */}
         <Route
           path="/list"
           element={
             selectedDeck ? (
               <>
                 <WordList
-                  words={words.filter((w) => w.deck === selectedDeck)}
-                  onBack={() => navigate("/")} // 대시보드로 이동
+                  words={words} // 내부에서 filter 하므로 전체 전달
+                  deckName={selectedDeck} // ✅ 덱 이름을 명시적으로 전달
+                  onBack={() => navigate("/")}
                   onStartStudy={handleStartStudy}
                   onDeleteWord={deleteWord}
                 />
                 <motion.button
-                  onClick={() => setIsModalOpen(true)}
-                  whileHover={{ scale: 1.1 }} // 마우스 올리면 커지고
-                  whileTap={{ scale: 0.9 }} // 누를 때 쫀득하게 작아짐
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  style={{
-                    position: "fixed",
-                    bottom: "40px",
-                    right: "30px",
-                    width: "65px",
-                    height: "65px",
-                    borderRadius: "22px", // 완전 원형보다 살짝 각진 '스쿼클' 형태가 요즘 트렌드!
-                    background:
-                      "linear-gradient(135deg, var(--primary), #a29bfe)", // 은은한 그라데이션
-                    color: "white",
-                    border: "none",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: "0 10px 25px -5px rgba(108, 92, 231, 0.4)", // 깊이감 있는 그림자
-                    zIndex: 100,
-                  }}
+                  onClick={handleOpenWordModal}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="floating-plus-btn"
+                  style={floatingBtnStyle}
                 >
                   <Plus size={32} strokeWidth={2.5} />
                 </motion.button>
               </>
             ) : (
-              <Navigate to="/" replace /> // 선택된 덱이 없으면 대시보드로 튕겨냄
+              <Navigate to="/" replace />
             )
           }
         />
 
-        {/* 학습 페이지 */}
         <Route
           path="/study"
           element={
             <StudySession
               words={studyWords}
-              onFinish={() => navigate("/list")} // 학습 종료 시 리스트로 이동
+              onFinish={() => navigate("/list")}
               onUpdateStatus={updateWordStatus}
             />
           }
         />
       </Routes>
 
-      {/* 단어 추가 모달 (공통) */}
       <AddWordModal
         isOpen={isModalOpen}
+        mode={modalMode}
         onClose={() => setIsModalOpen(false)}
         onAdd={addWord}
+        onAddBulk={addWordsBulk}
+        onAddDeck={addDeck} // ✅ 덱 추가 함수 전달
         defaultDeck={selectedDeck}
       />
     </div>
   );
 }
 
-// 최종 App 컴포넌트: Router로 감싸줘야 함
+// 스타일 가이드
+const navStyle = {
+  display: "flex",
+  justifyContent: "flex-end",
+  padding: "20px 0",
+  gap: "10px",
+};
+const selectStyle = {
+  border: "none",
+  background: "transparent",
+  fontSize: "0.85rem",
+  fontWeight: "600",
+  color: "var(--text)",
+  outline: "none",
+};
+const floatingBtnStyle = {
+  position: "fixed",
+  bottom: "40px",
+  right: "30px",
+  width: "65px",
+  height: "65px",
+  borderRadius: "22px",
+  background: "linear-gradient(135deg, var(--primary), #a29bfe)",
+  color: "white",
+  border: "none",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  boxShadow: "0 10px 25px -5px rgba(108, 92, 231, 0.4)",
+  zIndex: 100,
+};
+
 function App() {
   return (
     <Router>

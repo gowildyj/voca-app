@@ -4,31 +4,36 @@ import { motion } from "framer-motion";
 import { Book, ChevronRight, PlusCircle, Trash2, Edit3 } from "lucide-react";
 
 const Dashboard = ({
-  words,
+  decks, // ✅ 추가: 이제 단어장이 아닌 '덱' 리스트를 직접 받습니다.
+  words, // 통계 계산용
   onSelectDeck,
   onAddDeck,
   onDeleteDeck,
   onRenameDeck,
 }) => {
   const [isRenameOpen, setIsRenameOpen] = useState(false);
-  const [targetDeck, setTargetDeck] = useState("");
+  const [targetDeck, setTargetDeck] = useState({ id: "", name: "" });
 
+  // ✅ 덱 기반으로 통계 계산
   const deckStats = useMemo(() => {
-    if (!words) return [];
-    const groups = words.reduce((acc, word) => {
-      const deckName = word.deck || "기본 덱";
-      if (!acc[deckName]) acc[deckName] = { total: 0, known: 0 };
-      acc[deckName].total += 1;
-      if (word.status === "know") acc[deckName].known += 1;
-      return acc;
-    }, {});
+    if (!decks) return [];
 
-    return Object.entries(groups).map(([name, stat]) => ({
-      name,
-      ...stat,
-      progress: Math.round((stat.known / stat.total) * 100) || 0,
-    }));
-  }, [words]);
+    return decks.map((deck) => {
+      // 해당 덱에 속한 단어들 필터링
+      const relatedWords = words.filter((w) => w.deck === deck.name);
+      const total = relatedWords.length;
+      const known = relatedWords.filter((w) => w.status === "know").length;
+      const progress = total > 0 ? Math.round((known / total) * 100) : 0;
+
+      return {
+        id: deck.id,
+        name: deck.name,
+        total,
+        known,
+        progress,
+      };
+    });
+  }, [decks, words]);
 
   return (
     <div className="dashboard-container">
@@ -38,6 +43,7 @@ const Dashboard = ({
       </header>
 
       <div className="deck-grid">
+        {/* 새로운 덱 만들기 카드 */}
         <motion.div
           className="deck-card add-card"
           whileHover={{ y: -5 }}
@@ -49,9 +55,10 @@ const Dashboard = ({
           </span>
         </motion.div>
 
+        {/* ✅ 이제 deckStats(decks 테이블 기준)를 순회합니다. */}
         {deckStats.map((deck) => (
           <motion.div
-            key={deck.name}
+            key={deck.id}
             className="deck-card"
             whileHover={{ y: -5 }}
             style={{ position: "relative" }}
@@ -65,13 +72,13 @@ const Dashboard = ({
                 right: "15px",
                 display: "flex",
                 gap: "8px",
-                zIndex: 10, // 카드 클릭보다 우선순위 높임
+                zIndex: 10,
               }}
             >
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // 카드 클릭 방지
-                  setTargetDeck(deck.name);
+                  e.stopPropagation();
+                  setTargetDeck({ id: deck.id, name: deck.name });
                   setIsRenameOpen(true);
                 }}
                 className="deck-action-btn"
@@ -80,8 +87,9 @@ const Dashboard = ({
               </button>
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // 카드 클릭 방지
-                  onDeleteDeck(deck.name);
+                  e.stopPropagation();
+                  // ✅ 이제 id와 name을 같이 넘겨서 정확히 삭제하게 합니다.
+                  onDeleteDeck(deck.id, deck.name);
                 }}
                 className="deck-action-btn"
               >
@@ -117,10 +125,10 @@ const Dashboard = ({
         ))}
       </div>
 
-      {/* ✅ 중요: 모달은 map 밖으로 꺼내서 딱 하나만 렌더링합니다! */}
       <RenameDeckModal
         isOpen={isRenameOpen}
-        oldName={targetDeck}
+        deckId={targetDeck.id}
+        oldName={targetDeck.name}
         onClose={() => setIsRenameOpen(false)}
         onRename={onRenameDeck}
       />

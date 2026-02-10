@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-const RenameDeckModal = ({ isOpen, onClose, onRename, oldName }) => {
+// ✅ props에 deckId를 추가로 받습니다.
+const RenameDeckModal = ({ isOpen, onClose, onRename, oldName, deckId }) => {
   const [newName, setNewName] = useState("");
 
   useEffect(() => {
@@ -12,11 +13,15 @@ const RenameDeckModal = ({ isOpen, onClose, onRename, oldName }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!newName.trim() || newName === oldName) {
+
+    // 유효성 검사
+    if (!newName || !newName.trim() || newName === oldName) {
       onClose();
       return;
     }
-    onRename(oldName, newName);
+
+    // ✅ 핵심 수정: useWords의 renameDeck(deckId, oldName, newName) 형식에 맞춤
+    onRename(deckId, oldName, newName.trim());
     onClose();
   };
 

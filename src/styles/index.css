@@ -10,6 +10,26 @@
 }
 
 /* 2. 테마 설정 */
+/* 시스템 설정 다크모드 (데이터 테마 속성이 없을 때만 작동) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #0f172a;
+    --text: #f8fafc;
+    --primary: #3b82f6;
+    --card: #1e293b;
+    --accent: #6366f1;
+  }
+}
+
+/* 명시적으로 다크모드를 선택했을 때 */
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --text: #f8fafc;
+  --primary: #3b82f6;
+  --card: #1e293b;
+  --accent: #818cf8;
+}
+
 [data-theme="modern"] {
   --bg: #f8fafc;
   --text: #1e293b;

@@ -1,4 +1,12 @@
 import React, { useState, useEffect } from "react";
+// 1. react-router-dom 관련 컴포넌트 임포트
+import {
+  HashRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+  Navigate,
+} from "react-router-dom";
 import Dashboard from "./components/Dashboard";
 import WordList from "./components/WordList";
 import StudySession from "./components/StudySession";
@@ -7,22 +15,24 @@ import { useWords } from "./hooks/useWords";
 import { Settings, Plus } from "lucide-react";
 import "./styles/index.css";
 
-function App() {
+// 라우팅 기능을 사용하기 위해 별도의 컴포넌트로 분리
+function AppContent() {
+  const navigate = useNavigate(); // 페이지 이동을 위한 훅
   const [theme, setTheme] = useState("modern");
-  const [mode, setMode] = useState("dashboard");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDeck, setSelectedDeck] = useState(null);
   const [studyWords, setStudyWords] = useState([]);
 
   const { words, addWord, deleteWord, updateWordStatus } = useWords();
 
+  // 학습 시작 시 동작
   const handleStartStudy = (filteredList) => {
     if (filteredList.length === 0) {
       alert("학습할 단어가 없습니다!");
       return;
     }
     setStudyWords(filteredList);
-    setMode("study");
+    navigate("/study"); // URL 이동
   };
 
   useEffect(() => {
@@ -31,6 +41,7 @@ function App() {
 
   return (
     <div className="App">
+      {/* 상단 네비게이션 (공통) */}
       <nav
         style={{
           display: "flex",
@@ -62,51 +73,81 @@ function App() {
         </div>
       </nav>
 
-      {mode === "dashboard" ? (
-        <Dashboard
-          words={words}
-          onSelectDeck={(deckName) => {
-            setSelectedDeck(deckName);
-            setMode("list");
-          }}
-          onAddDeck={() => {
-            setSelectedDeck(null); // 새 덱을 만들 때는 덱 선택 초기화
-            setIsModalOpen(true);
-          }}
+      {/* 2. 라우트 경로 설정 */}
+      <Routes>
+        {/* 메인 대시보드 */}
+        <Route
+          path="/"
+          element={
+            <Dashboard
+              words={words}
+              onSelectDeck={(deckName) => {
+                setSelectedDeck(deckName);
+                navigate("/list"); // 리스트 페이지로 이동
+              }}
+              onAddDeck={() => {
+                setSelectedDeck(null);
+                setIsModalOpen(true);
+              }}
+            />
+          }
         />
-      ) : mode === "list" ? (
-        <>
-          <WordList
-            // 선택된 덱의 단어만 보여줌
-            words={words.filter((w) =>
-              selectedDeck ? w.deck === selectedDeck : true,
-            )}
-            onBack={() => setMode("dashboard")}
-            onStartStudy={handleStartStudy}
-            onDeleteWord={deleteWord}
-          />
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="floating-add-btn"
-          >
-            <Plus size={30} />
-          </button>
-        </>
-      ) : (
-        <StudySession
-          words={studyWords}
-          onFinish={() => setMode("list")}
-          onUpdateStatus={updateWordStatus}
-        />
-      )}
 
+        {/* 단어 리스트 페이지 */}
+        <Route
+          path="/list"
+          element={
+            selectedDeck ? (
+              <>
+                <WordList
+                  words={words.filter((w) => w.deck === selectedDeck)}
+                  onBack={() => navigate("/")} // 대시보드로 이동
+                  onStartStudy={handleStartStudy}
+                  onDeleteWord={deleteWord}
+                />
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="floating-add-btn"
+                >
+                  <Plus size={30} />
+                </button>
+              </>
+            ) : (
+              <Navigate to="/" replace /> // 선택된 덱이 없으면 대시보드로 튕겨냄
+            )
+          }
+        />
+
+        {/* 학습 페이지 */}
+        <Route
+          path="/study"
+          element={
+            <StudySession
+              words={studyWords}
+              onFinish={() => navigate("/list")} // 학습 종료 시 리스트로 이동
+              onUpdateStatus={updateWordStatus}
+            />
+          }
+        />
+      </Routes>
+
+      {/* 단어 추가 모달 (공통) */}
       <AddWordModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAdd={addWord}
-        defaultDeck={selectedDeck} // 현재 보고 있는 덱 정보를 모달에 전달
+        defaultDeck={selectedDeck}
       />
     </div>
+  );
+}
+
+// 최종 App 컴포넌트: Router로 감싸줘야 함
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 }
 

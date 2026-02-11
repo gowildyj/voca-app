@@ -609,3 +609,208 @@ body {
   padding: 60px 0;
   opacity: 0.5;
 }
+
+/* 8. 학습 세션 (StudySession) 스타일 */
+.study-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+.study-progress-text {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.autoplay-btn {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.autoplay-btn.active {
+  background-color: var(--primary);
+  color: white;
+  opacity: 0.1; /* 배경 투명도 조절용으로 쓸 경우 */
+}
+
+/* 학습 완료 화면 */
+.finish-container {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.finish-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+.result-card {
+  margin: 30px 0;
+  padding: 24px;
+  background-color: var(--card);
+  border-radius: 24px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.result-row {
+  margin: 10px 0;
+  font-size: 1.1rem;
+}
+
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 18px;
+  border-radius: 18px;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 18px;
+  border-radius: 18px;
+  background-color: var(--text);
+  color: var(--bg);
+  border: none;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:active,
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+.swipe-guide {
+  margin-top: 60px;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  opacity: 0.3;
+}
+
+.guide-item {
+  text-align: center;
+}
+
+.guide-text {
+  font-size: 0.75rem;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+/* 9. 학습 카드 (StudyCard) 스타일 */
+.study-card-wrapper {
+  position: relative;
+  height: 400px;
+  width: 100%;
+  perspective: 1000px; /* 3D 효과의 깊이감 */
+}
+
+.study-card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d; /* 자식 요소의 3D 공간 유지 */
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden; /* 뒷면일 때 안보이게 설정 */
+  border-radius: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  text-align: center;
+}
+
+/* 카드 앞면 */
+.card-face.front {
+  background-color: var(--card);
+  border: 2px solid var(--bg);
+}
+
+.card-face.front h2 {
+  font-size: 3rem;
+  margin: 0;
+  font-weight: 800;
+  color: var(--text);
+}
+
+/* 카드 뒷면 */
+.card-face.back {
+  background-color: var(--primary);
+  color: white;
+  transform: rotateY(180deg); /* 미리 180도 돌려둠 */
+}
+
+.card-face.back h2 {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.card-face.back p {
+  margin-top: 15px;
+  opacity: 0.9;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+/* 카드 내 스피커 버튼 */
+.card-speaker-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(108, 92, 231, 0.1);
+  border: none;
+  border-radius: 12px;
+  padding: 10px;
+  color: var(--primary);
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.2s;
+}
+
+.card-speaker-btn:active {
+  transform: scale(0.9);
+}
+
+.flip-hint {
+  margin-top: 20px;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  opacity: 0.6;
+}

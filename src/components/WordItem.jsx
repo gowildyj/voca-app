@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import {
   BookOpen,
   ChevronRight,
+  Edit3,
   Trash2,
   Volume2,
   Sparkles,
@@ -10,7 +11,7 @@ import {
 import IconButton from "./common/IconButton";
 import { speak } from "../utils/tts";
 
-const WordItem = ({ item, index, onDelete, langCode }) => {
+const WordItem = ({ item, index, onEdit, onDelete, langCode }) => {
   if (!item) return null;
 
   const isGuide = item.isGuide || false;
@@ -48,6 +49,19 @@ const WordItem = ({ item, index, onDelete, langCode }) => {
         </div>
         <div className="word-meaning">{item.meaning}</div>
       </div>
+
+      {/* 수정 버튼 추가 */}
+      {!isGuide && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation(); // 카드 클릭 이벤트 전파 방지
+            onEdit(item);
+          }}
+          className="deck-action-btn"
+        >
+          <Edit3 size={18} />
+        </button>
+      )}
 
       {!isGuide && onDelete && (
         <IconButton

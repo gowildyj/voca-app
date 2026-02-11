@@ -128,6 +128,33 @@ export const useWords = () => {
     }
   };
 
+  const updateWord = async (id, updatedData) => {
+    try {
+      // 1. DB 업데이트 (Supabase)
+      const { error } = await supabase
+        .from("words")
+        .update({
+          word: updatedData.word,
+          meaning: updatedData.meaning,
+          example: updatedData.example || "",
+        })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      // 2. 로컬 상태 업데이트 (UI 즉시 반영)
+      setWords((prev) =>
+        prev.map((w) => (w.id === id ? { ...w, ...updatedData } : w)),
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error("단어 수정 실패:", error.message);
+      alert("수정에 실패했습니다.");
+      return { success: false };
+    }
+  };
+
   const addWordsBulk = async (wordsArray) => {
     try {
       const { data, error } = await supabase
@@ -181,9 +208,10 @@ export const useWords = () => {
     decks,
     loading,
     addDeck,
-    deleteDeck,
     renameDeck,
+    deleteDeck,
     addWord,
+    updateWord,
     deleteWord,
     updateWordStatus,
     addWordsBulk,

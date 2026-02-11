@@ -2,10 +2,12 @@ import React, { useState, useMemo } from "react";
 import { Play, Search, X, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import WordItem from "./WordItem";
+import EditWordModal from "./EditWordModal";
 
 const WordList = ({
   words,
   onStartStudy,
+  onUpdateWord,
   onDeleteWord,
   onBack,
   deckName,
@@ -15,6 +17,13 @@ const WordList = ({
   const [sortType, setSortType] = useState("default");
   const [shuffleSeed, setShuffleSeed] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [targetWord, setTargetWord] = useState(null);
+
+  const handleEditClick = (word) => {
+    setTargetWord(word); // 수정할 단어 데이터 저장
+    setIsEditOpen(true); // 모달 열기
+  };
 
   const filters = [
     { id: "all", label: "전체" },
@@ -171,7 +180,8 @@ const WordList = ({
                 key={item.id}
                 item={item}
                 index={index}
-                langCode={langCode} // ✅ langCode 전달 필수
+                langCode={langCode}
+                onEdit={handleEditClick}
                 onDelete={item.isGuide ? null : onDeleteWord}
               />
             ))
@@ -180,6 +190,12 @@ const WordList = ({
           )}
         </AnimatePresence>
       </div>
+      <EditWordModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        item={targetWord}
+        onUpdate={onUpdateWord} // useWords에서 만든 updateWord 함수
+      />
     </div>
   );
 };

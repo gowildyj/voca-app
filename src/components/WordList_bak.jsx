@@ -2,8 +2,8 @@ import React, { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { Play, Search, X, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import WordItem from "./WordItem";
-import EditWordModal from "./EditWordModal";
+import WordItem from "@WordItem";
+import EditWordModal from "@EditWordModal";
 
 const WordList = ({
   words = [], // 기본값 설정으로 에러 방지

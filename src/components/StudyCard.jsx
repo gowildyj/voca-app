@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { RotateCw, Volume2 } from "lucide-react";
-import { speak } from "../utils/tts";
+import { speak } from "@/utils/tts";
 
 const StudyCard = ({ word, onSwipe, langCode }) => {
   // console.log("langCode in StudyCard:", langCode);

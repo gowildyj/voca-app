@@ -4,7 +4,8 @@ import { RotateCw, Volume2 } from "lucide-react";
 import { speak } from "../utils/tts";
 
 const StudyCard = ({ word, onSwipe, langCode }) => {
-  // ✅ langCode 추가
+  // console.log("langCode in StudyCard:", langCode);
+
   const [isFlipped, setIsFlipped] = useState(false);
 
   if (!word) return null;
@@ -46,14 +47,15 @@ const StudyCard = ({ word, onSwipe, langCode }) => {
           {/* 카드 앞면 (단어) */}
           <div className="card-face front">
             <button
-              onPointerDown={(e) => e.stopPropagation()} // 1. 드래그 시작 방지
+              onPointerDown={(e) => {
+                e.stopPropagation(); // 1. 부모의 드래그 시작을 막음
+                speak(word.word, langCode); // 2. 즉시 소리 재생
+              }}
               onClick={(e) => {
-                e.stopPropagation(); // 2. 카드 뒤집기 방지
-                e.preventDefault(); // 3. 브라우저 기본 동작 방지
-                speak(word.word, langCode);
+                e.stopPropagation(); // 3. 뒤집기 방지 (클릭이 발생했을 때 대비)
               }}
               className="card-speaker-btn"
-              type="button" // 폼 안에 있을 경우를 대비해 명시
+              type="button"
             >
               <Volume2 size={20} />
             </button>

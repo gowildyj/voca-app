@@ -814,3 +814,56 @@ body {
   font-size: 0.9rem;
   opacity: 0.6;
 }
+
+/* 11. 앱 공통 레이아웃 (App.jsx) */
+.app-nav {
+  display: flex;
+  justify-content: flex-end;
+  padding: 20px 0;
+  gap: 10px;
+}
+
+.theme-select {
+  border: none;
+  background: transparent;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+}
+
+/* 플로팅 추가 버튼 */
+.floating-plus-btn {
+  position: fixed;
+  bottom: 40px;
+  right: 30px;
+  width: 65px;
+  height: 65px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, var(--primary), #a29bfe);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px -5px rgba(108, 92, 231, 0.4);
+  z-index: 100;
+  transition: transform 0.2s;
+}
+
+.floating-plus-btn:active {
+  transform: scale(0.9) !important;
+}
+
+/* 로딩 화면 */
+.loading-screen {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 1.2rem;
+}

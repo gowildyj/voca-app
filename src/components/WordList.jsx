@@ -1,17 +1,17 @@
 import React, { useState, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import { Play, Search, X, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import WordItem from "./WordItem";
 import EditWordModal from "./EditWordModal";
 
 const WordList = ({
-  words,
+  words = [], // 기본값 설정으로 에러 방지
+  decks = [], // ✅ Props로 확실히 받음
   onStartStudy,
   onUpdateWord,
   onDeleteWord,
   onBack,
-  deckName,
-  langCode,
 }) => {
   const [filter, setFilter] = useState("all");
   const [sortType, setSortType] = useState("default");
@@ -20,9 +20,17 @@ const WordList = ({
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [targetWord, setTargetWord] = useState(null);
 
+  // ✅ 1. URL 파라미터에서 추출 (변수명 겹치지 않게 주의)
+  const { deckName: urlDeckParam } = useParams();
+  const currentDeckName = decodeURIComponent(urlDeckParam || "");
+
+  // ✅ 2. decks 배열이 들어왔을 때만 find 실행
+  const foundDeck = decks?.find((d) => d.name === currentDeckName);
+  const currentLangCode = foundDeck?.lang_code;
+
   const handleEditClick = (word) => {
-    setTargetWord(word); // 수정할 단어 데이터 저장
-    setIsEditOpen(true); // 모달 열기
+    setTargetWord(word);
+    setIsEditOpen(true);
   };
 
   const filters = [
@@ -32,15 +40,16 @@ const WordList = ({
     { id: "know", label: "아는단어" },
   ];
 
-  // 1. 현재 덱의 진짜 데이터만 필터링
+  // 1. 현재 덱의 데이터 필터링
   const deckWords = useMemo(() => {
-    return words.filter((w) => w.deck === deckName && w.word?.trim() !== "");
-  }, [words, deckName]);
+    return words.filter(
+      (w) => w.deck === currentDeckName && w.word?.trim() !== "",
+    );
+  }, [words, currentDeckName]);
 
   // 2. 검색 및 필터링 로직
   const filteredWords = useMemo(() => {
     if (deckWords.length === 0) return [];
-
     return deckWords.filter((word) => {
       const matchesFilter =
         filter === "all"
@@ -57,9 +66,8 @@ const WordList = ({
     });
   }, [deckWords, filter, searchQuery]);
 
-  // 3. 최종 출력 리스트 구성 (비어있을 때 가이드 카드 삽입)
+  // 3. 최종 출력 리스트 구성
   const finalDisplayList = useMemo(() => {
-    // 덱이 완전히 비어있는 경우 가이드 표시
     if (deckWords.length === 0 && !searchQuery) {
       return [
         {
@@ -71,10 +79,7 @@ const WordList = ({
         },
       ];
     }
-
     let newList = [...filteredWords];
-
-    // 정렬 로직
     if (sortType === "alpha") {
       newList.sort((a, b) => a.word.localeCompare(b.word));
     } else if (sortType === "shuffle") {
@@ -90,14 +95,13 @@ const WordList = ({
           <ArrowLeft size={24} />
         </button>
         <div>
-          <span className="header-label">{deckName || "MY VOCABULARY"}</span>
+          <span className="header-label">{currentDeckName}</span>
           <h1 style={{ fontSize: "1.8rem", margin: "0", fontWeight: "800" }}>
             단어장
           </h1>
         </div>
       </header>
 
-      {/* 검색 영역 */}
       <div className="search-container">
         <div className="search-bar">
           <Search size={18} opacity={0.4} />
@@ -118,10 +122,12 @@ const WordList = ({
         </div>
       </div>
 
-      {/* 학습 시작 카드 */}
       <motion.div
         className="study-start-card"
-        onClick={() => deckWords.length > 0 && onStartStudy(finalDisplayList)}
+        onClick={() =>
+          deckWords.length > 0 &&
+          onStartStudy(finalDisplayList, currentDeckName)
+        }
         style={{
           cursor: deckWords.length > 0 ? "pointer" : "default",
           opacity: deckWords.length > 0 ? 1 : 0.5,
@@ -137,7 +143,6 @@ const WordList = ({
         <Play fill="white" size={24} />
       </motion.div>
 
-      {/* 필터 탭 */}
       <div className="filter-scroll-container">
         {filters.map((f) => (
           <button
@@ -150,16 +155,7 @@ const WordList = ({
         ))}
       </div>
 
-      {/* 정렬 옵션 */}
       <div className="sort-container">
-        {sortType === "shuffle" && (
-          <button
-            onClick={() => setShuffleSeed(Math.random())}
-            className="shuffle-reset-btn"
-          >
-            새로 섞기 🔄
-          </button>
-        )}
         <select
           value={sortType}
           onChange={(e) => setSortType(e.target.value)}
@@ -171,7 +167,6 @@ const WordList = ({
         </select>
       </div>
 
-      {/* 목록 출력 */}
       <div className="list-container">
         <AnimatePresence mode="popLayout">
           {finalDisplayList.length > 0 ? (
@@ -180,7 +175,7 @@ const WordList = ({
                 key={item.id}
                 item={item}
                 index={index}
-                langCode={langCode}
+                langCode={currentLangCode} // ✅ 내부 변수명으로 변경
                 onEdit={handleEditClick}
                 onDelete={item.isGuide ? null : onDeleteWord}
               />
@@ -190,11 +185,12 @@ const WordList = ({
           )}
         </AnimatePresence>
       </div>
+
       <EditWordModal
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
         item={targetWord}
-        onUpdate={onUpdateWord} // useWords에서 만든 updateWord 함수
+        onUpdate={onUpdateWord}
       />
     </div>
   );

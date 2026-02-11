@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom"; // ✅ 추가
 import { speak } from "../utils/tts";
 import StudyCard from "./StudyCard";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,8 +12,14 @@ import {
   VolumeX,
 } from "lucide-react";
 
-const StudySession = ({ words, onFinish, onUpdateStatus, langCode }) => {
-  // ✅ langCode 추가
+const StudySession = ({ words, decks, onFinish, onUpdateStatus }) => {
+  // ✅ [수정] URL에서 덱 이름을 가져와서 langCode를 직접 찾습니다.
+  const { deckName: urlDeckParam } = useParams();
+  const currentDeckName = decodeURIComponent(urlDeckParam || "");
+
+  const currentDeck = decks.find((d) => d.name === currentDeckName);
+  const langCode = currentDeck?.lang_code;
+
   const [currentWords, setCurrentWords] = useState(words);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [unknownWords, setUnknownWords] = useState([]);
@@ -22,6 +29,7 @@ const StudySession = ({ words, onFinish, onUpdateStatus, langCode }) => {
   const isFinished = currentIndex >= currentWords.length;
   const currentWord = currentWords[currentIndex];
 
+  // ✅ 음성 자동 재생 (langCode 연결 완료)
   useEffect(() => {
     if (
       currentWord &&
@@ -30,8 +38,7 @@ const StudySession = ({ words, onFinish, onUpdateStatus, langCode }) => {
       lastPlayedIndex.current !== currentIndex
     ) {
       const timer = setTimeout(() => {
-        // ✅ DB에서 가져온 실제 langCode를 사용합니다.
-        speak(currentWord.word, langCode);
+        speak(currentWord.word, langCode); // 이제 정확한 언어로 읽습니다.
         lastPlayedIndex.current = currentIndex;
       }, 50);
 
@@ -60,6 +67,7 @@ const StudySession = ({ words, onFinish, onUpdateStatus, langCode }) => {
     setUnknownWords([]);
   };
 
+  // ✅ finish-container 등 스타일 클래스 적용됨
   if (isFinished) {
     return (
       <motion.div
@@ -86,7 +94,11 @@ const StudySession = ({ words, onFinish, onUpdateStatus, langCode }) => {
               <RotateCcw size={18} /> 모르는 단어만 복습하기
             </button>
           )}
-          <button onClick={onFinish} className="btn-primary">
+          {/* ✅ onFinish 호출 시 현재 덱 이름을 넘겨줍니다. */}
+          <button
+            onClick={() => onFinish(currentDeckName)}
+            className="btn-primary"
+          >
             목록으로 돌아가기
           </button>
         </div>
@@ -96,10 +108,9 @@ const StudySession = ({ words, onFinish, onUpdateStatus, langCode }) => {
 
   return (
     <div className="App">
-      {" "}
-      {/* 공통 레이아웃 클래스 사용 */}
       <header className="study-header">
-        <button onClick={onFinish} className="back-btn">
+        {/* ✅ onFinish 호출 시 현재 덱 이름을 넘겨줍니다. */}
+        <button onClick={() => onFinish(currentDeckName)} className="back-btn">
           <ArrowLeft size={24} />
         </button>
 
@@ -120,16 +131,18 @@ const StudySession = ({ words, onFinish, onUpdateStatus, langCode }) => {
           {autoPlay ? <Volume2 size={20} /> : <VolumeX size={20} />}
         </button>
       </header>
+
       <AnimatePresence mode="wait">
         {currentWord && (
           <StudyCard
             key={currentWord.id}
             word={currentWord}
-            langCode={langCode}
+            langCode={langCode} // ✅ 자식에게 정확히 전달
             onSwipe={handleSwipe}
           />
         )}
       </AnimatePresence>
+
       <div className="swipe-guide">
         <div className="guide-item">
           <XCircle size={32} />

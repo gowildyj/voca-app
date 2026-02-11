@@ -1,5 +1,5 @@
-import React, { useState, useMemo, speak } from "react";
-import { Play, Search, X, ArrowLeft, PlusCircle } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { Play, Search, X, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import WordItem from "./WordItem";
 
@@ -23,19 +23,13 @@ const WordList = ({
     { id: "know", label: "아는단어" },
   ];
 
-  const handleSpeak = (text) => {
-    console.log(`TTS 재생 시도 - 문구: ${text}, 언어코드: ${langCode}`);
-    speak(text, langCode);
-  };
-
-  // 1. 현재 덱의 진짜 데이터만 필터링 (DB 원본 보존)
+  // 1. 현재 덱의 진짜 데이터만 필터링
   const deckWords = useMemo(() => {
-    return words.filter((w) => w.deck === deckName && w.word.trim() !== "");
+    return words.filter((w) => w.deck === deckName && w.word?.trim() !== "");
   }, [words, deckName]);
 
   // 2. 검색 및 필터링 로직
   const filteredWords = useMemo(() => {
-    // 덱에 단어가 아예 없을 때는 가이드 카드를 보여주기 위해 필터를 무시하고 가상의 배열 반환
     if (deckWords.length === 0) return [];
 
     return deckWords.filter((word) => {
@@ -56,7 +50,7 @@ const WordList = ({
 
   // 3. 최종 출력 리스트 구성 (비어있을 때 가이드 카드 삽입)
   const finalDisplayList = useMemo(() => {
-    // 만약 검색어가 없는데 목록이 비어있다? -> 사용자가 처음 만든 빈 덱임
+    // 덱이 완전히 비어있는 경우 가이드 표시
     if (deckWords.length === 0 && !searchQuery) {
       return [
         {
@@ -64,34 +58,26 @@ const WordList = ({
           word: "첫 단어를 추가해보세요!",
           meaning: "우측 하단의 + 버튼을 눌러 시작하기 🚀",
           status: "none",
-          isGuide: true, // 가이드임을 표시
+          isGuide: true,
         },
       ];
     }
 
-    // 정렬 로직 적용
-    const newList = [...filteredWords];
+    let newList = [...filteredWords];
+
+    // 정렬 로직
     if (sortType === "alpha") {
       newList.sort((a, b) => a.word.localeCompare(b.word));
     } else if (sortType === "shuffle") {
-      for (let i = newList.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [newList[i], newList[j]] = [newList[j], newList[i]];
-      }
+      newList.sort(() => Math.random() - 0.5);
     }
     return newList;
   }, [filteredWords, deckWords, sortType, shuffleSeed, searchQuery]);
 
-  const handleSortChange = (e) => {
-    const nextSort = e.target.value;
-    setSortType(nextSort);
-    if (nextSort === "shuffle") setShuffleSeed(Math.random());
-  };
-
   return (
     <div className="word-list-page">
-      <header style={headerStyle}>
-        <button onClick={onBack} style={backBtnStyle}>
+      <header className="list-header">
+        <button onClick={onBack} className="back-btn">
           <ArrowLeft size={24} />
         </button>
         <div>
@@ -102,16 +88,16 @@ const WordList = ({
         </div>
       </header>
 
-      {/* 검색창 UI (레이아웃 유지) */}
-      <div style={searchContainerStyle}>
-        <div style={searchBarStyle}>
+      {/* 검색 영역 */}
+      <div className="search-container">
+        <div className="search-bar">
           <Search size={18} opacity={0.4} />
           <input
             type="text"
+            className="search-input"
             placeholder="단어나 뜻을 검색해보세요"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={searchInputStyle}
           />
           {searchQuery && (
             <X
@@ -123,7 +109,7 @@ const WordList = ({
         </div>
       </div>
 
-      {/* 학습 시작 카드 (단어가 있을 때만 활성화된 느낌으로) */}
+      {/* 학습 시작 카드 */}
       <motion.div
         className="study-start-card"
         onClick={() => deckWords.length > 0 && onStartStudy(finalDisplayList)}
@@ -142,18 +128,13 @@ const WordList = ({
         <Play fill="white" size={24} />
       </motion.div>
 
-      {/* 필터 탭 UI (레이아웃 유지) */}
-      <div style={filterScrollStyle}>
+      {/* 필터 탭 */}
+      <div className="filter-scroll-container">
         {filters.map((f) => (
           <button
             key={f.id}
             onClick={() => setFilter(f.id)}
-            style={{
-              ...filterBtnBase,
-              backgroundColor:
-                filter === f.id ? "var(--primary)" : "var(--card)",
-              color: filter === f.id ? "white" : "var(--text)",
-            }}
+            className={`filter-btn ${filter === f.id ? "active" : ""}`}
           >
             {f.label}
           </button>
@@ -161,19 +142,19 @@ const WordList = ({
       </div>
 
       {/* 정렬 옵션 */}
-      <div style={sortContainerStyle}>
+      <div className="sort-container">
         {sortType === "shuffle" && (
           <button
             onClick={() => setShuffleSeed(Math.random())}
-            style={shuffleResetStyle}
+            className="shuffle-reset-btn"
           >
             새로 섞기 🔄
           </button>
         )}
         <select
           value={sortType}
-          onChange={handleSortChange}
-          style={selectStyle}
+          onChange={(e) => setSortType(e.target.value)}
+          className="sort-select"
         >
           <option value="default">등록순</option>
           <option value="alpha">알파벳순</option>
@@ -181,7 +162,7 @@ const WordList = ({
         </select>
       </div>
 
-      {/* 목록 출력 영역 */}
+      {/* 목록 출력 */}
       <div className="list-container">
         <AnimatePresence mode="popLayout">
           {finalDisplayList.length > 0 ? (
@@ -190,96 +171,17 @@ const WordList = ({
                 key={item.id}
                 item={item}
                 index={index}
-                // 가이드 카드일 때는 삭제 기능을 막음
+                langCode={langCode} // ✅ langCode 전달 필수
                 onDelete={item.isGuide ? null : onDeleteWord}
               />
             ))
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              style={noResultStyle}
-            >
-              결과가 없습니다.
-            </motion.div>
+            <div className="no-result">결과가 없습니다.</div>
           )}
         </AnimatePresence>
       </div>
     </div>
   );
 };
-
-// 스타일 객체들
-const headerStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: "12px",
-  padding: "20px 0",
-};
-const backBtnStyle = {
-  background: "none",
-  border: "none",
-  cursor: "pointer",
-  color: "var(--text)",
-  padding: "4px",
-};
-const searchContainerStyle = { position: "relative", marginBottom: "20px" };
-const searchBarStyle = {
-  display: "flex",
-  alignItems: "center",
-  backgroundColor: "var(--card)",
-  padding: "12px 16px",
-  borderRadius: "16px",
-  gap: "10px",
-};
-const searchInputStyle = {
-  flex: 1,
-  border: "none",
-  background: "transparent",
-  color: "var(--text)",
-  outline: "none",
-  fontSize: "0.95rem",
-};
-const filterScrollStyle = {
-  display: "flex",
-  gap: "8px",
-  marginBottom: "16px",
-  overflowX: "auto",
-  paddingBottom: "4px",
-};
-const filterBtnBase = {
-  padding: "8px 16px",
-  borderRadius: "20px",
-  border: "none",
-  fontWeight: "600",
-  fontSize: "0.85rem",
-  whiteSpace: "nowrap",
-  cursor: "pointer",
-};
-const sortContainerStyle = {
-  display: "flex",
-  justifyContent: "flex-end",
-  alignItems: "center",
-  gap: "10px",
-  marginBottom: "15px",
-};
-const shuffleResetStyle = {
-  border: "none",
-  background: "none",
-  color: "var(--primary)",
-  fontSize: "0.75rem",
-  cursor: "pointer",
-  fontWeight: "bold",
-};
-const selectStyle = {
-  padding: "5px 10px",
-  borderRadius: "8px",
-  border: "1px solid var(--card)",
-  backgroundColor: "transparent",
-  color: "var(--text)",
-  fontSize: "0.8rem",
-  fontWeight: "600",
-};
-const noResultStyle = { textAlign: "center", padding: "40px", opacity: 0.5 };
 
 export default WordList;

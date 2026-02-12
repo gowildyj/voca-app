@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
-import { Play, ArrowLeft } from "lucide-react";
+import { Play, ArrowLeft, Plus } from "lucide-react";
 import WordItem from "@/components/WordItem";
 import EditWordModal from "@/components/EditWordModal";
+import AddWordModal from "@/components/AddWordModal";
 import SearchBar from "@/components/wordlist/SearchBar"; // ✅ [분리] 검색바 추출
 import FilterBar from "@/components/wordlist/FilterBar"; // ✅ [분리] 필터/정렬바 추출
 

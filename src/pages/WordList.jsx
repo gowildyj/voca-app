@@ -13,6 +13,8 @@ const WordList = ({
   onDeleteWord,
   fetchWordsByDeck,
   onBack,
+  onAddWord,
+  onAddBulk,
 }) => {
   const [filter, setFilter] = useState("all");
   const [sortType, setSortType] = useState("default");
@@ -23,6 +25,7 @@ const WordList = ({
   const [displayLimit, setDisplayLimit] = useState(50);
   const [localWords, setLocalWords] = useState([]);
   const [listLoading, setListLoading] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const observerTarget = useRef(null);
   const { deckName: urlDeckParam } = useParams();
@@ -166,6 +169,24 @@ const WordList = ({
         ))}
         <div ref={observerTarget} className="scroll-trigger"></div>
       </div>
+
+      <motion.button
+        onClick={() => setIsAddModalOpen(true)}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        className="floating-plus-btn"
+      >
+        <Plus size={32} strokeWidth={2.5} />
+      </motion.button>
+
+      <AddWordModal
+        isOpen={isAddModalOpen}
+        mode="word"
+        onClose={() => setIsAddModalOpen(false)}
+        onAdd={onAddWord} // 부모(App)로부터 받은 함수
+        onAddBulk={onAddBulk}
+        defaultDeck={currentDeckName}
+      />
 
       <EditWordModal
         isOpen={isEditOpen}

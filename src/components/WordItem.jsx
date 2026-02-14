@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  BookOpen,
-  Edit3,
-  Trash2,
-  Volume2,
-  Sparkles,
-} from "lucide-react";
+import { BookOpen, Edit3, Trash2, Volume2, Sparkles } from "lucide-react";
 import { speak } from "../utils/tts";
 
 const WordItem = React.memo(({ item, onEdit, onDelete, langCode }) => {
@@ -33,7 +27,7 @@ const WordItem = React.memo(({ item, onEdit, onDelete, langCode }) => {
                 e.stopPropagation();
                 onDelete(item.id);
               }}
-              className="deck-action-btn delete-btn-style--danger"
+              className="deck-action-btn"
               aria-label="삭제"
             >
               <Trash2 size={16} />

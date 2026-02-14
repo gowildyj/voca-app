@@ -1,13 +1,20 @@
-import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
 import { motion } from "framer-motion";
 import { useParams } from "react-router-dom";
-import { Play, ArrowLeft, Plus } from "lucide-react";
+import { Play, ArrowLeft, Plus, Edit3, Trash2 } from "lucide-react";
 import WordItem from "@/components/WordItem";
 import EditWordModal from "@/components/EditWordModal";
 import AddWordModal from "@/components/AddWordModal";
 import SearchBar from "@/components/wordlist/SearchBar";
 import FilterBar from "@/components/wordlist/FilterBar";
 import { seededShuffle } from "@/utils/seedShuffle";
+import RenameDeckModal from "@/components/RenameDeckModal";
 
 const WordList = ({
   decks = [],
@@ -18,6 +25,8 @@ const WordList = ({
   onBack,
   addWord,
   addWordsBulk,
+  renameDeck,
+  onDeleteDeck,
 }) => {
   const [filter, setFilter] = useState("all");
   const [sortType, setSortType] = useState("default");
@@ -29,6 +38,7 @@ const WordList = ({
   const [localWords, setLocalWords] = useState([]);
   const [listLoading, setListLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isRenameOpen, setIsRenameOpen] = useState(false);
 
   const observerTarget = useRef(null);
   const { deckName: urlDeckParam } = useParams();
@@ -84,7 +94,8 @@ const WordList = ({
 
     if (sortType === "alpha")
       result.sort((a, b) => a.word.localeCompare(b.word));
-    else if (sortType === "shuffle") result = seededShuffle(result, shuffleSeed);
+    else if (sortType === "shuffle")
+      result = seededShuffle(result, shuffleSeed);
 
     return result;
   }, [validWords, filter, searchQuery, sortType, shuffleSeed]);
@@ -159,6 +170,15 @@ const WordList = ({
     return filteredWords.slice(0, displayLimit);
   }, [filteredWords, displayLimit, searchQuery]);
 
+  const handleDeleteDeck = async () => {
+    if (
+      window.confirm(`"${currentDeckName}" 덱과 모든 단어를 삭제하시겠습니까?`)
+    ) {
+      await onDeleteDeck(currentDeckId, currentDeckName);
+      navigate("/"); // 삭제 후 대시보드로 이동
+    }
+  };
+
   useEffect(() => {
     if (listLoading) return;
     const observer = new IntersectionObserver(
@@ -176,10 +196,29 @@ const WordList = ({
   return (
     <div className="word-list-page">
       <header className="list-header">
-        <button onClick={onBack} className="back-btn" aria-label="뒤로">
-          <ArrowLeft size={24} />
-        </button>
-        <h1 className="list-header-title">{currentDeckName}</h1>
+        <div className="header-left">
+          <button onClick={onBack} className="back-btn" aria-label="뒤로">
+            <ArrowLeft size={24} />
+          </button>
+          <h1 className="list-header-title">{currentDeckName}</h1>
+        </div>
+
+        <div className="header-right">
+          <button
+            onClick={() => setIsRenameOpen(true)}
+            className="deck-action-btn"
+            aria-label="덱 수정"
+          >
+            <Edit3 size={18} />
+          </button>
+          <button
+            onClick={handleDeleteDeck}
+            className="deck-action-btn"
+            aria-label="덱 삭제"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
       </header>
 
       <SearchBar query={searchQuery} setQuery={setSearchQuery} />
@@ -258,6 +297,16 @@ const WordList = ({
         onClose={() => setIsEditOpen(false)}
         item={targetWord}
         onUpdate={handleUpdateWord}
+      />
+
+      <RenameDeckModal
+        key={currentDeckId}
+        isOpen={isRenameOpen}
+        deckId={currentDeckId}
+        oldName={currentDeckName}
+        oldLangCode={currentLangCode}
+        onClose={() => setIsRenameOpen(false)}
+        onRename={renameDeck}
       />
     </div>
   );

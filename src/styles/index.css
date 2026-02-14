@@ -1470,3 +1470,55 @@ body {
   color: white;
   border-color: var(--primary);
 }
+
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 양 끝 정렬 */
+  padding: 16px 0;
+  margin-bottom: 10px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0; /* 타이틀 생략 처리를 위해 필요 */
+}
+
+.list-header-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* 아이콘 간격 */
+}
+
+/* 기존 Dashboard에서 쓰던 deck-action-btn 스타일 활용 */
+.header-right .deck-action-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--text);
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 0.2s,
+    color 0.2s;
+}
+
+.header-right .deck-action-btn:hover {
+  opacity: 1;
+  color: var(--primary);
+}

@@ -88,7 +88,7 @@ body {
   width: 100%;
   max-width: clamp(320px, 95vw, 900px);
   margin: 0 auto;
-  min-height: 100vh;
+  min-height: 100dvh;
   padding: 1px 1px;
 }
 
@@ -1384,18 +1384,15 @@ body {
 
 /* 전체 레이아웃 기준 */
 .study-main-container {
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
 
 /* ⭐ 스터디 카드 영역 - 유동적인 너비 적용 */
 .study-card-area {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  flex: 0 0 auto;
   max-height: 60vh;
   position: relative;
   transition: all 0.3s ease;

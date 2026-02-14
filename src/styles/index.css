@@ -86,10 +86,10 @@ body {
 
 .App {
   width: 100%;
-  max-width: clamp(320px, 90vw, 900px);
+  max-width: clamp(320px, 95vw, 900px);
   margin: 0 auto;
   min-height: 100vh;
-  padding: 0 20px;
+  padding: 1px 1px;
 }
 
 @media (min-width: 1024px) {
@@ -770,7 +770,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 40px;
+  margin-bottom: 10px;
 }
 
 .study-progress-text {
@@ -1054,7 +1054,7 @@ body {
 .app-nav {
   display: flex;
   justify-content: flex-end;
-  padding: 16px 0;
+  padding: 10px 0;
   align-items: center;
 }
 
@@ -1432,7 +1432,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
+  padding: 10px 0;
   width: 100%;
   min-height: 60px;
 }

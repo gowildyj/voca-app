@@ -1,50 +1,55 @@
 import React from "react";
 
+const FILTERS = [
+  { id: "all", label: "전체", short: "전체" },
+  { id: "none", label: "미학습", short: "미학습" },
+  { id: "unknown", label: "모름", short: "몰라" },
+  { id: "know", label: "아는단어", short: "알아" },
+];
+
 const FilterBar = ({
   currentFilter,
   setFilter,
   sortType,
   setSortType,
   onShuffle,
+  filterCounts = {},
 }) => {
-  const filters = [
-    { id: "all", label: "전체" },
-    { id: "none", label: "미학습" },
-    { id: "unknown", label: "모름" },
-    { id: "know", label: "아는단어" },
-  ];
-
   return (
-    <>
-      <div className="filter-scroll-container">
-        {filters.map((f) => (
-          <button
-            key={f.id}
-            onClick={() => setFilter(f.id)}
-            className={`filter-btn ${currentFilter === f.id ? "active" : ""}`}
-          >
-            {f.label}
-          </button>
-        ))}
+    <div className="filter-bar">
+      <div className="filter-bar-filters">
+        {FILTERS.map((f) => {
+          const count = filterCounts[f.id] ?? 0;
+          const label = count !== undefined ? `${f.short} ${count}` : f.short;
+          return (
+            <button
+              key={f.id}
+              onClick={() => setFilter(f.id)}
+              className={`filter-btn ${currentFilter === f.id ? "active" : ""}`}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
-
-      <div className="sort-container">
+      <div className="filter-bar-sort">
         {sortType === "shuffle" && (
           <button onClick={onShuffle} className="shuffle-refresh-btn">
-            랜덤 섞기 🔄
+            🔄 섞기
           </button>
         )}
         <select
           value={sortType}
           onChange={(e) => setSortType(e.target.value)}
           className="sort-select"
+          aria-label="정렬"
         >
           <option value="default">등록순</option>
           <option value="alpha">알파벳순</option>
-          <option value="shuffle">무작위 셔플</option>
+          <option value="shuffle">무작위</option>
         </select>
       </div>
-    </>
+    </div>
   );
 };
 

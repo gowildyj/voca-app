@@ -16,12 +16,10 @@ const StudyHeader = ({
       {currentIndex + 1} / {totalCount}
     </div>
     <button
+      type="button"
       onClick={onToggleAutoPlay}
-      className="autoplay-btn"
-      style={{
-        backgroundColor: autoPlay ? "rgba(108, 92, 231, 0.1)" : "var(--card)",
-        color: autoPlay ? "var(--primary)" : "#999",
-      }}
+      className={`autoplay-btn ${autoPlay ? "active" : ""}`}
+      aria-label={autoPlay ? "자동 재생 켜짐" : "자동 재생 꺼짐"}
     >
       {autoPlay ? <Volume2 size={20} /> : <VolumeX size={20} />}
     </button>

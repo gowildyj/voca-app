@@ -13,10 +13,7 @@ const StudyFinishView = ({ totalCount, unknownCount, onReview, onBack }) => (
       <p className="result-row">
         전체 단어: <strong>{totalCount}</strong>
       </p>
-      <p
-        className="result-row"
-        style={{ color: "#ef4444", fontWeight: "bold" }}
-      >
+      <p className="result-row result-row--danger">
         모르는 단어: {unknownCount}
       </p>
     </div>

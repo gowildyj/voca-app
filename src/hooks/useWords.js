@@ -15,7 +15,7 @@ export const useWords = () => {
       const { data: decksData, error: decksError } = await supabase
         .from("decks")
         .select("*")
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: false });
 
       if (decksError) throw decksError;
 
@@ -24,8 +24,8 @@ export const useWords = () => {
         decksData.map(async (deck) => {
           const { count, error: countError } = await supabase
             .from("words")
-            .select("*", { count: "exact", head: true }) // head: true는 데이터 본문 없이 개수만 가져옴
-            .eq("deck", deck.name);
+            .select("*", { count: "exact", head: true })
+            .eq("deck_id", deck.id);
 
           return {
             ...deck,
@@ -42,18 +42,32 @@ export const useWords = () => {
     }
   }, []);
 
-  // ✅ 2. 특정 덱의 단어만 가져오기 (On-demand 로딩)
-  const fetchWordsByDeck = useCallback(async (deckName) => {
-    try {
-      const { data, error } = await supabase
-        .from("words")
-        .select("*")
-        .eq("deck", deckName)
-        .order("created_at", { ascending: false });
+  // Supabase 기본 조회 한도(1000행)를 넘기도록 페이지네이션으로 전부 가져오기
+  const PAGE_SIZE = 1000;
 
-      if (error) throw error;
-      setWords(data || []);
-      return data;
+  const fetchWordsByDeck = useCallback(async (deckId) => {
+    try {
+      const all = [];
+      let from = 0;
+
+      while (true) {
+        const to = from + PAGE_SIZE - 1;
+        const { data, error } = await supabase
+          .from("words")
+          .select("*")
+          .eq("deck_id", deckId)
+          .order("created_at", { ascending: true })
+          .range(from, to);
+
+        if (error) throw error;
+        const chunk = data || [];
+        all.push(...chunk);
+        if (chunk.length < PAGE_SIZE) break;
+        from += PAGE_SIZE;
+      }
+
+      setWords(all);
+      return all;
     } catch (error) {
       console.error("단어 로딩 실패:", error.message);
       return [];
@@ -84,7 +98,7 @@ export const useWords = () => {
     if (!window.confirm(`"${deckName}" 덱과 모든 단어를 삭제하시겠습니까?`))
       return;
     try {
-      await supabase.from("words").delete().eq("deck", deckName);
+      await supabase.from("words").delete().eq("deck_id", deckId);
       const { error } = await supabase.from("decks").delete().eq("id", deckId);
       if (error) throw error;
       setDecks((prev) => prev.filter((d) => d.id !== deckId));
@@ -95,40 +109,39 @@ export const useWords = () => {
 
   const renameDeck = async (deckId, oldName, newName, newLang) => {
     if (!newName || !newName.trim()) return;
-    try {
-      await supabase
-        .from("words")
-        .update({ deck: newName })
-        .eq("deck", oldName);
-      const { error } = await supabase
-        .from("decks")
-        .update({ name: newName, lang_code: newLang })
-        .eq("id", deckId);
-      if (error) throw error;
+    const { error } = await supabase
+      .from("decks")
+      .update({ name: newName, lang_code: newLang })
+      .eq("id", deckId);
+    if (error) throw error;
 
-      setDecks((prev) =>
-        prev.map((d) =>
-          d.id === deckId ? { ...d, name: newName, lang_code: newLang } : d,
-        ),
-      );
-      setWords((prev) =>
-        prev.map((w) => (w.deck === oldName ? { ...w, deck: newName } : w)),
-      );
-    } catch (error) {
-      alert(error.message);
-    }
+    setDecks((prev) =>
+      prev.map((d) =>
+        d.id === deckId ? { ...d, name: newName, lang_code: newLang } : d,
+      ),
+    );
+    setWords((prev) =>
+      prev.map((w) =>
+        w.deck_id === deckId ? { ...w } : w,
+      ),
+    );
   };
 
   // --- 단어 관련 기능 ---
   const addWord = async (newWord) => {
     try {
-      const { data, error } = await supabase
-        .from("words")
-        .insert([{ ...newWord, status: "none" }])
-        .select();
+      const { word, meaning, example, deck_id } = newWord;
+      const row = {
+        word,
+        meaning,
+        ...(example != null && { example }),
+        deck_id,
+        status: "none",
+      };
+      const { data, error } = await supabase.from("words").insert([row]).select();
       if (error) throw error;
       setWords((prev) => [data[0], ...prev]);
-      fetchDecks(); // 덱 카운트 갱신
+      fetchDecks();
     } catch (error) {
       alert(error.message);
     }
@@ -172,13 +185,16 @@ export const useWords = () => {
     }
   };
 
-  // 대량 추가 기능 (누락 방지)
   const addWordsBulk = async (wordsArray) => {
     try {
-      const { data, error } = await supabase
-        .from("words")
-        .insert(wordsArray.map((w) => ({ ...w, status: "none" })))
-        .select();
+      const rows = wordsArray.map((w) => ({
+        word: w.word,
+        meaning: w.meaning,
+        ...(w.example != null && { example: w.example }),
+        deck_id: w.deck_id,
+        status: "none",
+      }));
+      const { data, error } = await supabase.from("words").insert(rows).select();
       if (error) throw error;
       setWords((prev) => [...(data || []), ...prev]);
       fetchDecks();

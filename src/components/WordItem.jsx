@@ -1,7 +1,6 @@
 import React from "react";
 import {
   BookOpen,
-  ChevronRight,
   Edit3,
   Trash2,
   Volume2,
@@ -9,15 +8,40 @@ import {
 } from "lucide-react";
 import { speak } from "../utils/tts";
 
-// ✅ React.memo로 감싸서 데이터가 변하지 않으면 리렌더링되지 않게 보호합니다.
 const WordItem = React.memo(({ item, onEdit, onDelete, langCode }) => {
   if (!item) return null;
 
   const isGuide = item.isGuide || false;
 
   return (
-    // ✅ motion.div를 일반 div로 바꾸고 애니메이션 속성 제거
     <div className={`word-item-card ${isGuide ? "guide-mode" : ""}`}>
+      {!isGuide && (
+        <div className="word-item-actions">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(item);
+            }}
+            className="deck-action-btn"
+            aria-label="수정"
+          >
+            <Edit3 size={16} />
+          </button>
+          {onDelete && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(item.id);
+              }}
+              className="deck-action-btn delete-btn-style--danger"
+              aria-label="삭제"
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="word-item-icon">
         {isGuide ? (
           <Sparkles size={20} className="guide-icon" />
@@ -29,7 +53,6 @@ const WordItem = React.memo(({ item, onEdit, onDelete, langCode }) => {
       <div className="word-item-content">
         <div className="word-text-wrapper">
           <span className="word-text">{item.word}</span>
-
           {!isGuide && (
             <button
               onClick={(e) => {
@@ -37,6 +60,7 @@ const WordItem = React.memo(({ item, onEdit, onDelete, langCode }) => {
                 speak(item.word, langCode);
               }}
               className="speaker-btn"
+              aria-label="발음"
             >
               <Volume2 size={18} />
             </button>
@@ -44,34 +68,6 @@ const WordItem = React.memo(({ item, onEdit, onDelete, langCode }) => {
         </div>
         <div className="word-meaning">{item.meaning}</div>
       </div>
-
-      <div className="word-item-actions">
-        {!isGuide && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(item);
-            }}
-            className="deck-action-btn"
-          >
-            <Edit3 size={18} />
-          </button>
-        )}
-
-        {!isGuide && onDelete && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(item.id);
-            }}
-            className="deck-action-btn delete-btn-style"
-          >
-            <Trash2 size={18} color="#ef4444" />
-          </button>
-        )}
-      </div>
-
-      {!isGuide && <ChevronRight size={18} className="chevron-icon" />}
     </div>
   );
 });

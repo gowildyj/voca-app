@@ -11,10 +11,10 @@ const StudySession = ({ words, decks, onFinish, onUpdateStatus }) => {
   const { deckName: urlDeckParam } = useParams();
   const currentDeckName = decodeURIComponent(urlDeckParam || "");
 
-  const currentDeck = decks.find((d) => d.name === currentDeckName);
+  const currentDeck = decks?.find((d) => d.name === currentDeckName);
   const langCode = currentDeck?.lang_code;
 
-  const [currentWords, setCurrentWords] = useState(words);
+  const [currentWords, setCurrentWords] = useState(words ?? []);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [unknownWords, setUnknownWords] = useState([]);
   const [autoPlay, setAutoPlay] = useState(true);
@@ -22,6 +22,7 @@ const StudySession = ({ words, decks, onFinish, onUpdateStatus }) => {
 
   const isFinished = currentIndex >= currentWords.length;
   const currentWord = currentWords[currentIndex];
+  const isEmpty = currentWords.length === 0;
 
   // ✅ 음성 자동 재생 로직
   useEffect(() => {
@@ -63,7 +64,18 @@ const StudySession = ({ words, decks, onFinish, onUpdateStatus }) => {
     setUnknownWords([]);
   };
 
-  // ✅ [분리 적용] 학습 완료 화면
+  if (isEmpty) {
+    return (
+      <div className="finish-container">
+        <p className="finish-title">학습할 단어가 없습니다</p>
+        <p className="result-row">단어장에서 단어를 추가한 뒤 학습을 시작해주세요.</p>
+        <button onClick={() => onFinish(currentDeckName)} className="btn-primary">
+          목록으로 돌아가기
+        </button>
+      </div>
+    );
+  }
+
   if (isFinished) {
     return (
       <StudyFinishView

@@ -25,25 +25,11 @@ const StudyCard = ({ word, onSwipe, langCode }) => {
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         onDragEnd={handleDragEnd}
-        whileDrag={{ scale: 1.05 }}
+        whileDrag={{ scale: 1.02 }}
         onClick={() => setIsFlipped(!isFlipped)}
-        style={{
-          width: "100%",
-          height: "100%",
-          cursor: "grab",
-          touchAction: "none",
-        }}
+        className="study-card-drag"
       >
-        <motion.div
-          className="study-card-inner"
-          animate={{ rotateY: isFlipped ? 180 : 0 }}
-          transition={{
-            duration: 0.6,
-            type: "spring",
-            stiffness: 260,
-            damping: 20,
-          }}
-        >
+        <div className={`study-card-inner ${isFlipped ? "flipped" : ""}`}>
           {/* 카드 앞면 (단어) */}
           <div className="card-face front">
             <button
@@ -70,7 +56,7 @@ const StudyCard = ({ word, onSwipe, langCode }) => {
             <h2>{word.meaning}</h2>
             {word.example && <p>{word.example}</p>}
           </div>
-        </motion.div>
+        </div>
       </motion.div>
     </div>
   );

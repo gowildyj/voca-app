@@ -5,10 +5,12 @@ import {
   Route,
   useNavigate,
 } from "react-router-dom";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import MainLayout from "@/components/layout/MainLayout";
 import Dashboard from "@/pages/Dashboard";
 import WordList from "@/pages/WordList";
 import StudySession from "@/pages/StudySession";
+import Settings from "@/pages/Settings";
 import { useWords } from "@/hooks/useWords";
 
 function AppContent() {
@@ -21,9 +23,6 @@ function AppContent() {
     setStudyWords(filteredList);
     navigate(`/study/${encodeURIComponent(deckName)}`);
   };
-
-  if (wordHooks.loading)
-    return <div className="loading-screen">데이터 로딩 중...</div>;
 
   return (
     <MainLayout>
@@ -62,6 +61,8 @@ function AppContent() {
             />
           }
         />
+
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </MainLayout>
   );
@@ -69,7 +70,9 @@ function AppContent() {
 
 const App = () => (
   <Router>
-    <AppContent />
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   </Router>
 );
 export default App;

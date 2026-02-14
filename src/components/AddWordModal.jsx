@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, Plus, ListPlus } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import Modal from "@/components/common/Modal";
 
 const AddWordModal = ({
   isOpen,
@@ -8,10 +9,10 @@ const AddWordModal = ({
   onAdd,
   onAddBulk,
   onAddDeck,
-  defaultDeck,
+  defaultDeckId,
+  defaultDeckName,
   mode,
 }) => {
-  // 1. 상태 관리
   const [activeTab, setActiveTab] = useState("single");
   const [word, setWord] = useState("");
   const [meaning, setMeaning] = useState("");
@@ -20,15 +21,16 @@ const AddWordModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [langCode, setLangCode] = useState("");
 
-  if (!isOpen) return null;
-
-  // 2. 비즈니스 로직 (핸들러)
   const handleSingleSubmit = async (e) => {
     e.preventDefault();
     if (!word.trim() || !meaning.trim() || isSubmitting) return;
     setIsSubmitting(true);
     try {
-      await onAdd({ word, meaning, deck: defaultDeck });
+      await onAdd({
+        word: word.trim(),
+        meaning: meaning.trim(),
+        deck_id: defaultDeckId,
+      });
       setWord("");
       setMeaning("");
       onClose();
@@ -37,38 +39,34 @@ const AddWordModal = ({
     }
   };
 
-  // AddWordModal.jsx 내부의 handleBulkSubmit
-
   const handleBulkSubmit = async () => {
     if (isSubmitting) return;
 
-    // 1. 줄바꿈으로 나누고 빈 줄은 제거
     const lines = bulkText.split("\n").filter((line) => line.trim());
-
     const parsedWords = lines
       .map((line) => {
         const parts = line.split(/[:|,|\t]/);
-
         if (parts.length < 2) return null;
-
         const w = parts[0].replace(/["']/g, "").trim();
         const m = parts[1].replace(/["']/g, "").trim();
-
-        return { word: w, meaning: m, deck: defaultDeck };
+        return w && m ? { word: w, meaning: m, deck_id: defaultDeckId } : null;
       })
-      .filter((item) => item && item.word && item.meaning);
+      .filter(Boolean);
 
     if (parsedWords.length === 0) {
-      return alert(
-        "형식에 맞춰 입력해주세요! (예: apple:사과 또는 banana,바나나)",
-      );
+      alert("형식에 맞춰 입력해주세요! (예: apple:사과 또는 banana,바나나)");
+      return;
     }
 
     setIsSubmitting(true);
     try {
-      await onAddBulk(parsedWords);
-      setBulkText("");
-      onClose();
+      const result = await onAddBulk?.(parsedWords);
+      if (result?.success !== false) {
+        setBulkText("");
+        onClose();
+      } else {
+        alert(result?.error || "일괄 추가 중 오류가 발생했습니다.");
+      }
     } catch (e) {
       alert("일괄 추가 중 오류가 발생했습니다.");
       console.error(e);
@@ -82,7 +80,7 @@ const AddWordModal = ({
     if (!newDeckName.trim() || isSubmitting) return;
     setIsSubmitting(true);
     try {
-      await onAddDeck(newDeckName, langCode);
+      await onAddDeck?.(newDeckName.trim(), langCode);
       setNewDeckName("");
       setLangCode("");
       onClose();
@@ -91,7 +89,6 @@ const AddWordModal = ({
     }
   };
 
-  // 3. 서브 렌더링 함수 (JSX 가독성 향상)
   const renderDeckForm = () => (
     <form onSubmit={handleDeckSubmit}>
       <p className="modal-guide-text">공부할 주제와 언어를 선택해 주세요.</p>
@@ -175,48 +172,44 @@ const AddWordModal = ({
     </div>
   );
 
-  // 4. 메인 렌더링
+  if (!isOpen) return null;
+
   return (
-    <div className="modal-overlay">
-      <motion.div
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="modal-content"
-      >
-        <div className="modal-header">
-          <h2>{mode === "deck" ? "새로운 덱 만들기" : "단어 추가하기"}</h2>
-          <button onClick={onClose} className="modal-close-btn">
-            <X size={20} />
+    <Modal isOpen={isOpen} onClose={onClose} size={mode === "deck" ? "small" : "normal"}>
+      <div className="modal-header">
+        <h2>{mode === "deck" ? "새로운 덱 만들기" : "단어 추가하기"}</h2>
+        <button onClick={onClose} className="modal-close-btn" aria-label="닫기">
+          <X size={20} />
+        </button>
+      </div>
+
+      {mode === "word" && (
+        <div className="modal-tab-container">
+          <button
+            type="button"
+            onClick={() => setActiveTab("single")}
+            className={`modal-tab ${activeTab === "single" ? "active" : ""}`}
+          >
+            <Plus size={16} /> 하나씩
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("bulk")}
+            className={`modal-tab ${activeTab === "bulk" ? "active" : ""}`}
+          >
+            <ListPlus size={16} /> 여러 개
           </button>
         </div>
+      )}
 
-        {/* 탭 메뉴: 단어 추가 모드에서만 표시 */}
-        {mode === "word" && (
-          <div className="modal-tab-container">
-            <button
-              onClick={() => setActiveTab("single")}
-              className={`modal-tab ${activeTab === "single" ? "active" : ""}`}
-            >
-              <Plus size={16} /> 하나씩
-            </button>
-            <button
-              onClick={() => setActiveTab("bulk")}
-              className={`modal-tab ${activeTab === "bulk" ? "active" : ""}`}
-            >
-              <ListPlus size={16} /> 여러 개
-            </button>
-          </div>
-        )}
-
-        <div className="modal-form">
-          {mode === "deck"
-            ? renderDeckForm()
-            : activeTab === "single"
-              ? renderSingleWordForm()
-              : renderBulkWordForm()}
-        </div>
-      </motion.div>
-    </div>
+      <div className="modal-form">
+        {mode === "deck"
+          ? renderDeckForm()
+          : activeTab === "single"
+            ? renderSingleWordForm()
+            : renderBulkWordForm()}
+      </div>
+    </Modal>
   );
 };
 

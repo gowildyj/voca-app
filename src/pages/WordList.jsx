@@ -304,11 +304,13 @@ const EmptyGuide = ({ searchQuery }) => (
     <div className="word-item-content">
       <div className="word-text">
         {searchQuery
-          ? `"${searchQuery}" 검색 결과 없음`
-          : "첫 단어를 추가해보세요!"}
+          ? `"${searchQuery}" 검색 결과가 없어요.`
+          : "첫 단어를 추가해보세요."}
       </div>
       <div className="word-meaning">
-        {searchQuery ? "검색어를 확인해보세요." : "우측 하단의 + 버튼 클릭 🚀"}
+        {searchQuery
+          ? "단어를 추가해보세요! 🚀"
+          : "우측 하단의 + 버튼 클릭! 🚀"}
       </div>
     </div>
   </div>

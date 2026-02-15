@@ -1,42 +1,35 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 export const useWords = () => {
   const [words, setWords] = useState([]);
   const [decks, setDecks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ 1. 덱 목록 및 단어 개수 가져오기 (메모리 방식)
+  // 덱 목록 및 단어 개수 가져오기 (메모리 방식)
+  // useWords.js 내부 fetchDecks 수정
   const fetchDecks = useCallback(async () => {
     try {
       setLoading(true);
+      // ✅ 미리 만들어둔 SQL 함수(RPC)를 호출합니다.
+      // 단어 데이터는 1비트도 가져오지 않고 오직 '숫자'만 결과로 받습니다.
+      const { data, error } = await supabase.rpc("get_deck_stats");
+      if (error) throw error;
 
-      // 1. 덱 목록 가져오기
-      const { data: decksData, error: decksError } = await supabase
-        .from("decks")
-        .select("*")
-        .order("created_at", { ascending: false });
+      // console.log("✅ RPC get_deck_stats 결과:", data);
 
-      if (decksError) throw decksError;
-
-      // 2. 각 덱별 단어 개수를 개별적으로 가져오기 (가장 확실한 방법)
-      const processedDecks = await Promise.all(
-        decksData.map(async (deck) => {
-          const { count, error: countError } = await supabase
-            .from("words")
-            .select("*", { count: "exact", head: true })
-            .eq("deck_id", deck.id);
-
-          return {
-            ...deck,
-            total: count || 0,
-          };
-        }),
+      setDecks(
+        data.map((deck) => ({
+          ...deck,
+          total: deck.total_count,
+          progress:
+            deck.total_count > 0
+              ? Math.round((deck.known_count / deck.total_count) * 100)
+              : 0,
+        })),
       );
-
-      setDecks(processedDecks);
     } catch (error) {
-      console.error("덱 로딩 실패:", error.message);
+      console.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -45,6 +38,7 @@ export const useWords = () => {
   // Supabase 기본 조회 한도(1000행)를 넘기도록 페이지네이션으로 전부 가져오기
   const PAGE_SIZE = 1000;
 
+  // 특정 덱의 모든 단어 가져오기 (페이지네이션)
   const fetchWordsByDeck = useCallback(async (deckId) => {
     try {
       const all = [];
@@ -66,6 +60,9 @@ export const useWords = () => {
         from += PAGE_SIZE;
       }
 
+      // console.log(`✅ 덱 ID ${deckId}의 총 단어 개수:`, all.length);
+      // console.log(`✅ 덱 ID ${deckId}의 단어 목록:`, all);
+
       setWords(all);
       return all;
     } catch (error) {
@@ -80,11 +77,12 @@ export const useWords = () => {
   }, [fetchDecks]);
 
   // --- 덱 관련 기능 ---
-  const addDeck = async (name, langCode) => {
+  // 덱 추가
+  const addDeck = async (deckName, langCode) => {
     try {
       const { data, error } = await supabase
         .from("decks")
-        .insert([{ name, lang_code: langCode }])
+        .insert([{ deck_name: deckName, lang_code: langCode }])
         .select();
       if (error) throw error;
       setDecks((prev) => [...prev, { ...data[0], total: 0 }]);
@@ -94,6 +92,7 @@ export const useWords = () => {
     }
   };
 
+  // 덱 삭제 (연관된 단어도 함께 삭제)
   const deleteDeck = async (deckId, deckName) => {
     if (!window.confirm(`"${deckName}" 덱과 모든 단어를 삭제하시겠습니까?`))
       return;
@@ -107,27 +106,27 @@ export const useWords = () => {
     }
   };
 
-  const renameDeck = async (deckId, oldName, newName, newLang) => {
-    if (!newName || !newName.trim()) return;
+  // 덱 수정
+  const updateDeck = async (deckId, oldDeckName, newDeckName, newLang) => {
+    if (!newDeckName || !newDeckName.trim()) return;
     const { error } = await supabase
       .from("decks")
-      .update({ name: newName, lang_code: newLang })
+      .update({ deck_name: newDeckName, lang_code: newLang })
       .eq("id", deckId);
     if (error) throw error;
 
     setDecks((prev) =>
       prev.map((d) =>
-        d.id === deckId ? { ...d, name: newName, lang_code: newLang } : d,
+        d.id === deckId
+          ? { ...d, deck_name: newDeckName, lang_code: newLang }
+          : d,
       ),
     );
-    setWords((prev) =>
-      prev.map((w) =>
-        w.deck_id === deckId ? { ...w } : w,
-      ),
-    );
+    setWords((prev) => prev.map((w) => (w.deck_id === deckId ? { ...w } : w)));
   };
 
   // --- 단어 관련 기능 ---
+  // 단어 추가
   const addWord = async (newWord) => {
     try {
       const { word, meaning, example, deck_id } = newWord;
@@ -138,7 +137,10 @@ export const useWords = () => {
         deck_id,
         status: "none",
       };
-      const { data, error } = await supabase.from("words").insert([row]).select();
+      const { data, error } = await supabase
+        .from("words")
+        .insert([row])
+        .select();
       if (error) throw error;
       setWords((prev) => [data[0], ...prev]);
       fetchDecks();
@@ -147,6 +149,7 @@ export const useWords = () => {
     }
   };
 
+  // 단어 수정
   const updateWord = async (id, updatedData) => {
     try {
       const { error } = await supabase
@@ -159,10 +162,12 @@ export const useWords = () => {
       );
       return { success: true };
     } catch (error) {
+      alert(error.message);
       return { success: false };
     }
   };
 
+  // 단어 삭제
   const deleteWord = async (id) => {
     if (!window.confirm("삭제할까요?")) return;
     try {
@@ -174,6 +179,7 @@ export const useWords = () => {
     }
   };
 
+  // 단어 학습상태 변경
   const updateWordStatus = async (id, newStatus) => {
     try {
       await supabase.from("words").update({ status: newStatus }).eq("id", id);
@@ -185,6 +191,7 @@ export const useWords = () => {
     }
   };
 
+  // 단어 덱에 대량 추가
   const addWordsBulk = async (wordsArray) => {
     try {
       const rows = wordsArray.map((w) => ({
@@ -194,7 +201,10 @@ export const useWords = () => {
         deck_id: w.deck_id,
         status: "none",
       }));
-      const { data, error } = await supabase.from("words").insert(rows).select();
+      const { data, error } = await supabase
+        .from("words")
+        .insert(rows)
+        .select();
       if (error) throw error;
       setWords((prev) => [...(data || []), ...prev]);
       fetchDecks();
@@ -209,7 +219,7 @@ export const useWords = () => {
     decks,
     loading,
     addDeck,
-    renameDeck,
+    updateDeck,
     deleteDeck,
     addWord,
     updateWord,

@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { X, Plus, ListPlus } from "lucide-react";
-import { motion } from "framer-motion";
 import Modal from "@/components/common/Modal";
 
 const AddWordModal = ({
@@ -10,20 +9,29 @@ const AddWordModal = ({
   onAddBulk,
   onAddDeck,
   defaultDeckId,
-  defaultDeckName,
-  mode,
+  mode = "word", // 기본값 설정
 }) => {
+  // 1. 상태 관리 (기능별 분리)
   const [activeTab, setActiveTab] = useState("single");
-  const [word, setWord] = useState("");
-  const [meaning, setMeaning] = useState("");
+  const [singleWord, setSingleWord] = useState({ word: "", meaning: "" });
   const [bulkText, setBulkText] = useState("");
-  const [newDeckName, setNewDeckName] = useState("");
+  const [deckInfo, setDeckInfo] = useState({ name: "", lang: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [langCode, setLangCode] = useState("");
 
+  // 2. 입력값 초기화 함수 (재사용성)
+  const resetFields = useCallback(() => {
+    setSingleWord({ word: "", meaning: "" });
+    setBulkText("");
+    setDeckInfo({ name: "", lang: "" });
+    setIsSubmitting(false);
+  }, []);
+
+  // 3. 단일 단어 추가 핸들러
   const handleSingleSubmit = async (e) => {
     e.preventDefault();
+    const { word, meaning } = singleWord;
     if (!word.trim() || !meaning.trim() || isSubmitting) return;
+
     setIsSubmitting(true);
     try {
       await onAdd({
@@ -31,30 +39,35 @@ const AddWordModal = ({
         meaning: meaning.trim(),
         deck_id: defaultDeckId,
       });
-      setWord("");
-      setMeaning("");
+      resetFields();
       onClose();
+    } catch (error) {
+      console.error("단어 추가 실패:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // 4. 일괄 추가 핸들러 (강력한 파싱 로직)
   const handleBulkSubmit = async () => {
-    if (isSubmitting) return;
+    if (!bulkText.trim() || isSubmitting) return;
 
+    // 정규식을 활용한 정교한 파싱 (콜론, 쉼표, 탭 대응)
     const lines = bulkText.split("\n").filter((line) => line.trim());
     const parsedWords = lines
       .map((line) => {
-        const parts = line.split(/[:|,|\t]/);
+        const parts = line.split(/[:|,\t]/);
         if (parts.length < 2) return null;
-        const w = parts[0].replace(/["']/g, "").trim();
-        const m = parts[1].replace(/["']/g, "").trim();
+
+        const w = parts[0].trim().replace(/^["']|["']$/g, "");
+        const m = parts[1].trim().replace(/^["']|["']$/g, "");
+
         return w && m ? { word: w, meaning: m, deck_id: defaultDeckId } : null;
       })
       .filter(Boolean);
 
     if (parsedWords.length === 0) {
-      alert("형식에 맞춰 입력해주세요! (예: apple:사과 또는 banana,바나나)");
+      alert("입력 형식이 올바르지 않습니다.\n예) apple:사과");
       return;
     }
 
@@ -62,128 +75,50 @@ const AddWordModal = ({
     try {
       const result = await onAddBulk?.(parsedWords);
       if (result?.success !== false) {
-        setBulkText("");
+        resetFields();
         onClose();
-      } else {
-        alert(result?.error || "일괄 추가 중 오류가 발생했습니다.");
       }
     } catch (e) {
-      alert("일괄 추가 중 오류가 발생했습니다.");
-      console.error(e);
+      alert("일괄 추가 중 서버 오류가 발생했습니다.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // 5. 덱 생성 핸들러
   const handleDeckSubmit = async (e) => {
     e.preventDefault();
-    if (!newDeckName.trim() || isSubmitting) return;
+    if (!deckInfo.name.trim() || isSubmitting) return;
+
     setIsSubmitting(true);
     try {
-      await onAddDeck?.(newDeckName.trim(), langCode);
-      setNewDeckName("");
-      setLangCode("");
+      await onAddDeck?.(deckInfo.name.trim(), deckInfo.lang);
+      resetFields();
       onClose();
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const renderDeckForm = () => (
-    <form onSubmit={handleDeckSubmit}>
-      <p className="modal-guide-text">공부할 주제와 언어를 선택해 주세요.</p>
-      <label className="modal-label">학습 언어</label>
-      <select
-        value={langCode}
-        onChange={(e) => setLangCode(e.target.value)}
-        className="modal-select"
-      >
-        <option value="">음성 지원 안함</option>
-        <option value="en-US">영어 (US)</option>
-        <option value="ko-KR">한국어</option>
-        <option value="fr-FR">프랑스어</option>
-        <option value="ja-JP">일본어</option>
-        <option value="zh-CN">중국어</option>
-        <option value="es-ES">스페인어</option>
-        <option value="th-TH">태국어</option>
-        <option value="vi-VN">베트남어</option>
-      </select>
-      <label className="modal-label">덱 이름</label>
-      <input
-        placeholder="예: 파리 여행 준비"
-        value={newDeckName}
-        onChange={(e) => setNewDeckName(e.target.value)}
-        className="modal-input"
-        autoFocus
-      />
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="modal-submit-btn"
-      >
-        {isSubmitting ? "처리 중..." : "새 덱 생성하기"}
-      </button>
-    </form>
-  );
-
-  const renderSingleWordForm = () => (
-    <form onSubmit={handleSingleSubmit}>
-      <input
-        placeholder="단어"
-        value={word}
-        onChange={(e) => setWord(e.target.value)}
-        className="modal-input"
-        autoFocus
-      />
-      <input
-        placeholder="뜻"
-        value={meaning}
-        onChange={(e) => setMeaning(e.target.value)}
-        className="modal-input"
-      />
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="modal-submit-btn"
-      >
-        {isSubmitting ? "추가 중..." : "추가하기"}
-      </button>
-    </form>
-  );
-
-  const renderBulkWordForm = () => (
-    <div>
-      <p className="modal-guide-text">
-        줄바꿈으로 구분 (콜론, 쉼표, 탭 모두 가능)
-      </p>
-      <textarea
-        placeholder={"apple:사과\nbanana,바나나\ncherry\t체리"}
-        value={bulkText}
-        onChange={(e) => setBulkText(e.target.value)}
-        className="modal-textarea"
-      />
-      <button
-        onClick={handleBulkSubmit}
-        disabled={isSubmitting}
-        className="modal-submit-btn"
-      >
-        {isSubmitting ? "업로드 중..." : "일괄 추가"}
-      </button>
-    </div>
-  );
-
-  if (!isOpen) return null;
+  // 6. UI 렌더링 최적화 (useMemo/함수 분리)
+  const isDeckMode = mode === "deck";
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size={mode === "deck" ? "small" : "normal"}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size={isDeckMode ? "small" : "normal"}
+    >
       <div className="modal-header">
-        <h2>{mode === "deck" ? "새로운 덱 만들기" : "단어 추가하기"}</h2>
+        <h2 className="modal-title">
+          {isDeckMode ? "새로운 덱 만들기" : "단어 추가하기"}
+        </h2>
         <button onClick={onClose} className="modal-close-btn" aria-label="닫기">
           <X size={20} />
         </button>
       </div>
 
-      {mode === "word" && (
+      {!isDeckMode && (
         <div className="modal-tab-container">
           <button
             type="button"
@@ -203,14 +138,103 @@ const AddWordModal = ({
       )}
 
       <div className="modal-form">
-        {mode === "deck"
-          ? renderDeckForm()
-          : activeTab === "single"
-            ? renderSingleWordForm()
-            : renderBulkWordForm()}
+        {isDeckMode ? (
+          <form onSubmit={handleDeckSubmit} className="modal-form--compact">
+            <p className="modal-guide-text">
+              학습할 주제와 TTS 언어를 설정하세요.
+            </p>
+            <label className="modal-label">학습 언어</label>
+            <select
+              value={deckInfo.lang}
+              onChange={(e) =>
+                setDeckInfo((prev) => ({ ...prev, lang: e.target.value }))
+              }
+              className="modal-select"
+            >
+              <option value="">음성 지원 안함</option>
+              <option value="en-US">영어 (US)</option>
+              <option value="ko-KR">한국어</option>
+              <option value="ja-JP">일본어</option>
+              <option value="fr-FR">프랑스어</option>
+              <option value="zh-CN">중국어</option>
+            </select>
+            <label className="modal-label">덱 이름</label>
+            <input
+              placeholder="예: 토익 필수 영단어"
+              value={deckInfo.name}
+              onChange={(e) =>
+                setDeckInfo((prev) => ({ ...prev, name: e.target.value }))
+              }
+              className="modal-input"
+              autoFocus
+            />
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="modal-submit-btn"
+            >
+              {isSubmitting ? "생성 중..." : "새 덱 생성하기"}
+            </button>
+          </form>
+        ) : activeTab === "single" ? (
+          <form onSubmit={handleSingleSubmit}>
+            <div className="input-group">
+              <label className="modal-label">단어</label>
+              <input
+                placeholder="영단어나 문장을 입력하세요"
+                value={singleWord.word}
+                onChange={(e) =>
+                  setSingleWord((prev) => ({ ...prev, word: e.target.value }))
+                }
+                className="modal-input"
+                autoFocus
+              />
+            </div>
+            <div className="input-group">
+              <label className="modal-label">뜻</label>
+              <input
+                placeholder="의미를 입력하세요"
+                value={singleWord.meaning}
+                onChange={(e) =>
+                  setSingleWord((prev) => ({
+                    ...prev,
+                    meaning: e.target.value,
+                  }))
+                }
+                className="modal-input"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="modal-submit-btn"
+            >
+              {isSubmitting ? "추가 중..." : "단어 추가하기"}
+            </button>
+          </form>
+        ) : (
+          <div className="modal-form--bulk">
+            <p className="modal-guide-text">
+              줄바꿈으로 구분 (콜론, 쉼표, 탭 지원)
+            </p>
+            <textarea
+              placeholder={"apple:사과\nbanana,바나나\ncherry\t체리"}
+              value={bulkText}
+              onChange={(e) => setBulkText(e.target.value)}
+              className="modal-textarea"
+            />
+            <button
+              onClick={handleBulkSubmit}
+              disabled={isSubmitting}
+              className="modal-submit-btn"
+            >
+              {isSubmitting ? "업로드 중..." : "리스트 일괄 추가"}
+            </button>
+          </div>
+        )}
       </div>
     </Modal>
   );
 };
 
-export default AddWordModal;
+export default React.memo(AddWordModal);

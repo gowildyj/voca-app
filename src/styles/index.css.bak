@@ -1199,24 +1199,12 @@ body {
 }
 
 /* 배경색에 아주 연하게 포인트 컬러를 주어 영역 구분 강화 (선택 사항) */
-/* 몰라요 버튼 Hover (다크모드 대비 포함) */
 .score-item.unknown:hover {
-  background-color: #fff1f2; /* 연한 빨강 */
-}
-.score-item.unknown:hover .label,
-.score-item.unknown:hover .count {
-  color: #e11d48 !important; /* 글자색을 진한 빨강으로 고정 */
-  opacity: 1;
+  background-color: #fff1f2; /* 매우 연한 빨강 */
 }
 
-/* 알아요 버튼 Hover (다크모드 대비 포함) */
 .score-item.know:hover {
-  background-color: #f0fdf4; /* 연한 초록 */
-}
-.score-item.know:hover .label,
-.score-item.know:hover .count {
-  color: #16a34a !important; /* 글자색을 진한 초록으로 고정 */
-  opacity: 1;
+  background-color: #f0fdf4; /* 매우 연한 초록 */
 }
 
 .score-item.unknown .count {

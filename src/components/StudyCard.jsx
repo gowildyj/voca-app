@@ -1,45 +1,57 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useMotionValue } from "framer-motion";
 import { RotateCw, Volume2 } from "lucide-react";
 import { speak } from "@/utils/tts";
 
-const StudyCard = ({ word, onSwipe, langCode }) => {
-  // console.log("langCode in StudyCard:", langCode);
-
+const StudyCard = ({ word, onSwipe, langCode, feedback, setFeedback }) => {
   const [isFlipped, setIsFlipped] = useState(false);
+
+  // 1. x 값을 실시간 추적하기 위해 생성
+  const x = useMotionValue(0);
 
   if (!word) return null;
 
+  const SWIPE_THRESHOLD = 50;
+  const handleDrag = (event, info) => {
+    if (info.offset.x > SWIPE_THRESHOLD) setFeedback("know");
+    else if (info.offset.x < -SWIPE_THRESHOLD) setFeedback("unknown");
+    else setFeedback(null);
+  };
+
   const handleDragEnd = (event, info) => {
-    // 100px 이상 드래그 시 스와이프 판정
-    if (info.offset.x > 100) {
-      onSwipe("right");
-    } else if (info.offset.x < -100) {
-      onSwipe("left");
+    setFeedback(null);
+    if (SWIPE_THRESHOLD) onSwipe("right");
+    else if (info.offset.x < -SWIPE_THRESHOLD) onSwipe("left");
+  };
+
+  const handleCardClick = () => {
+    // 2. 임계값을 5px 정도로 설정하여 '미세한 움직임'은 클릭으로 간주
+    // 기존 < 0 조건을 < 5로 수정했습니다.
+    if (Math.abs(x.get()) < 5) {
+      setIsFlipped(!isFlipped);
     }
   };
 
   return (
     <div className="study-card-wrapper">
       <motion.div
+        style={{ x }} // 3. ⭐ 필수: x 값을 motion.div의 스타일과 동기화
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
+        onDrag={handleDrag}
         onDragEnd={handleDragEnd}
+        onTap={handleCardClick} // onTap은 내부적으로 드래그와 클릭을 구분하는 데 유리함
         whileDrag={{ scale: 1.02 }}
-        onClick={() => setIsFlipped(!isFlipped)}
-        className="study-card-drag"
+        className={`study-card-drag ${feedback ? `flash-${feedback}` : ""}`}
       >
         <div className={`study-card-inner ${isFlipped ? "flipped" : ""}`}>
-          {/* 카드 앞면 (단어) */}
           <div className="card-face front">
             <button
               onPointerDown={(e) => {
-                e.stopPropagation(); // 1. 부모의 드래그 시작을 막음
-                speak(word.word, langCode); // 2. 즉시 소리 재생
+                e.stopPropagation();
+                speak(word.word, langCode);
               }}
-              onClick={(e) => {
-                e.stopPropagation(); // 3. 뒤집기 방지 (클릭이 발생했을 때 대비)
-              }}
+              onClick={(e) => e.stopPropagation()}
               className="card-speaker-btn"
               type="button"
             >
@@ -51,7 +63,6 @@ const StudyCard = ({ word, onSwipe, langCode }) => {
             </div>
           </div>
 
-          {/* 카드 뒷면 (뜻) */}
           <div className="card-face back">
             <h2>{word.meaning}</h2>
             {word.example && <p>{word.example}</p>}

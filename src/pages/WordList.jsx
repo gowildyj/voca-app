@@ -5,16 +5,16 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { motion } from "framer-motion";
-import { useParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { useParams, useNavigate } from "react-router-dom"; // navigate 추가
 import { Play, ArrowLeft, Plus, Edit3, Trash2 } from "lucide-react";
-import WordItem from "@/components/WordItem";
+import WordItem from "@/components/wordlist/WordItem";
 import EditWordModal from "@/components/EditWordModal";
 import AddWordModal from "@/components/AddWordModal";
 import SearchBar from "@/components/wordlist/SearchBar";
 import FilterBar from "@/components/wordlist/FilterBar";
 import { seededShuffle } from "@/utils/seedShuffle";
-import RenameDeckModal from "@/components/RenameDeckModal";
+import UpdateDeckModal from "@/components/UpdateDeckModal";
 
 const WordList = ({
   decks = [],
@@ -25,61 +25,63 @@ const WordList = ({
   onBack,
   addWord,
   addWordsBulk,
-  renameDeck,
+  updateDeck,
   onDeleteDeck,
 }) => {
+  const navigate = useNavigate();
+  const { deckName: urlDeckParam } = useParams();
+
+  // 1. 컨텍스트 추출 (Memoized)
+  const currentDeckName = useMemo(
+    () => decodeURIComponent(urlDeckParam || ""),
+    [urlDeckParam],
+  );
+  const foundDeck = useMemo(
+    () => decks?.find((d) => d.deck_name === currentDeckName),
+    [decks, currentDeckName],
+  );
+  const currentDeckId = foundDeck?.id;
+  const currentLangCode = foundDeck?.lang_code;
+
+  // 2. 상태 관리
   const [filter, setFilter] = useState("all");
   const [sortType, setSortType] = useState("default");
   const [searchQuery, setSearchQuery] = useState("");
   const [shuffleSeed, setShuffleSeed] = useState(0);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [targetWord, setTargetWord] = useState(null);
-  const [displayLimit, setDisplayLimit] = useState(30);
+  const [displayLimit, setDisplayLimit] = useState(10);
   const [localWords, setLocalWords] = useState([]);
   const [listLoading, setListLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isRenameOpen, setIsRenameOpen] = useState(false);
 
   const observerTarget = useRef(null);
-  const { deckName: urlDeckParam } = useParams();
-  const currentDeckName = decodeURIComponent(urlDeckParam || "");
 
-  const foundDeck = decks?.find((d) => d.name === currentDeckName);
-  const currentDeckId = foundDeck?.id;
-  const currentLangCode = foundDeck?.lang_code;
-
+  // 3. 데이터 로딩 (Memory Leak 방지)
   useEffect(() => {
+    let isMounted = true;
     const loadData = async () => {
       if (!currentDeckId || typeof fetchWordsByDeck !== "function") return;
       setListLoading(true);
-      const data = await fetchWordsByDeck(currentDeckId);
-      setLocalWords(data || []);
-      setListLoading(false);
+      try {
+        const data = await fetchWordsByDeck(currentDeckId);
+        if (isMounted) setLocalWords(data || []);
+      } finally {
+        if (isMounted) setListLoading(false);
+      }
     };
     loadData();
+    return () => {
+      isMounted = false;
+    };
   }, [currentDeckId, fetchWordsByDeck]);
 
-  useEffect(() => {
-    setDisplayLimit(30);
-  }, [searchQuery, filter, sortType]);
-
-  const validWords = useMemo(
-    () => localWords.filter((w) => w.word?.trim() !== ""),
-    [localWords],
-  );
-
-  const filterCounts = useMemo(
-    () => ({
-      all: validWords.length,
-      none: validWords.filter((w) => !w.status || w.status === "none").length,
-      unknown: validWords.filter((w) => w.status === "unknown").length,
-      know: validWords.filter((w) => w.status === "know").length,
-    }),
-    [validWords],
-  );
-
+  // 4. 필터링 및 정렬 (성능 핵심: useMemo)
   const filteredWords = useMemo(() => {
-    let result = validWords.filter((word) => {
+    const valid = localWords.filter((w) => w.word?.trim());
+
+    let result = valid.filter((word) => {
       const matchesFilter =
         filter === "all"
           ? true
@@ -98,87 +100,20 @@ const WordList = ({
       result = seededShuffle(result, shuffleSeed);
 
     return result;
-  }, [validWords, filter, searchQuery, sortType, shuffleSeed]);
+  }, [localWords, filter, searchQuery, sortType, shuffleSeed]);
 
-  const handleAddWord = useCallback(
-    async (newWord) => {
-      await addWord(newWord);
-      if (currentDeckId) {
-        const data = await fetchWordsByDeck(currentDeckId);
-        setLocalWords(data || []);
-      }
-    },
-    [addWord, fetchWordsByDeck, currentDeckId],
-  );
+  // 필터 카운트 별도 계산 (성능 최적화)
+  const filterCounts = useMemo(() => {
+    const valid = localWords.filter((w) => w.word?.trim());
+    return {
+      all: valid.length,
+      none: valid.filter((w) => !w.status || w.status === "none").length,
+      unknown: valid.filter((w) => w.status === "unknown").length,
+      know: valid.filter((w) => w.status === "know").length,
+    };
+  }, [localWords]);
 
-  const handleAddBulk = useCallback(
-    async (wordsArray) => {
-      const result = await addWordsBulk(wordsArray);
-      if (result?.success && currentDeckId) {
-        const data = await fetchWordsByDeck(currentDeckId);
-        setLocalWords(data || []);
-      }
-      return result;
-    },
-    [addWordsBulk, fetchWordsByDeck, currentDeckId],
-  );
-
-  const handleUpdateWord = useCallback(
-    async (id, updatedData) => {
-      const result = await updateWord(id, updatedData);
-      if (result?.success && currentDeckId) {
-        const data = await fetchWordsByDeck(currentDeckId);
-        setLocalWords(data || []);
-      }
-      return result;
-    },
-    [updateWord, fetchWordsByDeck, currentDeckId],
-  );
-
-  const handleDeleteWord = useCallback(
-    async (id) => {
-      await deleteWord(id);
-      if (currentDeckId) {
-        const data = await fetchWordsByDeck(currentDeckId);
-        setLocalWords(data || []);
-      }
-    },
-    [deleteWord, fetchWordsByDeck, currentDeckId],
-  );
-
-  const handleOpenEdit = useCallback((word) => {
-    setTargetWord(word);
-    setIsEditOpen(true);
-  }, []);
-
-  const finalDisplayList = useMemo(() => {
-    if (filteredWords.length === 0) {
-      return [
-        {
-          id: "guide-card",
-          word: searchQuery
-            ? `"${searchQuery}" 검색 결과 없음`
-            : "첫 단어를 추가해보세요!",
-          meaning: searchQuery
-            ? "검색어를 확인해보세요."
-            : "우측 하단의 + 버튼 클릭 🚀",
-          status: "none",
-          isGuide: true,
-        },
-      ];
-    }
-    return filteredWords.slice(0, displayLimit);
-  }, [filteredWords, displayLimit, searchQuery]);
-
-  const handleDeleteDeck = async () => {
-    if (
-      window.confirm(`"${currentDeckName}" 덱과 모든 단어를 삭제하시겠습니까?`)
-    ) {
-      await onDeleteDeck(currentDeckId, currentDeckName);
-      navigate("/"); // 삭제 후 대시보드로 이동
-    }
-  };
-
+  // 5. 무한 스크롤 (Observer 최적화)
   useEffect(() => {
     if (listLoading) return;
     const observer = new IntersectionObserver(
@@ -187,34 +122,65 @@ const WordList = ({
           setDisplayLimit((prev) => prev + 30);
         }
       },
-      { threshold: 1.0 },
+      { threshold: 0.1 },
     );
-    if (observerTarget.current) observer.observe(observerTarget.current);
-    return () => observer.disconnect();
+
+    const target = observerTarget.current;
+    if (target) observer.observe(target);
+    return () => {
+      if (target) observer.unobserve(target);
+    };
   }, [filteredWords.length, displayLimit, listLoading]);
+
+  // 6. 핸들러 메모이제이션
+  const handleRefreshList = useCallback(async () => {
+    if (currentDeckId) {
+      const data = await fetchWordsByDeck(currentDeckId);
+      setLocalWords(data || []);
+    }
+  }, [currentDeckId, fetchWordsByDeck]);
+
+  const onUpdateAction = useCallback(
+    async (action, ...args) => {
+      const result = await action(...args);
+      await handleRefreshList();
+      return result;
+    },
+    [handleRefreshList],
+  );
+
+  // 진입 시 임시 세션 정리
+  useEffect(() => {
+    const keys = ["temp_study_words", "temp_study_index", "temp_study_deck_id"];
+    keys.forEach((k) => localStorage.removeItem(k));
+  }, []);
 
   return (
     <div className="word-list-page">
       <header className="list-header">
         <div className="header-left">
-          <button onClick={onBack} className="back-btn" aria-label="뒤로">
+          <button onClick={onBack} className="back-btn">
             <ArrowLeft size={24} />
           </button>
           <h1 className="list-header-title">{currentDeckName}</h1>
         </div>
-
         <div className="header-right">
           <button
             onClick={() => setIsRenameOpen(true)}
             className="deck-action-btn"
-            aria-label="덱 수정"
           >
             <Edit3 size={18} />
           </button>
           <button
-            onClick={handleDeleteDeck}
+            onClick={() => {
+              if (
+                window.confirm(`"${currentDeckName}" 덱을 삭제하시겠습니까?`)
+              ) {
+                onDeleteDeck(currentDeckId, currentDeckName);
+                navigate("/");
+              }
+            }}
             className="deck-action-btn"
-            aria-label="덱 삭제"
           >
             <Trash2 size={18} />
           </button>
@@ -227,9 +193,12 @@ const WordList = ({
         className="study-start-card"
         onClick={() =>
           filteredWords.length > 0 &&
-          onStartStudy(filteredWords, currentDeckName)
+          onStartStudy(filteredWords, currentDeckId, currentDeckName)
         }
-        style={{ opacity: filteredWords.length > 0 ? 1 : 0.5 }}
+        style={{
+          opacity: filteredWords.length > 0 ? 1 : 0.5,
+          cursor: filteredWords.length > 0 ? "pointer" : "default",
+        }}
       >
         <div className="study-card-info">
           <h3>학습 시작</h3>
@@ -258,18 +227,26 @@ const WordList = ({
             <span>불러오는 중...</span>
           </div>
         ) : (
-          <>
-            {finalDisplayList.map((item) => (
-              <WordItem
-                key={item.id}
-                item={item}
-                langCode={currentLangCode}
-                onEdit={handleOpenEdit}
-                onDelete={item.isGuide ? null : handleDeleteWord}
-              />
-            ))}
-            <div ref={observerTarget} className="scroll-trigger" />
-          </>
+          <div className="word-items-wrapper">
+            <AnimatePresence>
+              {filteredWords.slice(0, displayLimit).map((item) => (
+                <WordItem
+                  key={item.id}
+                  item={item}
+                  langCode={currentLangCode}
+                  onEdit={(word) => {
+                    setTargetWord(word);
+                    setIsEditOpen(true);
+                  }}
+                  onDelete={(id) => onUpdateAction(deleteWord, id)}
+                />
+              ))}
+            </AnimatePresence>
+            {filteredWords.length === 0 && (
+              <EmptyGuide searchQuery={searchQuery} />
+            )}
+            <div ref={observerTarget} style={{ height: "20px" }} />
+          </div>
         )}
       </div>
 
@@ -282,34 +259,59 @@ const WordList = ({
         <Plus size={32} strokeWidth={2.5} />
       </motion.button>
 
-      <AddWordModal
-        isOpen={isAddModalOpen}
-        mode="word"
-        onClose={() => setIsAddModalOpen(false)}
-        onAdd={handleAddWord}
-        onAddBulk={handleAddBulk}
-        defaultDeckId={currentDeckId}
-        defaultDeckName={currentDeckName}
-      />
+      {/* Modals - Conditional Rendering for Performance */}
+      {isAddModalOpen && (
+        <AddWordModal
+          isOpen={isAddModalOpen}
+          mode="word"
+          onClose={() => setIsAddModalOpen(false)}
+          onAdd={(word) => onUpdateAction(addWord, word)}
+          onAddBulk={(bulk) => onUpdateAction(addWordsBulk, bulk)}
+          defaultDeckId={currentDeckId}
+          defaultDeckName={currentDeckName}
+        />
+      )}
 
-      <EditWordModal
-        isOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
-        item={targetWord}
-        onUpdate={handleUpdateWord}
-      />
+      {isEditOpen && (
+        <EditWordModal
+          isOpen={isEditOpen}
+          onClose={() => {
+            setIsEditOpen(false);
+            setTargetWord(null);
+          }}
+          item={targetWord}
+          onUpdate={(id, data) => onUpdateAction(updateWord, id, data)}
+        />
+      )}
 
-      <RenameDeckModal
-        key={currentDeckId}
-        isOpen={isRenameOpen}
-        deckId={currentDeckId}
-        oldName={currentDeckName}
-        oldLangCode={currentLangCode}
-        onClose={() => setIsRenameOpen(false)}
-        onRename={renameDeck}
-      />
+      {isRenameOpen && (
+        <UpdateDeckModal
+          key={currentDeckId}
+          isOpen={isRenameOpen}
+          deckId={currentDeckId}
+          oldName={currentDeckName}
+          oldLangCode={currentLangCode}
+          onClose={() => setIsRenameOpen(false)}
+          onRename={updateDeck}
+        />
+      )}
     </div>
   );
 };
+
+const EmptyGuide = ({ searchQuery }) => (
+  <div className="word-item-card guide-mode">
+    <div className="word-item-content">
+      <div className="word-text">
+        {searchQuery
+          ? `"${searchQuery}" 검색 결과 없음`
+          : "첫 단어를 추가해보세요!"}
+      </div>
+      <div className="word-meaning">
+        {searchQuery ? "검색어를 확인해보세요." : "우측 하단의 + 버튼 클릭 🚀"}
+      </div>
+    </div>
+  </div>
+);
 
 export default WordList;

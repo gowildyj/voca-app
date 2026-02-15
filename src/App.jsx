@@ -18,8 +18,14 @@ function AppContent() {
   const [studyWords, setStudyWords] = useState([]);
   const wordHooks = useWords();
 
-  const handleStartStudy = (filteredList, deckName) => {
+  // 학습시작
+  const handleStartStudy = (filteredList, deckId, deckName) => {
     if (filteredList.length === 0) return alert("학습할 단어가 없습니다!");
+
+    localStorage.setItem("temp_study_words", JSON.stringify(filteredList));
+    localStorage.setItem("temp_study_index", "0");
+    localStorage.setItem("temp_study_deck_id", String(deckId));
+
     setStudyWords(filteredList);
     navigate(`/study/${encodeURIComponent(deckName)}`);
   };
@@ -32,8 +38,8 @@ function AppContent() {
           element={
             <Dashboard
               {...wordHooks}
-              onSelectDeck={(name) =>
-                navigate(`/list/${encodeURIComponent(name)}`)
+              onSelectDeck={(deckName) =>
+                navigate(`/list/${encodeURIComponent(deckName)}`)
               }
             />
           }
@@ -56,7 +62,10 @@ function AppContent() {
             <StudySession
               words={studyWords}
               decks={wordHooks.decks}
-              onFinish={(name) => navigate(`/list/${encodeURIComponent(name)}`)}
+              fetchWordsByDeck={wordHooks.fetchWordsByDeck}
+              onFinish={(deckName) =>
+                navigate(`/list/${encodeURIComponent(deckName)}`)
+              }
               onUpdateStatus={wordHooks.updateWordStatus}
             />
           }

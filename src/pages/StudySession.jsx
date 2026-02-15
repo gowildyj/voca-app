@@ -1,162 +1,176 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import { useParams } from "react-router-dom";
 import { speak } from "@/utils/tts";
 import StudyCard from "@/components/StudyCard";
-import StudyHeader from "@/components/study/StudyHeader"; // ✅ [분리] 헤더 추출
-import StudyFinishView from "@/components/study/StudyFinishView"; // ✅ [분리] 결과화면 추출
-import { AnimatePresence, motion } from "framer-motion";
-import { XCircle, CheckCircle } from "lucide-react";
+import StudyHeader from "@/components/study/StudyHeader";
+import StudyFinishView from "@/components/study/StudyFinishView";
+import { AnimatePresence } from "framer-motion";
 
-const StudySession = ({ words, decks, onFinish, onUpdateStatus }) => {
+const StudySession = ({
+  words = [],
+  decks = [],
+  onFinish,
+  onUpdateStatus,
+  fetchWordsByDeck,
+}) => {
   const { deckName: urlDeckParam } = useParams();
-  const currentDeckName = decodeURIComponent(urlDeckParam || "");
+  const currentDeckName = useMemo(
+    () => decodeURIComponent(urlDeckParam || ""),
+    [urlDeckParam],
+  );
 
-  const currentDeck = decks?.find((d) => d.name === currentDeckName);
-  const langCode = currentDeck?.lang_code;
+  const currentDeck = useMemo(
+    () => decks?.find((d) => d.deck_name === currentDeckName),
+    [decks, currentDeckName],
+  );
+  const currentDeckId = currentDeck?.id;
+  const langCode = currentDeck?.lang_code || "en-US";
 
-  const [feedback, setFeedback] = useState(null); // 'know' | 'unknown' | null
-  const [currentWords, setCurrentWords] = useState(words ?? []);
+  // 상태 초기화
+  const [currentWords, setCurrentWords] = useState(() => {
+    const savedDeckId = localStorage.getItem("temp_study_deck_id");
+    if (currentDeckId && String(savedDeckId) === String(currentDeckId)) {
+      const savedWords = localStorage.getItem("temp_study_words");
+      return savedWords ? JSON.parse(savedWords) : (words ?? []);
+    }
+    return words ?? [];
+  });
+
+  const [loading, setLoading] = useState(
+    () => currentWords.length === 0 && !!currentDeckId,
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [feedback, setFeedback] = useState(null);
   const [unknownWords, setUnknownWords] = useState([]);
+  const [knownWords, setKnownWords] = useState([]);
   const [autoPlay, setAutoPlay] = useState(true);
   const lastPlayedIndex = useRef(-1);
 
-  const isFinished = currentIndex >= currentWords.length;
+  const isFinished =
+    currentIndex >= currentWords.length && currentWords.length > 0;
   const currentWord = currentWords[currentIndex];
-  const isEmpty = currentWords.length === 0;
 
-  // ✅ 음성 자동 재생 로직
-  useEffect(() => {
-    if (
-      currentWord &&
-      autoPlay &&
-      !isFinished &&
-      lastPlayedIndex.current !== currentIndex
-    ) {
-      const timer = setTimeout(() => {
-        speak(currentWord.word, langCode);
-        lastPlayedIndex.current = currentIndex;
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [currentIndex, currentWord, autoPlay, isFinished, langCode]);
+  // 로컬스토리지 청소
+  const clearStudySession = useCallback(() => {
+    const keys = ["temp_study_words", "temp_study_index", "temp_study_deck_id"];
+    keys.forEach((key) => localStorage.removeItem(key));
+  }, []);
 
-  // ✅ [로직 최적화] 스와이프 핸들러
+  // ⭐ 모르는 단어만 복습하기 핸들러
+  const handleReviewUnknown = useCallback(() => {
+    if (unknownWords.length === 0) return;
+
+    const reviewList = [...unknownWords];
+    setCurrentWords(reviewList); // 단어 리스트 교체
+    setCurrentIndex(0); // 인덱스 초기화
+    setUnknownWords([]); // 점수판 초기화
+    setKnownWords([]);
+    lastPlayedIndex.current = -1;
+
+    // 복습 세션 상태 저장
+    localStorage.setItem("temp_study_words", JSON.stringify(reviewList));
+    localStorage.setItem("temp_study_index", "0");
+  }, [unknownWords]);
+
+  const handleFinishStudy = useCallback(() => {
+    clearStudySession();
+    onFinish(currentDeckName);
+  }, [clearStudySession, onFinish, currentDeckName]);
+
+  // Swipe 핸들러
   const handleSwipe = useCallback(
     (direction) => {
-      if (isFinished) return;
-      const wordToUpdate = currentWords[currentIndex];
+      if (isFinished || !currentWord || feedback) return;
 
-      // 상태 업데이트 로직을 명확하게 분리
+      const status = direction === "left" ? "unknown" : "know";
       if (direction === "left") {
-        setUnknownWords((prev) => [...prev, wordToUpdate]);
-        onUpdateStatus(wordToUpdate.id, "unknown");
-        setFeedback("unknown");
+        setUnknownWords((prev) => [...prev, currentWord]);
       } else {
-        onUpdateStatus(wordToUpdate.id, "know");
-        setFeedback("know");
+        setKnownWords((prev) => [...prev, currentWord]);
       }
-      setTimeout(() => setFeedback(null), 500);
-      setCurrentIndex((prev) => prev + 1);
+
+      onUpdateStatus?.(currentWord.id, status);
+      setFeedback(status);
+
+      setTimeout(() => {
+        setFeedback(null);
+        setCurrentIndex((prev) => prev + 1);
+      }, 150);
     },
-    [isFinished, currentWords, currentIndex, onUpdateStatus],
+    [isFinished, currentWord, onUpdateStatus, feedback],
   );
 
-  // ✅ [로직 최적화] 복습 핸들러
-  const handleReviewUnknown = () => {
-    lastPlayedIndex.current = -1;
-    setCurrentWords(unknownWords);
-    setCurrentIndex(0);
-    setUnknownWords([]);
-  };
+  const handleUndo = useCallback(() => {
+    if (currentIndex > 0) {
+      const prevIndex = currentIndex - 1;
+      const prevWord = currentWords[prevIndex];
 
-  // 키보드 핸들러: 좌/우 화살표로 몰라/알아 표시
+      setCurrentIndex(prevIndex);
+      // ✅ 몰라요/알아요 양쪽 목록에서 해당 단어를 찾아 제거
+      setUnknownWords((prev) => prev.filter((w) => w.id !== prevWord.id));
+      setKnownWords((prev) => prev.filter((w) => w.id !== prevWord.id));
+      lastPlayedIndex.current = prevIndex - 1;
+    }
+  }, [currentIndex, currentWords]);
+
+  // 키보드 이벤트
   useEffect(() => {
     const onKey = (e) => {
-      if (isFinished) return;
-      if (e.key === "ArrowLeft") {
-        handleSwipe("left");
-      } else if (e.key === "ArrowRight") {
-        handleSwipe("right");
-      }
+      if (isFinished || loading || feedback) return;
+      if (e.key === "ArrowLeft") handleSwipe("left");
+      else if (e.key === "ArrowRight") handleSwipe("right");
     };
-
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isFinished, currentIndex, currentWords, handleSwipe]);
+  }, [isFinished, loading, feedback, handleSwipe]);
 
-  if (isEmpty) {
+  // 렌더링...
+  if (loading)
     return (
-      <div className="finish-container">
-        <p className="finish-title">학습할 단어가 없습니다</p>
-        <p className="result-row">
-          단어장에서 단어를 추가한 뒤 학습을 시작해주세요.
-        </p>
-        <button
-          onClick={() => onFinish(currentDeckName)}
-          className="btn-primary"
-        >
-          목록으로 돌아가기
-        </button>
+      <div className="loading-screen flex-center">
+        <p>데이터 동기화 중...</p>
       </div>
     );
-  }
 
   if (isFinished) {
     return (
       <StudyFinishView
         totalCount={currentWords.length}
         unknownCount={unknownWords.length}
-        onReview={handleReviewUnknown}
-        onBack={() => onFinish(currentDeckName)}
+        onReview={handleReviewUnknown} // ⭐ 여기로 수정된 함수 전달
+        onBack={handleFinishStudy}
       />
     );
   }
 
-  // 남은 단어 셔플 함수
-  const handleShuffleRemaining = () => {
-    const past = currentWords.slice(0, currentIndex);
-    const remaining = currentWords.slice(currentIndex);
-
-    // 피셔-예이츠 셔플 알고리즘
-    for (let i = remaining.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
-    }
-
-    setCurrentWords([...past, ...remaining]);
-  };
-
-  // 이전 카드로 돌아가기 (간단 버전)
-  const handleGoBack = () => {
-    if (currentIndex <= 0) return;
-
-    const prevIndex = currentIndex - 1;
-    const prevWord = currentWords[prevIndex];
-
-    // 몰라 목록에서 제거 (있었다면)
-    setUnknownWords((prev) => prev.filter((w) => w.id !== prevWord.id));
-
-    // 인덱스 복구
-    setCurrentIndex(prevIndex);
-    lastPlayedIndex.current = prevIndex - 1; // 다시 읽어주기 위해 리셋
-  };
-
   return (
-    <div className="App">
+    <div className="App study-session-page">
       <div className="study-main-container">
         <StudyHeader
           currentIndex={currentIndex}
           totalCount={currentWords.length}
           autoPlay={autoPlay}
           onToggleAutoPlay={() => setAutoPlay(!autoPlay)}
-          onBack={() => onFinish(currentDeckName)}
-          onShuffle={handleShuffleRemaining}
-          onUndo={handleGoBack}
+          onBack={handleFinishStudy}
+          onShuffle={() => {
+            const remaining = [...currentWords.slice(currentIndex)].sort(
+              () => Math.random() - 0.5,
+            );
+            setCurrentWords([
+              ...currentWords.slice(0, currentIndex),
+              ...remaining,
+            ]);
+          }}
+          onUndo={handleUndo}
         />
-        <div
-          className={`study-card-area ${feedback ? `flash-${feedback}` : ""}`}
-        >
+
+        <main className="study-card-area">
           <AnimatePresence mode="wait">
             {currentWord && (
               <StudyCard
@@ -164,10 +178,11 @@ const StudySession = ({ words, decks, onFinish, onUpdateStatus }) => {
                 word={currentWord}
                 langCode={langCode}
                 onSwipe={handleSwipe}
+                feedback={feedback}
               />
             )}
           </AnimatePresence>
-        </div>
+        </main>
 
         <div className="study-score-board">
           <div
@@ -179,7 +194,7 @@ const StudySession = ({ words, decks, onFinish, onUpdateStatus }) => {
           </div>
           <div className="score-item know" onClick={() => handleSwipe("right")}>
             <span className="label">알아요</span>
-            <span className="count">{currentIndex - unknownWords.length}</span>
+            <span className="count">{knownWords.length}</span>
           </div>
         </div>
       </div>
@@ -187,4 +202,4 @@ const StudySession = ({ words, decks, onFinish, onUpdateStatus }) => {
   );
 };
 
-export default StudySession;
+export default React.memo(StudySession);

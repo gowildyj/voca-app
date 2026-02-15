@@ -1,6 +1,6 @@
 import React from "react";
 import { BookOpen, Edit3, Trash2, Volume2, Sparkles } from "lucide-react";
-import { speak } from "../utils/tts";
+import { speak } from "@/utils/tts";
 
 const WordItem = React.memo(({ item, onEdit, onDelete, langCode }) => {
   if (!item) return null;

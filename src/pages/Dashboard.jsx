@@ -1,46 +1,51 @@
-import React, { useState, useMemo } from "react";
-import RenameDeckModal from "@/components/RenameDeckModal";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
+import UpdateDeckModal from "@/components/UpdateDeckModal";
 import AddWordModal from "@/components/AddWordModal";
 import DeckCard from "@/components/dashboard/DeckCard";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { PlusCircle } from "lucide-react";
 
 const Dashboard = ({
   decks = [],
-  words = [],
   loading,
   onSelectDeck,
   addDeck,
   deleteDeck,
-  renameDeck,
+  updateDeck,
+  refresh,
 }) => {
   const [isRenameOpen, setIsRenameOpen] = useState(false);
   const [isAddDeckOpen, setIsAddDeckOpen] = useState(false);
-  const [targetDeck, setTargetDeck] = useState({
-    id: "",
-    name: "",
-    lang_code: "",
-  });
 
-  //  데이터 가공 로직: Props로 받은 데이터를 화면에 맞게 변환
-  const deckStats = useMemo(() => {
-    if (!decks) return [];
-    return decks.map((deck) => {
-      const relatedWords = words.filter((w) => w.deck_id === deck.id);
-      const total = deck.total ?? relatedWords.length;
-      const known = relatedWords.filter((w) => w.status === "know").length;
-      const progress = total > 0 ? Math.round((known / total) * 100) : 0;
+  // 초기값을 null로 설정하여 불필요한 객체 생성을 방지합니다.
+  const [targetDeck, setTargetDeck] = useState(null);
 
-      return { ...deck, total, progress };
-    });
-  }, [decks, words]);
+  // 컴포넌트 마운트 시 데이터 갱신
+  useEffect(() => {
+    if (refresh) refresh();
+  }, [refresh]);
 
-  // 핸들러 로직 추출
-  const handleEditClick = (e, deck) => {
+  // ✅ 불필요한 가공 없이 decks를 그대로 사용하되, 메모이제이션으로 렌더링 최적화
+  const memoizedDecks = useMemo(() => {
+    return Array.isArray(decks) ? decks : [];
+  }, [decks]);
+
+  // 핸들러들을 useCallback으로 감싸 자식 컴포넌트의 리렌더링을 방지합니다. (성능 핵심)
+  const handleEditClick = useCallback((e, deck) => {
     e.stopPropagation();
-    setTargetDeck({ id: deck.id, name: deck.name, lang_code: deck.lang_code });
+    setTargetDeck(deck);
     setIsRenameOpen(true);
-  };
+  }, []);
+
+  const handleDeleteClick = useCallback(
+    (e, deck) => {
+      e.stopPropagation();
+      if (window.confirm(`"${deck.deck_name}" 덱을 삭제하시겠습니까?`)) {
+        deleteDeck(deck.id, deck.deck_name);
+      }
+    },
+    [deleteDeck],
+  );
 
   return (
     <div className="dashboard-container">
@@ -50,9 +55,11 @@ const Dashboard = ({
       </header>
 
       <div className="deck-grid">
+        {/* 새 덱 만들기 카드 */}
         <motion.div
           className="deck-card add-card"
-          whileHover={{ y: -2 }}
+          // whileHover={{ y: -4, transition: { duration: 0.2 } }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => setIsAddDeckOpen(true)}
         >
           <PlusCircle size={28} color="var(--primary)" />
@@ -60,41 +67,48 @@ const Dashboard = ({
         </motion.div>
 
         {loading ? (
-          <div className="deck-grid-loading" aria-hidden>
+          <div className="deck-grid-loading">
             <span>불러오는 중...</span>
           </div>
         ) : (
-          deckStats.map((deck) => (
-            <DeckCard
-              key={deck.id}
-              deck={deck}
-              onSelect={() => onSelectDeck(deck.name)}
-              onEdit={(e) => handleEditClick(e, deck)}
-              onDelete={(e) => {
-                e.stopPropagation();
-                deleteDeck(deck.id, deck.name);
-              }}
-            />
-          ))
+          <AnimatePresence mode="popLayout">
+            {memoizedDecks.map((deck) => (
+              <DeckCard
+                key={deck.id}
+                deck={deck}
+                onSelect={() => onSelectDeck(deck.deck_name)}
+                onEdit={(e) => handleEditClick(e, deck)}
+                onDelete={(e) => handleDeleteClick(e, deck)}
+              />
+            ))}
+          </AnimatePresence>
         )}
       </div>
 
-      <AddWordModal
-        isOpen={isAddDeckOpen}
-        mode="deck"
-        onClose={() => setIsAddDeckOpen(false)}
-        onAddDeck={addDeck}
-      />
+      {/* 모달: 불필요한 렌더링을 막기 위해 조건부 렌더링 적용 */}
+      {isAddDeckOpen && (
+        <AddWordModal
+          isOpen={isAddDeckOpen}
+          mode="deck"
+          onClose={() => setIsAddDeckOpen(false)}
+          onAddDeck={addDeck}
+        />
+      )}
 
-      <RenameDeckModal
-        key={targetDeck.id}
-        isOpen={isRenameOpen}
-        deckId={targetDeck.id}
-        oldName={targetDeck.name}
-        oldLangCode={targetDeck.lang_code}
-        onClose={() => setIsRenameOpen(false)}
-        onRename={renameDeck}
-      />
+      {isRenameOpen && targetDeck && (
+        <UpdateDeckModal
+          key={targetDeck.id}
+          isOpen={isRenameOpen}
+          deckId={targetDeck.id}
+          oldName={targetDeck.deck_name}
+          oldLangCode={targetDeck.lang_code}
+          onClose={() => {
+            setIsRenameOpen(false);
+            setTargetDeck(null);
+          }}
+          onRename={updateDeck}
+        />
+      )}
     </div>
   );
 };

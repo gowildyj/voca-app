@@ -9,7 +9,7 @@ ALTER TABLE public.words
 UPDATE public.words w
 SET deck_id = d.id
 FROM public.decks d
-WHERE w.deck = d.name
+WHERE w.deck = d.deck_name
   AND w.deck_id IS NULL;
 
 -- 3. 매칭 안 된 단어(이미 삭제된 덱 등) 제거 후 진행

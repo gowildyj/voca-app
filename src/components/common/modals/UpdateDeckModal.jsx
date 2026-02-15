@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, memo } from "react";
-import { X } from "lucide-react";
+import { X, Save, RotateCcw } from "lucide-react";
 import Modal from "@/components/common/Modal";
 import { LANG_OPTIONS } from "@/constants/languages";
 
@@ -11,6 +11,7 @@ const UpdateDeckModal = ({
   isOpen,
   onClose,
   onRename,
+  onResetProgress,
   oldName = "",
   deckId,
   oldLangCode = "",
@@ -53,6 +54,18 @@ const UpdateDeckModal = ({
       alert(err?.message || "덱 정보를 수정하는 중 오류가 발생했습니다.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleReset = () => {
+    if (
+      window.confirm(
+        "정말 이 덱의 모든 학습 기록을 초기화하시겠습니까?\n'몰라요/알아요' 상태가 모두 사라집니다.",
+      )
+    ) {
+      onResetProgress(deckId);
+      alert("학습 기록이 초기화되었습니다.");
+      onClose();
     }
   };
 
@@ -107,6 +120,16 @@ const UpdateDeckModal = ({
             autoComplete="off"
           />
         </div>
+
+        <label className="modal-label">학습 관리</label>
+        <button
+          type="button"
+          className="reset-progress-btn"
+          onClick={handleReset}
+        >
+          <RotateCcw size={16} />
+          학습 기록 초기화 (모든 단어 상태 리셋)
+        </button>
 
         <button
           type="submit"

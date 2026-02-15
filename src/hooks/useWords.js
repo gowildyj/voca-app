@@ -191,6 +191,33 @@ export const useWords = () => {
     }
   };
 
+  // 단어 학습상태 초기화
+  const resetDeckProgress = async (deckId) => {
+    try {
+      // 1. DB 업데이트: 해당 덱의 모든 단어 status를 'none'으로 변경
+      const { error } = await supabase
+        .from("words")
+        .update({ status: "none" })
+        .eq("deck_id", deckId);
+
+      if (error) throw error;
+
+      // 2. 로컬 words 상태 업데이트 (현재 화면 갱신용)
+      setWords((prev) =>
+        prev.map((w) => (w.deck_id === deckId ? { ...w, status: "none" } : w)),
+      );
+
+      // 3. 덱 통계(진행률) 갱신
+      fetchDecks();
+
+      return true;
+    } catch (error) {
+      console.error("초기화 실패:", error.message);
+      alert("학습 기록 초기화 중 오류가 발생했습니다.");
+      return false;
+    }
+  };
+
   // 단어 덱에 대량 추가
   const addWordsBulk = async (wordsArray) => {
     try {
@@ -229,5 +256,6 @@ export const useWords = () => {
     fetchDecks,
     fetchWordsByDeck,
     refresh: fetchDecks,
+    resetDeckProgress,
   };
 };

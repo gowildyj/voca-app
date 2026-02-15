@@ -27,6 +27,7 @@ const WordList = ({
   addWordsBulk,
   updateDeck,
   onDeleteDeck,
+  resetDeckProgress,
 }) => {
   const navigate = useNavigate();
   const { deckName: urlDeckParam } = useParams();
@@ -154,6 +155,21 @@ const WordList = ({
     const keys = ["temp_study_words", "temp_study_index", "temp_study_deck_id"];
     keys.forEach((k) => localStorage.removeItem(k));
   }, []);
+
+  const handleResetProgress = async (deckId) => {
+    // 1. DB 업데이트 (API 호출)
+    const success = await resetDeckProgress(deckId);
+
+    if (success) {
+      // 2. 로컬 상태 즉시 반영 (새로고침 없이 UI 업데이트)
+      setLocalWords((prevWords) =>
+        prevWords.map((word) => ({ ...word, status: "none" })),
+      );
+
+      // 필터도 갱신되도록 트리거
+      setFilter("all");
+    }
+  };
 
   return (
     <div className="word-list-page">
@@ -293,6 +309,7 @@ const WordList = ({
           oldLangCode={currentLangCode}
           onClose={() => setIsRenameOpen(false)}
           onRename={updateDeck}
+          onResetProgress={handleResetProgress}
         />
       )}
     </div>

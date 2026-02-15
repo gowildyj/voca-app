@@ -1,5 +1,5 @@
 export const LANG_OPTIONS = [
-  { value: "", label: "음성 지원 안함" },
+  { value: "", label: "음성 설정 안함" },
   { value: "en-US", label: "영어(US)" },
   { value: "ko-KR", label: "한국어" },
   { value: "ja-JP", label: "일본어" },

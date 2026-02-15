@@ -285,3 +285,24 @@ search-container {
 .floating-plus-btn:active {
   transform: scale(0.9) !important;
 }
+
+.lang-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--text);
+  opacity: 0.3; /* 너무 눈에 띄지 않게 */
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  pointer-events: none; /* 클릭 방해 금지 */
+  user-select: none;
+}
+
+[data-theme="dark"] .lang-badge {
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 0.5;
+}

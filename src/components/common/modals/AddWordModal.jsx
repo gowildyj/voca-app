@@ -1,6 +1,7 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { X, Plus, ListPlus } from "lucide-react";
 import Modal from "@/components/common/Modal";
+import { LANG_OPTIONS } from "@/constants/languages";
 
 const AddWordModal = ({
   isOpen,
@@ -151,12 +152,11 @@ const AddWordModal = ({
               }
               className="modal-select"
             >
-              <option value="">음성 지원 안함</option>
-              <option value="en-US">영어 (US)</option>
-              <option value="ko-KR">한국어</option>
-              <option value="ja-JP">일본어</option>
-              <option value="fr-FR">프랑스어</option>
-              <option value="zh-CN">중국어</option>
+              {LANG_OPTIONS.map((opt) => (
+                <option key={opt.value || "none"} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
             <label className="modal-label">덱 이름</label>
             <input

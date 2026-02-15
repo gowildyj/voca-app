@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import UpdateDeckModal from "@/components/UpdateDeckModal";
-import AddWordModal from "@/components/AddWordModal";
+import UpdateDeckModal from "@/components/common/modals/UpdateDeckModal";
+import AddWordModal from "@/components/common/modals/AddWordModal";
 import DeckCard from "@/components/dashboard/DeckCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlusCircle } from "lucide-react";

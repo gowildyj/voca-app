@@ -9,12 +9,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom"; // navigate 추가
 import { Play, ArrowLeft, Plus, Edit3, Trash2 } from "lucide-react";
 import WordItem from "@/components/wordlist/WordItem";
-import EditWordModal from "@/components/EditWordModal";
-import AddWordModal from "@/components/AddWordModal";
+import EditWordModal from "@/components/common/modals/EditWordModal";
+import AddWordModal from "@/components/common/modals/AddWordModal";
 import SearchBar from "@/components/wordlist/SearchBar";
 import FilterBar from "@/components/wordlist/FilterBar";
 import { seededShuffle } from "@/utils/seedShuffle";
-import UpdateDeckModal from "@/components/UpdateDeckModal";
+import UpdateDeckModal from "@/components/common/modals/UpdateDeckModal";
 
 const WordList = ({
   decks = [],

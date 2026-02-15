@@ -62,14 +62,6 @@ const Modal = ({
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className={`modal-content ${size === "small" ? "small" : ""} ${className}`.trim()}
             onClick={(e) => e.stopPropagation()} // 콘텐츠 클릭 시 닫힘 방지
-            style={{
-              backgroundColor: "white",
-              padding: "20px",
-              borderRadius: "16px",
-              maxWidth: size === "small" ? "320px" : "500px",
-              width: "90%",
-              boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)",
-            }}
           >
             {children}
           </motion.div>

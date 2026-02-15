@@ -1,0 +1,690 @@
+.study-session-page {
+  height: 100vh;
+  overflow: hidden;
+}
+.study-main-container {
+  height: 90dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 카드 영역 */
+
+.study-card-drag {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+  border-radius: 32px;
+  transition: outline 0.1s ease-out;
+  outline: 6px solid transparent;
+  outline-offset: -6px;
+}
+
+/* 피드백 효과 */
+.study-card-area.flash-know,
+.study-card-drag.flash-know {
+  outline: 10px solid #52c41a !important;
+  box-shadow: 0 0 20px rgba(82, 196, 26, 0.4);
+}
+.study-card-area.flash-unknown,
+.study-card-drag.flash-unknown {
+  outline: 10px solid #ff4d4f !important;
+  box-shadow: 0 0 20px rgba(255, 77, 79, 0.4);
+}
+
+/* 카드 뒷면/앞면 */
+.study-card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.4s ease;
+}
+.study-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  text-align: center;
+}
+.card-face.front {
+  background-color: var(--card);
+  border: 2px solid var(--bg);
+}
+.card-face.back {
+  background-color: var(--primary);
+  color: white;
+  transform: rotateY(180deg);
+}
+
+/* 헤더 & 점수판 */
+
+.study-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  min-height: 60px;
+  margin-bottom: 10px;
+}
+
+.study-progress-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+.study-score-board {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+}
+.score-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.score-item.unknown .count {
+  color: var(--danger);
+}
+.score-item.know .count {
+  color: #22c55e;
+}
+
+.autoplay-btn {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.autoplay-btn.active {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: var(--primary);
+}
+
+.study-card-wrapper {
+  height: 100%;
+}
+
+.study-card-area {
+  outline-offset: 2px;
+  position: relative;
+  flex: 1;
+  width: 100%;
+  border-radius: 32px;
+  padding: 0;
+  margin-bottom: 10px;
+  transition:
+    outline 0.1s ease-out,
+    box-shadow 0.1s ease-out;
+}
+
+.swipe-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-direction: column;
+  opacity: 0.85;
+  padding: 6px;
+}
+
+.swipe-btn:active {
+  transform: scale(0.96);
+}
+
+.swipe-btn.left {
+  margin-right: 8px;
+}
+
+.swipe-btn.right {
+  margin-left: 8px;
+}
+
+.side-badge {
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: white;
+}
+
+.left-badge {
+  background: #ef4444; /* 빨강: 몰라 */
+}
+
+.right-badge {
+  background: #10b981; /* 초록: 알아 */
+}
+
+@media (max-width: 640px) {
+  /* 모바일에서는 버튼을 숨기기 (터치 드래그 우선) */
+  .swipe-btn {
+    display: none;
+  }
+}
+
+.study-card-drag {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+
+.study-card-drag:active {
+  cursor: grabbing;
+}
+
+.study-card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.4s ease;
+}
+
+.study-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  text-align: center;
+}
+
+.card-face.front {
+  background-color: var(--card);
+  border: 2px solid var(--bg);
+}
+
+.card-face.front h2 {
+  font-size: 3rem;
+  margin: 0;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.card-face.back {
+  background-color: var(--primary);
+  color: white;
+  transform: rotateY(180deg);
+}
+
+.card-face.back h2 {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.card-face.back p {
+  margin-top: 15px;
+  opacity: 0.9;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.card-speaker-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(108, 92, 231, 0.1);
+  border: none;
+  border-radius: 12px;
+  padding: 10px;
+  color: var(--primary);
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.2s;
+}
+
+.card-speaker-btn:active {
+  transform: scale(0.9);
+}
+
+.flip-hint {
+  margin-top: 20px;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+.swipe-guide {
+  margin-top: 60px;
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  opacity: 0.3;
+}
+
+.guide-item {
+  text-align: center;
+}
+
+.guide-text {
+  font-size: 0.75rem;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+/* ========== Study Result / Finish ========== */
+.finish-container {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.finish-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+.result-card {
+  margin: 30px 0;
+  padding: 24px;
+  background-color: var(--card);
+  border-radius: 24px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.result-row {
+  margin: 10px 0;
+  font-size: 1.1rem;
+}
+
+.result-row--danger {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.study-score-board {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin: 24px auto;
+  padding: 0 0px;
+}
+
+.score-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px 0;
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.score-item:active {
+  transform: scale(0.98);
+  filter: brightness(0.9);
+}
+
+.score-item .label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text);
+  opacity: 0.6;
+}
+
+.score-item .count {
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.score-item.unknown .count {
+  color: #ff4d4f;
+}
+.score-item.know .count {
+  color: #52c41a;
+}
+
+.score-item.unknown:hover {
+  background-color: #fff1f2;
+}
+.score-item.unknown:hover .label,
+.score-item.unknown:hover .count {
+  color: #e11d48 !important;
+  opacity: 1;
+}
+
+.score-item.know:hover {
+  background-color: #f0fdf4;
+}
+.score-item.know:hover .label,
+.score-item.know:hover .count {
+  color: #16a34a !important;
+  opacity: 1;
+}
+
+.score-item.unknown .count {
+  color: var(--danger);
+}
+
+.score-item.know .count {
+  color: #22c55e;
+}
+.study-header-modern {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  margin-bottom: 30px;
+}
+
+.header-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.autoplay-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.study-action-buttons {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.study-btn {
+  flex: 1;
+  padding: 18px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition:
+    transform 0.1s,
+    opacity 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.study-btn:active {
+  transform: scale(0.96);
+}
+
+.study-btn.unknown {
+  background-color: #fff1f2;
+  color: #e11d48;
+}
+
+.study-btn.know {
+  background-color: #f0fdf4;
+  color: #16a34a;
+}
+
+.study-main-container {
+  height: 90dvh;
+  display: flex;
+  flex-direction: column;
+}
+/* ========== ?? ========== */
+
+.study-card-area {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  border-radius: 32px;
+  padding: 0;
+  margin-bottom: 10px;
+}
+.study-score-board {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+}
+
+.score-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.study-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  width: 100%;
+  min-height: 60px;
+}
+
+.study-progress-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  font-weight: 800;
+  font-size: 1.1rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.header-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.autoplay-btn {
+  background: var(--card);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--text);
+}
+
+.autoplay-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  margin-bottom: 10px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.list-header-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* 아이콘 간격 */
+}
+
+.header-right .deck-action-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--text);
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 0.2s,
+    color 0.2s;
+}
+
+.header-right .deck-action-btn:hover {
+  opacity: 1;
+  color: var(--primary);
+}
+
+.study-card-area {
+  position: relative;
+  transition:
+    outline 0.1s ease-out,
+    box-shadow 0.1s ease-out;
+  border-radius: 32px;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.study-card-area.flash-know {
+  outline: 5px solid #52c41a;
+  outline-offset: -5px;
+  box-shadow: 0 0 20px rgba(82, 196, 26, 0.4);
+}
+
+.study-card-area.flash-unknown {
+  outline: 5px solid #ff4d4f;
+  outline-offset: -5px;
+  box-shadow: 0 0 20px rgba(255, 77, 79, 0.4);
+}
+
+.study-card-area {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  border-radius: 32px;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.study-card-area {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  border-radius: 32px;
+  padding: 0;
+  margin-bottom: 10px;
+}
+
+.study-card-drag {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+  border-radius: 32px;
+  transition:
+    outline 0.15s ease,
+    box-shadow 0.15s ease;
+  outline: 6px solid transparent;
+  outline-offset: -6px;
+}
+
+.study-card-area.flash-know {
+  outline: 5px solid #52c41a;
+  outline-offset: -5px;
+  box-shadow: 0 0 20px rgba(82, 196, 26, 0.4);
+}
+
+.study-card-area.flash-unknown {
+  outline: 5px solid #ff4d4f;
+  outline-offset: -5px;
+  box-shadow: 0 0 20px rgba(255, 77, 79, 0.4);
+}
+
+.study-card-drag {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+  border-radius: 32px;
+  transition: outline 0.1s ease-out;
+  outline: 6px solid transparent;
+  outline-offset: -6px;
+}
+
+.study-card-drag.flash-know {
+  outline: 10px solid #52c41a !important;
+}
+
+.study-card-drag.flash-unknown {
+  outline: 10px solid #ff4d4f !important;
+}

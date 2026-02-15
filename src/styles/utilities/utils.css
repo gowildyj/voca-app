@@ -1,0 +1,46 @@
+.speaker-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--primary);
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.speaker-btn:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* ========== back-btn ========== */
+.back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+/* ========== shuffle-refresh-btn ========== */
+.shuffle-refresh-btn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 10px;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-right: 8px;
+}
+
+.shuffle-refresh-btn:hover {
+  opacity: 0.9;
+}

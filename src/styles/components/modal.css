@@ -1,0 +1,213 @@
+/* ========== Modal Overlay ========== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  cursor: default;
+}
+
+/* ========== Modal Content ========== */
+.modal-content {
+  background: var(--card);
+  color: var(--text);
+  width: 100%;
+  max-width: 450px;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.modal-content.small {
+  max-width: 380px;
+  padding: 32px 24px 24px 24px;
+}
+
+/* ========== Header ========== */
+.modal-header {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  color: var(--text);
+  opacity: 0.5;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.modal-close-btn:hover {
+  background-color: rgba(128, 128, 128, 0.1);
+  opacity: 1;
+}
+
+/* ========== Tabs ========== */
+.modal-tab-container {
+  display: flex;
+  padding: 10px 20px;
+  gap: 10px;
+  background: var(--bg);
+}
+
+.modal-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+  opacity: 0.5;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.modal-tab:hover {
+  opacity: 0.8;
+  background: rgba(128, 128, 128, 0.1);
+}
+
+.modal-tab.active {
+  background: var(--card);
+  opacity: 1;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  color: var(--primary);
+}
+
+/* ========== Form & Inputs ========== */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.modal-guide-text {
+  font-size: 0.85rem;
+  color: var(--text);
+  opacity: 0.7;
+  margin-bottom: 16px;
+}
+
+.modal-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 6px;
+  display: block;
+  opacity: 0.9;
+}
+
+/* 입력창 공통 스타일 */
+.modal-input,
+.modal-textarea,
+.modal-select {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+
+  /* 배경과 글자색을 명시적으로 지정해야 다크모드에서 보임 */
+  background: var(--bg);
+  color: var(--text);
+
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  margin-bottom: 12px;
+  outline: none;
+  font-size: 1rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+/* 포커스 효과 */
+.modal-input:focus,
+.modal-textarea:focus,
+.modal-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* 플레이스홀더 색상 (다크모드 대응) */
+.modal-input::placeholder,
+.modal-textarea::placeholder {
+  color: var(--text);
+  opacity: 0.4;
+}
+
+.modal-textarea {
+  height: 150px;
+  resize: none;
+}
+
+/* Select 화살표 커스텀 */
+.modal-select {
+  appearance: none;
+  /* 기본(라이트모드) 화살표 색상: #888888 */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+/* 다크모드일 때 Select 화살표 흰색으로 변경 */
+[data-theme="dark"] .modal-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* ========== Buttons ========== */
+.modal-submit-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  border: none;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 8px;
+  transition:
+    opacity 0.2s,
+    transform 0.1s;
+}
+
+.modal-submit-btn:hover {
+  opacity: 0.9;
+}
+
+.modal-submit-btn:active {
+  transform: scale(0.98);
+}
+
+.modal-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

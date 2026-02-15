@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { useParams } from "react-router-dom";
 import { speak } from "@/utils/tts";
-import StudyCard from "@/components/StudyCard";
+import StudyCard from "@/components/study/StudyCard";
 import StudyHeader from "@/components/study/StudyHeader";
 import StudyFinishView from "@/components/study/StudyFinishView";
 import { AnimatePresence } from "framer-motion";

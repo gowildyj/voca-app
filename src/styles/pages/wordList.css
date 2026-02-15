@@ -1,12 +1,22 @@
-.word-list-page header {
+/* .word-list-page header {
   padding: 24px 0 20px;
-}
+} */
 
 .list-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  margin-bottom: 10px;
+  gap: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
   gap: 12px;
-  padding: 0 0 20px 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .list-header-title {
@@ -14,8 +24,36 @@
   font-size: 1.35rem;
   font-weight: 800;
   color: var(--text);
-  flex: 1;
-  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+header-right .deck-action-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--text);
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.header-right .deck-action-btn:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--primary);
 }
 
 .header-label {

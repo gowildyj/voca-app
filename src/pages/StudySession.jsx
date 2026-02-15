@@ -34,10 +34,14 @@ const StudySession = ({
 
   // 상태 초기화
   const [currentWords, setCurrentWords] = useState(() => {
-    const savedDeckId = localStorage.getItem("temp_study_deck_id");
-    if (currentDeckId && String(savedDeckId) === String(currentDeckId)) {
-      const savedWords = localStorage.getItem("temp_study_words");
-      return savedWords ? JSON.parse(savedWords) : (words ?? []);
+    try {
+      const savedDeckId = localStorage.getItem("temp_study_deck_id");
+      if (currentDeckId && String(savedDeckId) === String(currentDeckId)) {
+        const savedWords = localStorage.getItem("temp_study_words");
+        return savedWords ? JSON.parse(savedWords) : (words ?? []);
+      }
+    } catch (e) {
+      console.error(e);
     }
     return words ?? [];
   });
@@ -45,16 +49,34 @@ const StudySession = ({
   const [loading, setLoading] = useState(
     () => currentWords.length === 0 && !!currentDeckId,
   );
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    const savedDeckId = localStorage.getItem("temp_study_deck_id");
+    if (currentDeckId && String(savedDeckId) === String(currentDeckId)) {
+      const savedIndex = localStorage.getItem("temp_study_index");
+      return savedIndex ? parseInt(savedIndex, 10) : 0;
+    }
+    return 0;
+  });
   const [feedback, setFeedback] = useState(null);
   const [unknownWords, setUnknownWords] = useState([]);
   const [knownWords, setKnownWords] = useState([]);
-  const [autoPlay, setAutoPlay] = useState(true);
+  const [autoPlay, setAutoPlay] = useState(() => {
+    const saved = localStorage.getItem("study_setting_autoplay");
+    return saved !== null ? JSON.parse(saved) : true;
+  });
   const lastPlayedIndex = useRef(-1);
 
   const isFinished =
     currentIndex >= currentWords.length && currentWords.length > 0;
   const currentWord = currentWords[currentIndex];
+
+  const handleToggleAutoPlay = useCallback(() => {
+    setAutoPlay((prev) => {
+      const newValue = !prev;
+      localStorage.setItem("study_setting_autoplay", JSON.stringify(newValue));
+      return newValue;
+    });
+  }, []);
 
   // 로컬스토리지 청소
   const clearStudySession = useCallback(() => {
@@ -67,13 +89,12 @@ const StudySession = ({
     if (unknownWords.length === 0) return;
 
     const reviewList = [...unknownWords];
-    setCurrentWords(reviewList); // 단어 리스트 교체
-    setCurrentIndex(0); // 인덱스 초기화
-    setUnknownWords([]); // 점수판 초기화
+    setCurrentWords(reviewList);
+    setCurrentIndex(0);
+    setUnknownWords([]);
     setKnownWords([]);
-    lastPlayedIndex.current = -1;
+    lastPlayedIndex.current = -1; // 복습 시작 시 재생 인덱스 초기화
 
-    // 복습 세션 상태 저장
     localStorage.setItem("temp_study_words", JSON.stringify(reviewList));
     localStorage.setItem("temp_study_index", "0");
   }, [unknownWords]);
@@ -82,6 +103,27 @@ const StudySession = ({
     clearStudySession();
     onFinish(currentDeckName);
   }, [clearStudySession, onFinish, currentDeckName]);
+
+  useEffect(() => {
+    // 1. 자동재생 켜짐 확인
+    // 2. 단어가 존재하고, 아직 끝나지 않았는지 확인
+    // 3. 현재 인덱스가 방금 재생한 인덱스와 다른지 확인 (중복 재생 방지)
+    if (
+      autoPlay &&
+      currentWord &&
+      !isFinished &&
+      !loading &&
+      lastPlayedIndex.current !== currentIndex
+    ) {
+      // 약간의 딜레이를 주어 화면 전환 후 자연스럽게 재생
+      const timer = setTimeout(() => {
+        speak(currentWord.word, langCode);
+        lastPlayedIndex.current = currentIndex; // 재생 완료 표시
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [currentIndex, currentWord, autoPlay, isFinished, loading, langCode]);
 
   // Swipe 핸들러
   const handleSwipe = useCallback(
@@ -112,13 +154,45 @@ const StudySession = ({
       const prevWord = currentWords[prevIndex];
 
       setCurrentIndex(prevIndex);
-      // ✅ 몰라요/알아요 양쪽 목록에서 해당 단어를 찾아 제거
       setUnknownWords((prev) => prev.filter((w) => w.id !== prevWord.id));
       setKnownWords((prev) => prev.filter((w) => w.id !== prevWord.id));
-      lastPlayedIndex.current = prevIndex - 1;
+
+      // Undo 시에는 자동재생이 다시 되지 않도록 처리하거나,
+      // 다시 듣고 싶다면 아래 줄을 -2 등으로 설정.
+      // 보통 Undo 후에는 다시 듣는 게 좋으므로 -1로 초기화하여 재진입 시 소리나게 함.
+      lastPlayedIndex.current = -1;
     }
   }, [currentIndex, currentWords]);
 
+  useEffect(() => {
+    if (currentDeckId && currentWords.length > 0) {
+      localStorage.setItem("temp_study_deck_id", String(currentDeckId));
+      localStorage.setItem("temp_study_words", JSON.stringify(currentWords));
+      localStorage.setItem("temp_study_index", String(currentIndex));
+    }
+  }, [currentDeckId, currentWords, currentIndex]);
+
+  useEffect(() => {
+    if (
+      !loading &&
+      currentWords.length === 0 &&
+      currentDeckId &&
+      fetchWordsByDeck
+    ) {
+      const restoreData = async () => {
+        setLoading(true);
+        const data = await fetchWordsByDeck(currentDeckId);
+        if (data) {
+          setCurrentWords(data);
+          // 데이터 로드 후 인덱스 복구 시도
+          const savedIndex = localStorage.getItem("temp_study_index");
+          if (savedIndex) setCurrentIndex(parseInt(savedIndex, 10));
+        }
+        setLoading(false);
+      };
+      restoreData();
+    }
+  }, [currentDeckId, currentWords.length, loading, fetchWordsByDeck]);
   // 키보드 이벤트
   useEffect(() => {
     const onKey = (e) => {
@@ -130,7 +204,6 @@ const StudySession = ({
     return () => window.removeEventListener("keydown", onKey);
   }, [isFinished, loading, feedback, handleSwipe]);
 
-  // 렌더링...
   if (loading)
     return (
       <div className="loading-screen flex-center">
@@ -143,7 +216,7 @@ const StudySession = ({
       <StudyFinishView
         totalCount={currentWords.length}
         unknownCount={unknownWords.length}
-        onReview={handleReviewUnknown} // ⭐ 여기로 수정된 함수 전달
+        onReview={handleReviewUnknown}
         onBack={handleFinishStudy}
       />
     );
@@ -156,7 +229,7 @@ const StudySession = ({
           currentIndex={currentIndex}
           totalCount={currentWords.length}
           autoPlay={autoPlay}
-          onToggleAutoPlay={() => setAutoPlay(!autoPlay)}
+          onToggleAutoPlay={handleToggleAutoPlay}
           onBack={handleFinishStudy}
           onShuffle={() => {
             const remaining = [...currentWords.slice(currentIndex)].sort(
@@ -166,6 +239,7 @@ const StudySession = ({
               ...currentWords.slice(0, currentIndex),
               ...remaining,
             ]);
+            // 셔플 시 인덱스가 그대로라면 다시 재생되지 않도록 주의
           }}
           onUndo={handleUndo}
         />
@@ -179,6 +253,7 @@ const StudySession = ({
                 langCode={langCode}
                 onSwipe={handleSwipe}
                 feedback={feedback}
+                setFeedback={setFeedback} // StudyCard에 prop으로 전달 필요
               />
             )}
           </AnimatePresence>

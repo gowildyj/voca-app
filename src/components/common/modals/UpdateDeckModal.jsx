@@ -1,19 +1,7 @@
 import React, { useState, useEffect, useCallback, memo } from "react";
 import { X } from "lucide-react";
 import Modal from "@/components/common/Modal";
-
-// 외부 상수로 분리하여 리렌더링 시 메모리 낭비 방지
-const LANG_OPTIONS = [
-  { value: "", label: "음성 지원 안함" },
-  { value: "en-US", label: "영어 (US)" },
-  { value: "ko-KR", label: "한국어" },
-  { value: "fr-FR", label: "프랑스어" },
-  { value: "ja-JP", label: "일본어" },
-  { value: "zh-CN", label: "중국어" },
-  { value: "es-ES", label: "스페인어" },
-  { value: "th-TH", label: "태국어" },
-  { value: "vi-VN", label: "베트남어" },
-];
+import { LANG_OPTIONS } from "@/constants/languages";
 
 /**
  * UpdateDeckModal: 덱의 이름과 TTS 언어 설정을 수정
@@ -106,7 +94,7 @@ const UpdateDeckModal = ({
 
         <div className="input-group">
           <label className="modal-label" htmlFor="deck-name">
-            덱 이름
+            단어장 이름
           </label>
           <input
             id="deck-name"
@@ -115,7 +103,7 @@ const UpdateDeckModal = ({
             value={formData.name}
             onChange={handleChange}
             className="modal-input"
-            placeholder="덱 이름을 입력하세요"
+            placeholder="단어장 이름을 입력하세요"
             autoComplete="off"
           />
         </div>

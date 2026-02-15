@@ -112,7 +112,7 @@ const AddWordModal = ({
     >
       <div className="modal-header">
         <h2 className="modal-title">
-          {isDeckMode ? "새로운 덱 만들기" : "단어 추가하기"}
+          {isDeckMode ? "새로운 단어장 만들기" : "단어 추가하기"}
         </h2>
         <button onClick={onClose} className="modal-close-btn" aria-label="닫기">
           <X size={20} />
@@ -158,9 +158,9 @@ const AddWordModal = ({
                 </option>
               ))}
             </select>
-            <label className="modal-label">덱 이름</label>
+            <label className="modal-label">단어장 이름</label>
             <input
-              placeholder="예: 토익 필수 영단어"
+              placeholder="단어장 이름을 입력하세요"
               value={deckInfo.name}
               onChange={(e) =>
                 setDeckInfo((prev) => ({ ...prev, name: e.target.value }))
@@ -173,7 +173,7 @@ const AddWordModal = ({
               disabled={isSubmitting}
               className="modal-submit-btn"
             >
-              {isSubmitting ? "생성 중..." : "새 덱 생성하기"}
+              {isSubmitting ? "생성 중..." : "새 단어장 생성하기"}
             </button>
           </form>
         ) : activeTab === "single" ? (
@@ -181,7 +181,7 @@ const AddWordModal = ({
             <div className="input-group">
               <label className="modal-label">단어</label>
               <input
-                placeholder="영단어나 문장을 입력하세요"
+                placeholder="단어를 입력하세요"
                 value={singleWord.word}
                 onChange={(e) =>
                   setSingleWord((prev) => ({ ...prev, word: e.target.value }))
@@ -193,7 +193,7 @@ const AddWordModal = ({
             <div className="input-group">
               <label className="modal-label">뜻</label>
               <input
-                placeholder="의미를 입력하세요"
+                placeholder="뜻을 입력하세요"
                 value={singleWord.meaning}
                 onChange={(e) =>
                   setSingleWord((prev) => ({

@@ -50,8 +50,8 @@ const Dashboard = ({
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <h1 className="dashboard-title">내 학습 덱</h1>
-        <p className="dashboard-subtitle">오늘도 언어 천재가 되어볼까요? 🚀</p>
+        <h1 className="dashboard-title">내 단어장</h1>
+        <p className="dashboard-subtitle">오늘도 암기 천재가 되어볼까요? 🚀</p>
       </header>
 
       <div className="deck-grid">
@@ -63,7 +63,7 @@ const Dashboard = ({
           onClick={() => setIsAddDeckOpen(true)}
         >
           <PlusCircle size={28} color="var(--primary)" />
-          <span className="add-card-text">새 덱 만들기</span>
+          <span className="add-card-text">새 단어장 만들기</span>
         </motion.div>
 
         {loading ? (

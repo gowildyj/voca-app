@@ -28,7 +28,7 @@ const DeckCard = React.memo(({ deck, onSelect, onEdit, onDelete }) => {
         <button
           onClick={(e) => handleAction(e, onEdit)}
           className="deck-action-btn edit"
-          aria-label="덱 수정"
+          aria-label="단어장 수정"
           type="button"
         >
           <Edit3 size={16} />
@@ -36,7 +36,7 @@ const DeckCard = React.memo(({ deck, onSelect, onEdit, onDelete }) => {
         <button
           onClick={(e) => handleAction(e, onDelete)}
           className="deck-action-btn delete"
-          aria-label="덱 삭제"
+          aria-label="단어장 삭제"
           type="button"
         >
           <Trash2 size={16} />

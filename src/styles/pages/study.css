@@ -363,3 +363,42 @@
 .right-badge {
   background: #10b981;
 }
+
+/* 카드들이 놓일 공간 */
+.study-card-area {
+  flex: 1;
+  width: 100%;
+  position: relative; /* 자식들의 기준점 */
+  perspective: 1000px; /* 3D 효과 */
+  margin-bottom: 20px;
+  /* overflow: hidden;  <- 카드가 날아가는 걸 보고 싶으면 주석 처리하거나 제거 */
+}
+
+/* ⭐ [핵심] 카드를 감싸는 래퍼를 강제로 겹치게 만듦 */
+.study-card-wrapper {
+  position: absolute; /* 겹치기 필수 설정 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  /* 정렬 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* 앞뒤 순서 제어는 z-index로 함 */
+}
+
+/* 실제 움직이는 카드 본체 */
+.study-card-drag {
+  width: 100%;
+  height: 100%;
+  max-height: 600px; /* 너무 길어지지 않게 */
+  background: var(--card);
+  border-radius: 32px;
+  position: relative;
+  /* 그림자 등은 js에서 제어하거나 여기에 기본값 설정 */
+}
+
+/* ... 나머지 내부 스타일 유지 ... */

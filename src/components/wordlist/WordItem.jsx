@@ -6,10 +6,12 @@ const WordItem = React.memo(({ item, onEdit, onDelete, langCode }) => {
   if (!item) return null;
 
   const isGuide = item.isGuide || false;
+  const statusClass = item.status ? `status-${item.status}` : "";
 
   return (
-    <div className={`word-item-card ${isGuide ? "guide-mode" : ""}`}>
-      {/* 1. 왼쪽 아이콘 */}
+    <div
+      className={`word-item-card ${isGuide ? "guide-mode" : ""}${statusClass}`}
+    >
       <div className="word-item-icon">
         {isGuide ? (
           <Sparkles size={20} className="guide-icon" />
@@ -18,7 +20,6 @@ const WordItem = React.memo(({ item, onEdit, onDelete, langCode }) => {
         )}
       </div>
 
-      {/* 2. 중앙 텍스트 콘텐츠 */}
       <div className="word-item-content">
         <div className="word-text-wrapper">
           <span className="word-text">{item.word}</span>
@@ -26,7 +27,7 @@ const WordItem = React.memo(({ item, onEdit, onDelete, langCode }) => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                speak(item.word, langCode); // langCode가 'auto'면 speak 내부에서 다시 감지함
+                if (item.word) speak(item.word, langCode);
               }}
               className="speaker-btn"
               aria-label="발음 듣기"
@@ -38,13 +39,12 @@ const WordItem = React.memo(({ item, onEdit, onDelete, langCode }) => {
         <div className="word-meaning">{item.meaning}</div>
       </div>
 
-      {/* 3. 우측 상단 수정/삭제 버튼 (Absolute Position) */}
       {!isGuide && (
         <div className="word-item-actions">
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onEdit(item);
+              if (onEdit) onEdit(item);
             }}
             className="deck-action-btn"
             aria-label="수정"
@@ -55,7 +55,7 @@ const WordItem = React.memo(({ item, onEdit, onDelete, langCode }) => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete(item.id);
+                if (item.id) onDelete(item.id);
               }}
               className="deck-action-btn"
               aria-label="삭제"
@@ -68,5 +68,7 @@ const WordItem = React.memo(({ item, onEdit, onDelete, langCode }) => {
     </div>
   );
 });
+
+WordItem.displayName = "WordItem";
 
 export default WordItem;

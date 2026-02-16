@@ -1,78 +1,29 @@
-import React, { useState } from "react";
-import {
-  HashRouter as Router,
-  Routes,
-  Route,
-  useNavigate,
-} from "react-router-dom";
+import React, { Suspense } from "react";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { ModalProvider } from "@/contexts/ModalProvider";
+import { WordsProvider } from "@/contexts/WordsProvider";
 import MainLayout from "@/components/layout/MainLayout";
-import Dashboard from "@/pages/Dashboard";
-import WordList from "@/pages/WordList";
-import StudySession from "@/pages/StudySession";
-import Settings from "@/pages/Settings";
-import { useWords } from "@/hooks/useWords";
+import { AppRoutesData } from "@/routes/AppRoutes";
+
+// 로딩
+const PageLoader = () => (
+  <div className="loading-screen flex-center">
+    <div className="loader"></div>
+    <p>잠시만 기다려주세요...</p>
+  </div>
+);
 
 function AppContent() {
-  const navigate = useNavigate();
-  const [studyWords, setStudyWords] = useState([]);
-  const wordHooks = useWords();
-
-  // 학습시작
-  const handleStartStudy = (filteredList, deckId, deckName) => {
-    if (filteredList.length === 0) return alert("학습할 단어가 없습니다!");
-
-    localStorage.setItem("temp_study_words", JSON.stringify(filteredList));
-    localStorage.setItem("temp_study_index", "0");
-    localStorage.setItem("temp_study_deck_id", String(deckId));
-
-    setStudyWords(filteredList);
-    navigate(`/study/${encodeURIComponent(deckName)}`);
-  };
-
   return (
     <MainLayout>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Dashboard
-              {...wordHooks}
-              onSelectDeck={(deckName) =>
-                navigate(`/list/${encodeURIComponent(deckName)}`)
-              }
-            />
-          }
-        />
-
-        <Route
-          path="/list/:deckName"
-          element={
-            <WordList
-              {...wordHooks}
-              onBack={() => navigate("/")}
-              onStartStudy={handleStartStudy}
-            />
-          }
-        />
-
-        <Route
-          path="/study/:deckName"
-          element={
-            <StudySession
-              words={studyWords}
-              decks={wordHooks.decks}
-              fetchWordsByDeck={wordHooks.fetchWordsByDeck}
-              onFinish={(deckName) =>
-                navigate(`/list/${encodeURIComponent(deckName)}`)
-              }
-              onUpdateStatus={wordHooks.updateWordStatus}
-            />
-          }
-        />
-
-        <Route path="/settings" element={<Settings />} />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          {AppRoutesData.map((route) => (
+            <Route key={route.path} path={route.path} element={route.element} />
+          ))}
+        </Routes>
+      </Suspense>
     </MainLayout>
   );
 }
@@ -80,8 +31,13 @@ function AppContent() {
 const App = () => (
   <Router>
     <ThemeProvider>
-      <AppContent />
+      <WordsProvider>
+        <ModalProvider>
+          <AppContent />
+        </ModalProvider>
+      </WordsProvider>
     </ThemeProvider>
   </Router>
 );
+
 export default App;

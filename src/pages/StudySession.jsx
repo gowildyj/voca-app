@@ -1,30 +1,28 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-} from "react";
-import { useParams } from "react-router-dom";
-import { speak } from "@/utils/tts";
+import React, { useEffect, useRef, useCallback, useMemo } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useWordsContext } from "@/hooks/useWordsContext";
+import { useStudyLogic } from "@/hooks/useStudyLogic";
+import {
+  useStudyPersistence,
+  clearStudySession,
+} from "@/hooks/useStudyPersistence";
 import StudyCard from "@/components/study/StudyCard";
 import StudyHeader from "@/components/study/StudyHeader";
 import StudyFinishView from "@/components/study/StudyFinishView";
 import { AnimatePresence } from "framer-motion";
+import { speak } from "@/utils/tts";
 
-const StudySession = ({
-  words = [],
-  decks = [],
-  onFinish,
-  onUpdateStatus,
-  fetchWordsByDeck,
-}) => {
+const StudySession = () => {
+  const navigate = useNavigate();
   const { deckName: urlDeckParam } = useParams();
+  const { decks, updateWordStatus, onFinish, fetchWordsByDeck } =
+    useWordsContext();
+  const cardRef = useRef(null);
+
   const currentDeckName = useMemo(
     () => decodeURIComponent(urlDeckParam || ""),
     [urlDeckParam],
   );
-
   const currentDeck = useMemo(
     () => decks?.find((d) => d.deck_name === currentDeckName),
     [decks, currentDeckName],
@@ -32,264 +30,124 @@ const StudySession = ({
   const currentDeckId = currentDeck?.id;
   const langCode = currentDeck?.lang_code || "en-US";
 
-  // ----------------------------------------------------------------
-  // 1. 상태 초기화 (새로고침 시 데이터 유지 로직 포함)
-  // ----------------------------------------------------------------
+  const logic = useStudyLogic([], updateWordStatus);
 
-  // (1) 학습할 단어 목록
-  const [currentWords, setCurrentWords] = useState(() => {
-    try {
-      const savedDeckId = localStorage.getItem("temp_study_deck_id");
-      // 저장된 덱 ID가 있으면 일단 불러옴 (나중에 currentDeckId와 검증)
-      if (savedDeckId) {
-        const savedWords = localStorage.getItem("temp_study_words");
-        return savedWords ? JSON.parse(savedWords) : (words ?? []);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-    return words ?? [];
-  });
-
-  const [loading, setLoading] = useState(
-    () => currentWords.length === 0 && !!currentDeckId,
+  const { loading } = useStudyPersistence(
+    currentDeckId,
+    logic.currentWords,
+    logic.currentIndex,
+    logic.unknownWords,
+    logic.knownWords,
+    (state) => {
+      logic.setCurrentWords(state.currentWords);
+      logic.setCurrentIndex(state.currentIndex);
+      logic.setUnknownWords(state.unknownWords);
+      logic.setKnownWords(state.knownWords);
+    },
   );
-
-  // (2) 현재 인덱스
-  const [currentIndex, setCurrentIndex] = useState(() => {
-    const savedDeckId = localStorage.getItem("temp_study_deck_id");
-    if (savedDeckId) {
-      const savedIndex = localStorage.getItem("temp_study_index");
-      return savedIndex ? parseInt(savedIndex, 10) : 0;
-    }
-    return 0;
-  });
-
-  // (3) 몰라요 목록 (✅ 수정됨: 조건 완화하여 데이터 복구)
-  const [unknownWords, setUnknownWords] = useState(() => {
-    try {
-      const savedDeckId = localStorage.getItem("temp_study_deck_id");
-      const saved = localStorage.getItem("temp_study_unknown");
-
-      // 저장된 데이터가 있고 덱 ID가 존재하면 일단 로드
-      if (savedDeckId && saved) {
-        return JSON.parse(saved);
-      }
-    } catch (e) {}
-    return [];
-  });
-
-  // (4) 알아요 목록 (✅ 수정됨: 조건 완화하여 데이터 복구)
-  const [knownWords, setKnownWords] = useState(() => {
-    try {
-      const savedDeckId = localStorage.getItem("temp_study_deck_id");
-      const saved = localStorage.getItem("temp_study_known");
-
-      if (savedDeckId && saved) {
-        return JSON.parse(saved);
-      }
-    } catch (e) {}
-    return [];
-  });
-
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [autoPlay, setAutoPlay] = useState(() => {
-    const saved = localStorage.getItem("study_setting_autoplay");
-    return saved !== null ? JSON.parse(saved) : true;
-  });
-  const lastPlayedIndex = useRef(-1);
-
-  // 카드를 제어하기 위한 Ref
-  const cardRef = useRef(null);
 
   const isFinished =
-    currentIndex >= currentWords.length && currentWords.length > 0;
-  const currentWord = currentWords[currentIndex];
-  const nextWord = currentWords[currentIndex + 1];
+    logic.currentIndex >= logic.currentWords.length &&
+    logic.currentWords.length > 0;
+  const currentWord = logic.currentWords[logic.currentIndex];
+  const nextWord = logic.currentWords[logic.currentIndex + 1];
 
-  // ----------------------------------------------------------------
-  // 2. 이벤트 핸들러 및 유틸리티
-  // ----------------------------------------------------------------
+  const [searchParams] = useSearchParams();
+  const filterParam = searchParams.get("filter") || "all";
+  const sortParam = searchParams.get("sort") || "default";
 
-  const handleToggleAutoPlay = useCallback(() => {
-    setAutoPlay((prev) => {
-      const newValue = !prev;
-      localStorage.setItem("study_setting_autoplay", JSON.stringify(newValue));
-      return newValue;
-    });
-  }, []);
+  useEffect(() => {
+    if (!loading && logic.currentWords.length === 0 && currentDeckId) {
+      fetchWordsByDeck(currentDeckId).then((data) => {
+        if (data) {
+          let processed = data.filter((word) => {
+            if (filterParam === "all") return true;
+            if (filterParam === "none")
+              return !word.status || word.status === "none";
+            return word.status === filterParam;
+          });
 
-  // 학습 종료 및 데이터 정리
-  const clearStudySession = useCallback(() => {
-    const keys = [
-      "temp_study_words",
-      "temp_study_index",
-      "temp_study_deck_id",
-      "temp_study_unknown",
-      "temp_study_known",
-    ];
-    keys.forEach((key) => localStorage.removeItem(key));
-  }, []);
+          if (sortParam === "alpha") {
+            processed.sort((a, b) => a.word.localeCompare(b.word));
+          } else if (sortParam === "shuffle") {
+            processed.sort(() => Math.random() - 0.5);
+          }
 
-  // "몰라요" 단어만 모아서 재학습
-  const handleReviewUnknown = useCallback(() => {
-    if (unknownWords.length === 0) return;
-    const reviewList = [...unknownWords];
-
-    // 상태 초기화
-    setCurrentWords(reviewList);
-    setCurrentIndex(0);
-    setUnknownWords([]);
-    setKnownWords([]);
-    lastPlayedIndex.current = -1;
-
-    // 로컬 스토리지 갱신
-    localStorage.setItem("temp_study_words", JSON.stringify(reviewList));
-    localStorage.setItem("temp_study_index", "0");
-    localStorage.removeItem("temp_study_unknown");
-    localStorage.removeItem("temp_study_known");
-  }, [unknownWords]);
-
-  // 학습 완전 종료 (뒤로가기)
-  const handleFinishStudy = useCallback(() => {
-    clearStudySession();
-    onFinish(currentDeckName);
-  }, [clearStudySession, onFinish, currentDeckName]);
-
-  // Undo (이전 카드로 돌아가기)
-  const handleUndo = useCallback(() => {
-    if (currentIndex > 0) {
-      const prevIndex = currentIndex - 1;
-      const prevWord = currentWords[prevIndex];
-      setCurrentIndex(prevIndex);
-
-      // 목록에서 제거
-      setUnknownWords((prev) => prev.filter((w) => w.id !== prevWord.id));
-      setKnownWords((prev) => prev.filter((w) => w.id !== prevWord.id));
-
-      lastPlayedIndex.current = -1;
+          logic.setCurrentWords(processed);
+        }
+      });
     }
-  }, [currentIndex, currentWords]);
+  }, [currentDeckId, loading, logic, fetchWordsByDeck, filterParam, sortParam]);
 
-  // ----------------------------------------------------------------
-  // 3. 핵심 로직 (스와이프 및 애니메이션)
-  // ----------------------------------------------------------------
-
-  // (1) 실제 데이터 처리 (애니메이션 종료 후 호출됨)
-  const handleSwipeComplete = useCallback(
-    (direction) => {
-      if (isFinished || !currentWord) return;
-
-      const status = direction === "left" ? "unknown" : "know";
-      if (direction === "left") {
-        setUnknownWords((prev) => [...prev, currentWord]);
-      } else {
-        setKnownWords((prev) => [...prev, currentWord]);
-      }
-
-      onUpdateStatus?.(currentWord.id, status);
-      setCurrentIndex((prev) => prev + 1);
-      setIsAnimating(false);
-    },
-    [isFinished, currentWord, onUpdateStatus],
-  );
-
-  // (2) 애니메이션 트리거 (키보드/버튼 입력 시 호출)
   const triggerCardSwipe = useCallback(
     (direction) => {
-      if (isFinished || loading || isAnimating) return;
+      if (isFinished || loading || logic.isAnimating) return;
       if (cardRef.current) {
-        setIsAnimating(true);
+        logic.setIsAnimating(true);
         cardRef.current.triggerSwipe(direction);
       }
     },
-    [isFinished, loading, isAnimating],
+    [isFinished, loading, logic],
   );
 
-  // ----------------------------------------------------------------
-  // 4. useEffect (사이드 이펙트)
-  // ----------------------------------------------------------------
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (isFinished || loading || logic.isAnimating) return;
+      if (["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName))
+        return;
+      if (e.key === "ArrowLeft") triggerCardSwipe("left");
+      if (e.key === "ArrowRight") triggerCardSwipe("right");
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isFinished, loading, logic, triggerCardSwipe]);
 
-  // (1) 자동 재생
   useEffect(() => {
     if (
-      autoPlay &&
+      logic.autoPlay &&
       currentWord &&
       !isFinished &&
       !loading &&
-      !isAnimating &&
-      lastPlayedIndex.current !== currentIndex
+      !logic.isAnimating &&
+      logic.lastPlayedIndex.current !== logic.currentIndex
     ) {
+      // 카드가 교체되는 애니메이션 시간을 고려해 약간의 딜레이를 줍니다.
       const timer = setTimeout(() => {
         speak(currentWord.word, langCode);
-        lastPlayedIndex.current = currentIndex;
-      }, 300);
+        logic.lastPlayedIndex.current = logic.currentIndex;
+      }, 400);
       return () => clearTimeout(timer);
     }
   }, [
-    currentIndex,
+    logic.currentIndex,
     currentWord,
-    autoPlay,
+    logic.autoPlay,
     isFinished,
     loading,
     langCode,
-    isAnimating,
+    logic.isAnimating,
+    logic,
   ]);
 
-  // (2) 로컬 스토리지 저장 (진행 상황) - ✅ 핵심 수정: 조건 강화
-  useEffect(() => {
-    // 덱 ID가 아직 로딩되지 않았거나 단어가 없으면 저장 금지 (초기화 방지)
-    if (!currentDeckId || currentWords.length === 0) return;
+  const handleExit = useCallback(() => {
+    clearStudySession();
+    if (onFinish) onFinish(currentDeckName);
+    navigate("/");
+  }, [currentDeckName, navigate, onFinish]);
 
-    // 저장된 덱 ID와 현재 덱 ID가 다르면 저장 금지 (데이터 오염 방지)
-    const savedDeckId = localStorage.getItem("temp_study_deck_id");
-    if (savedDeckId && String(savedDeckId) !== String(currentDeckId)) {
-      return;
-    }
+  const handleToList = useCallback(() => {
+    clearStudySession();
+    if (onFinish) onFinish(currentDeckName);
 
-    localStorage.setItem("temp_study_deck_id", String(currentDeckId));
-    localStorage.setItem("temp_study_words", JSON.stringify(currentWords));
-    localStorage.setItem("temp_study_index", String(currentIndex));
-    localStorage.setItem("temp_study_unknown", JSON.stringify(unknownWords));
-    localStorage.setItem("temp_study_known", JSON.stringify(knownWords));
-  }, [currentDeckId, currentWords, currentIndex, unknownWords, knownWords]);
+    const params = new URLSearchParams();
+    if (filterParam !== "all") params.append("filter", filterParam);
+    if (sortParam !== "default") params.append("sort", sortParam);
 
-  // (3) 데이터 복구 (새로고침 후 데이터가 없으면 Fetch)
-  useEffect(() => {
-    if (
-      !loading &&
-      currentWords.length === 0 &&
-      currentDeckId &&
-      fetchWordsByDeck
-    ) {
-      const restoreData = async () => {
-        setLoading(true);
-        const data = await fetchWordsByDeck(currentDeckId);
-        if (data) {
-          setCurrentWords(data);
-          const savedIndex = localStorage.getItem("temp_study_index");
-          if (savedIndex) setCurrentIndex(parseInt(savedIndex, 10));
-          // 점수는 위 useState 초기화에서 로드됨
-        }
-        setLoading(false);
-      };
-      restoreData();
-    }
-  }, [currentDeckId, currentWords.length, loading, fetchWordsByDeck]);
+    const queryString = params.toString();
+    const suffix = queryString ? `?${queryString}` : "";
 
-  // (4) 키보드 이벤트 연결
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === "ArrowLeft") triggerCardSwipe("left");
-      else if (e.key === "ArrowRight") triggerCardSwipe("right");
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [triggerCardSwipe]);
-
-  // ----------------------------------------------------------------
-  // 5. 렌더링
-  // ----------------------------------------------------------------
+    navigate(`/list/${encodeURIComponent(currentDeckName)}${suffix}`);
+  }, [currentDeckName, navigate, onFinish, filterParam, sortParam]);
 
   if (loading)
     return (
@@ -301,10 +159,10 @@ const StudySession = ({
   if (isFinished) {
     return (
       <StudyFinishView
-        totalCount={currentWords.length}
-        unknownCount={unknownWords.length}
-        onReview={handleReviewUnknown}
-        onBack={handleFinishStudy}
+        totalCount={logic.currentWords.length}
+        unknownCount={logic.unknownWords.length}
+        onReview={logic.handleReviewUnknown}
+        onBack={handleToList}
       />
     );
   }
@@ -313,25 +171,16 @@ const StudySession = ({
     <div className="App study-session-page">
       <div className="study-main-container">
         <StudyHeader
-          currentIndex={currentIndex}
-          totalCount={currentWords.length}
-          autoPlay={autoPlay}
-          onToggleAutoPlay={handleToggleAutoPlay}
-          onBack={handleFinishStudy}
-          onShuffle={() => {
-            const remaining = [...currentWords.slice(currentIndex)].sort(
-              () => Math.random() - 0.5,
-            );
-            setCurrentWords([
-              ...currentWords.slice(0, currentIndex),
-              ...remaining,
-            ]);
-          }}
-          onUndo={handleUndo}
+          currentIndex={logic.currentIndex}
+          totalCount={logic.currentWords.length}
+          onUndo={logic.handleUndo}
+          onShuffle={logic.handleShuffle}
+          autoPlay={logic.autoPlay}
+          onToggleAutoPlay={logic.handleToggleAutoPlay}
+          onBack={handleToList}
         />
 
         <main className="study-card-area">
-          {/* 1. 배경 카드 (다음 단어) */}
           {nextWord && (
             <StudyCard
               key={nextWord.id + "-back"}
@@ -341,35 +190,38 @@ const StudySession = ({
             />
           )}
 
-          {/* 2. 앞면 카드 (현재 단어) */}
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {currentWord && (
               <StudyCard
-                ref={cardRef} // ✅ Ref 연결 (필수)
+                ref={cardRef}
                 key={currentWord.id}
                 word={currentWord}
                 isFront={true}
                 langCode={langCode}
-                onSwipe={handleSwipeComplete} // ✅ 애니메이션 후 호출
+                onSwipe={(dir) => {
+                  logic.handleSwipeComplete(dir, currentWord);
+                  logic.setIsAnimating(false);
+                }}
               />
             )}
           </AnimatePresence>
         </main>
 
+        {/* ✅ 기존 스코어 보드 디자인 복구 */}
         <div className="study-score-board">
           <div
             className="score-item unknown"
             onClick={() => triggerCardSwipe("left")}
           >
             <span className="label">몰라요</span>
-            <span className="count">{unknownWords.length}</span>
+            <span className="count">{logic.unknownWords.length}</span>
           </div>
           <div
             className="score-item know"
             onClick={() => triggerCardSwipe("right")}
           >
             <span className="label">알아요</span>
-            <span className="count">{knownWords.length}</span>
+            <span className="count">{logic.knownWords.length}</span>
           </div>
         </div>
       </div>

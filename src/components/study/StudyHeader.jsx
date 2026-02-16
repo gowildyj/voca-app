@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useMemo } from "react";
 import { ArrowLeft, Volume2, VolumeX, RotateCcw, Shuffle } from "lucide-react";
 
 const StudyHeader = React.memo(
@@ -12,11 +12,23 @@ const StudyHeader = React.memo(
     onShuffle,
     isFinished = false,
   }) => {
-    // 이전 단어 버튼 활성화 조건
+    const progressPercentage = useMemo(() => {
+      if (totalCount <= 0) return 0;
+      return Math.min(100, ((currentIndex + 1) / totalCount) * 100);
+    }, [currentIndex, totalCount]);
+
     const canUndo = currentIndex > 0 && !isFinished;
 
     return (
       <header className="study-header">
+        {/* 진행률 바 */}
+        <div className="study-progress-bar-container">
+          <div
+            className="study-progress-bar-fill"
+            style={{ width: `${progressPercentage}%` }}
+          />
+        </div>
+
         <button onClick={onBack} className="back-btn" aria-label="뒤로 가기">
           <ArrowLeft size={24} />
         </button>
@@ -26,7 +38,6 @@ const StudyHeader = React.memo(
         </div>
 
         <div className="header-actions-right">
-          {/* 이전 단어 */}
           <button
             type="button"
             onClick={onUndo}
@@ -37,7 +48,6 @@ const StudyHeader = React.memo(
             <RotateCcw size={18} />
           </button>
 
-          {/* 순서 섞기 */}
           <button
             type="button"
             onClick={onShuffle}
@@ -48,14 +58,12 @@ const StudyHeader = React.memo(
             <Shuffle size={18} />
           </button>
 
-          {/* 자동 재생 토글 */}
           <button
             type="button"
             onClick={onToggleAutoPlay}
             className={`autoplay-btn ${autoPlay ? "active" : ""}`}
-            aria-label={autoPlay ? "자동 재생 켜짐" : "자동 재생 꺼짐"}
           >
-            {autoPlay ? <Volume2 size={20} /> : <VolumeX size={20} />}
+            {autoPlay ? <Volume2 size={18} /> : <VolumeX size={18} />}
           </button>
         </div>
       </header>
@@ -64,5 +72,4 @@ const StudyHeader = React.memo(
 );
 
 StudyHeader.displayName = "StudyHeader";
-
 export default StudyHeader;

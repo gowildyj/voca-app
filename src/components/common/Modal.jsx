@@ -2,10 +2,6 @@ import React, { useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
-/**
- * 성능과 사용성을 최적화한 공통 모달
- * 포털(Portal)을 사용하여 DOM 최상단에 렌더링함으로써 z-index 문제를 방지합니다.
- */
 const Modal = ({
   isOpen = false,
   onClose,
@@ -13,7 +9,6 @@ const Modal = ({
   size = "normal",
   className = "",
 }) => {
-  // 1. 키보드 ESC 키 제어 (예외처리)
   const handleKeyDown = useCallback(
     (e) => {
       if (e.key === "Escape") onClose();
@@ -21,23 +16,26 @@ const Modal = ({
     [onClose],
   );
 
-  // 2. 모달 오픈 시 배경 스크롤 방지 (UX/UI 최적화)
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", handleKeyDown);
-    }
+    if (!isOpen) return;
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
     return () => {
       document.body.style.overflow = "unset";
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, handleKeyDown]);
 
-  // 포털을 통해 모달을 body 바로 아래에 렌더링
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div
+        <motion.div
+          key="modal-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
           className="modal-overlay"
           onClick={onClose}
           role="dialog"
@@ -56,16 +54,17 @@ const Modal = ({
           }}
         >
           <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
+            key="modal-content"
+            initial={{ scale: 0.95, opacity: 0, y: 10 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 10 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className={`modal-content ${size === "small" ? "small" : ""} ${className}`.trim()}
-            onClick={(e) => e.stopPropagation()} // 콘텐츠 클릭 시 닫힘 방지
+            onClick={(e) => e.stopPropagation()}
           >
             {children}
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>,
     document.body,

@@ -79,7 +79,7 @@
   flex: 1;
   padding: 10px;
   border: none;
-  border-radius: 12px;
+  border-radius: 18px;
   background: transparent;
   color: var(--text);
   opacity: 0.5;
@@ -133,7 +133,7 @@
 .modal-select {
   width: 100%;
   padding: 14px;
-  border-radius: 14px;
+  border-radius: 18px;
 
   /* 배경과 글자색을 명시적으로 지정해야 다크모드에서 보임 */
   background: var(--bg);
@@ -187,7 +187,7 @@
 .modal-submit-btn {
   width: 100%;
   padding: 16px;
-  border-radius: 16px;
+  border-radius: 18px;
   border: none;
   background: var(--primary);
   color: #ffffff;
@@ -215,7 +215,7 @@
 .reset-progress-btn {
   width: 100%;
   padding: 12px;
-  border-radius: 12px;
+  border-radius: 18px;
   border: 1px dashed rgba(128, 128, 128, 0.4);
   background: rgba(128, 128, 128, 0.05);
   color: var(--text);

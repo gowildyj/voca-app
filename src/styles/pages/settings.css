@@ -22,7 +22,7 @@
   width: 100%;
   max-width: 280px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 18px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: var(--card);
   color: var(--text);

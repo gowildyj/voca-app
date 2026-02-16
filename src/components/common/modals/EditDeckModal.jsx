@@ -3,11 +3,7 @@ import { X, Save, RotateCcw } from "lucide-react";
 import Modal from "@/components/common/Modal";
 import { LANG_OPTIONS } from "@/constants/languages";
 
-/**
- * UpdateDeckModal: 덱의 이름과 TTS 언어 설정을 수정
- * React.memo를 통해 부모 리스트 갱신 시 발생하는 불필요한 리렌더링을 방지합니다.
- */
-const UpdateDeckModal = ({
+const EditDeckModal = ({
   isOpen,
   onClose,
   onRename,
@@ -16,11 +12,9 @@ const UpdateDeckModal = ({
   deckId,
   oldLangCode = "",
 }) => {
-  // 1. 상태 통합 관리 (입력 폼 객체화)
   const [formData, setFormData] = useState({ name: "", lang: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 2. 모달이 열릴 때만 상태 초기화 (동기화 로직 최적화)
   useEffect(() => {
     if (isOpen) {
       setFormData({
@@ -30,23 +24,19 @@ const UpdateDeckModal = ({
     }
   }, [isOpen, oldName, oldLangCode]);
 
-  // 3. 입력 핸들러 (메모이제이션)
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  // 4. 저장 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault();
     const trimmedName = formData.name.trim();
 
-    // 유효성 검사 및 중복 제출 방지
     if (!deckId || !trimmedName || isSubmitting) return;
 
     setIsSubmitting(true);
     try {
-      // 파라미터 전달 순서 및 무결성 확인
       await onRename(deckId, oldName, trimmedName, formData.lang);
       onClose();
     } catch (err) {
@@ -143,4 +133,4 @@ const UpdateDeckModal = ({
   );
 };
 
-export default memo(UpdateDeckModal);
+export default memo(EditDeckModal);

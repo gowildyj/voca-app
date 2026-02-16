@@ -3,6 +3,25 @@ import { X, Plus, ListPlus } from "lucide-react";
 import Modal from "@/components/common/Modal";
 import { LANG_OPTIONS } from "@/constants/languages";
 
+const parseBulkText = (text, deckId) => {
+  if (!text.trim()) return [];
+
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const parts = line.split(/[:|,\t]/);
+      if (parts.length < 2) return null;
+
+      const word = parts[0].trim().replace(/^["']|["']$/g, "");
+      const meaning = parts[1].trim().replace(/^["']|["']$/g, "");
+
+      return word && meaning ? { word, meaning, deck_id: deckId } : null;
+    })
+    .filter(Boolean);
+};
+
 const AddWordModal = ({
   isOpen,
   onClose,
@@ -10,16 +29,14 @@ const AddWordModal = ({
   onAddBulk,
   onAddDeck,
   defaultDeckId,
-  mode = "word", // 기본값 설정
+  mode = "word",
 }) => {
-  // 1. 상태 관리 (기능별 분리)
   const [activeTab, setActiveTab] = useState("single");
   const [singleWord, setSingleWord] = useState({ word: "", meaning: "" });
   const [bulkText, setBulkText] = useState("");
   const [deckInfo, setDeckInfo] = useState({ name: "", lang: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 2. 입력값 초기화 함수 (재사용성)
   const resetFields = useCallback(() => {
     setSingleWord({ word: "", meaning: "" });
     setBulkText("");
@@ -27,10 +44,10 @@ const AddWordModal = ({
     setIsSubmitting(false);
   }, []);
 
-  // 3. 단일 단어 추가 핸들러
   const handleSingleSubmit = async (e) => {
     e.preventDefault();
     const { word, meaning } = singleWord;
+
     if (!word.trim() || !meaning.trim() || isSubmitting) return;
 
     setIsSubmitting(true);
@@ -44,28 +61,16 @@ const AddWordModal = ({
       onClose();
     } catch (error) {
       console.error("단어 추가 실패:", error);
+      alert("단어 추가 중 오류가 발생했습니다.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // 4. 일괄 추가 핸들러 (강력한 파싱 로직)
   const handleBulkSubmit = async () => {
     if (!bulkText.trim() || isSubmitting) return;
 
-    // 정규식을 활용한 정교한 파싱 (콜론, 쉼표, 탭 대응)
-    const lines = bulkText.split("\n").filter((line) => line.trim());
-    const parsedWords = lines
-      .map((line) => {
-        const parts = line.split(/[:|,\t]/);
-        if (parts.length < 2) return null;
-
-        const w = parts[0].trim().replace(/^["']|["']$/g, "");
-        const m = parts[1].trim().replace(/^["']|["']$/g, "");
-
-        return w && m ? { word: w, meaning: m, deck_id: defaultDeckId } : null;
-      })
-      .filter(Boolean);
+    const parsedWords = parseBulkText(bulkText, defaultDeckId);
 
     if (parsedWords.length === 0) {
       alert("입력 형식이 올바르지 않습니다.\n예) apple:사과");
@@ -75,12 +80,13 @@ const AddWordModal = ({
     setIsSubmitting(true);
     try {
       const result = await onAddBulk?.(parsedWords);
-      if (result?.success !== false) {
-        resetFields();
-        onClose();
+      if (result && result.success === false) {
+        throw new Error(result.message);
       }
+      resetFields();
+      onClose();
     } catch (e) {
-      alert("일괄 추가 중 서버 오류가 발생했습니다.");
+      alert(e.message || "일괄 추가 중 오류가 발생했습니다.");
     } finally {
       setIsSubmitting(false);
     }
@@ -96,12 +102,14 @@ const AddWordModal = ({
       await onAddDeck?.(deckInfo.name.trim(), deckInfo.lang);
       resetFields();
       onClose();
+    } catch (error) {
+      console.error("덱 생성 에러:", error);
+      alert("단어장 생성 실패");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // 6. UI 렌더링 최적화 (useMemo/함수 분리)
   const isDeckMode = mode === "deck";
 
   return (

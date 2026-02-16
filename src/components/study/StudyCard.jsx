@@ -19,26 +19,39 @@ const StudyCard = forwardRef(
     const controls = useAnimation();
     const x = useMotionValue(0);
 
-    // --- 스타일 로직 ---
+    // 1. 회전 (Tilt)
     const rotate = useTransform(x, [-200, 200], [-25, 25]);
+
+    // 2. 투명도 (Opacity)
     const opacity = useTransform(x, [-300, -150, 0, 150, 300], [0, 1, 1, 1, 0]);
 
-    // 테두리 색상: 중앙에서는 투명(transparent) 혹은 연한 회색으로 두어 깔끔하게 유지
+    // 3. 테두리 색상 (5단계 데드존 적용)
     const borderColor = useTransform(
       x,
       [-120, -40, 0, 40, 120],
       [
-        "#ff4d4f", // 왼쪽 끝: 빨강
+        "#ff4d4f", // 왼쪽 끝 (빨강)
         "rgba(255, 77, 79, 0)", // 왼쪽 흐림
-        "transparent", // 중앙: 투명 (테두리 없음)
+        "transparent", // 중앙 (투명)
         "rgba(82, 196, 26, 0)", // 오른쪽 흐림
-        "#52c41a", // 오른쪽 끝: 초록
+        "#52c41a", // 오른쪽 끝 (초록)
       ],
     );
 
-    // ✅ [수정 1] 그림자를 아주 얕게 변경 (평면적인 느낌)
-    // 기존: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" (붕 떠있는 느낌)
-    const baseBoxShadow = "0 1px 3px rgba(0, 0, 0, 0.05)";
+    useEffect(() => {
+      // 맨 앞장(isFront)이 아니면 키보드 이벤트 무시
+      if (!isFront) return;
+
+      const handleKeyDown = (e) => {
+        if (e.code === "Space") {
+          e.preventDefault(); // 스페이스바 누를 때 스크롤 내려가는 것 방지
+          setIsFlipped((prev) => !prev);
+        }
+      };
+
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [isFront]);
 
     useImperativeHandle(ref, () => ({
       async triggerSwipe(direction) {
@@ -61,8 +74,16 @@ const StudyCard = forwardRef(
     }));
 
     useEffect(() => {
+      // x값(framer-motion value)은 외부 시스템에 가까우므로 직접 수정해도 괜찮습니다.
       x.set(0);
-      setIsFlipped(false);
+
+      // 동기적인 setState 호출이 에러를 발생시킨다면,
+      // 아주 짧은 딜레이를 주어 다음 틱에서 실행되게 합니다.
+      const timer = setTimeout(() => {
+        setIsFlipped(false);
+      }, 0);
+
+      return () => clearTimeout(timer);
     }, [word, x]);
 
     const handleDragEnd = async (event, info) => {
@@ -101,48 +122,29 @@ const StudyCard = forwardRef(
       speak(word.word, langCode);
     };
 
-    const backCardStyle = {
-      scale: 0.95, // 뒷카드는 살짝만 작게
-      y: 10, // 간격 좁힘
-      opacity: 0.5,
-      zIndex: 0,
-      background: "var(--card)",
-      boxShadow: "none", // 뒷카드는 그림자 제거해서 바닥에 붙임
-      border: "1px solid rgba(0,0,0,0.05)", // 아주 연한 테두리만
-    };
-
-    const frontCardStyle = {
-      x,
-      rotate,
-      opacity,
-      zIndex: 10,
-      background: "var(--card)",
-      boxShadow: baseBoxShadow,
-      borderWidth: "3px",
-      borderStyle: "solid",
-      borderColor,
-      cursor: "grab",
-      boxSizing: "border-box",
-    };
-
     return (
       <div className="study-card-wrapper">
         <motion.div
-          className="study-card-drag"
-          style={isFront ? frontCardStyle : backCardStyle}
+          // ✅ CSS 클래스로 정적 스타일(배경, 그림자 등) 적용
+          className={`study-card-drag ${isFront ? "front" : "back"}`}
+          // ✅ JS로는 동적인 움직임 값만 제어
+          style={
+            isFront
+              ? { x, rotate, opacity, borderColor }
+              : { scale: 0.95, y: 10, opacity: 0.6 } // 뒷면 카드 위치
+          }
           animate={isFront ? controls : undefined}
           drag={isFront ? "x" : false}
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.7}
           onDragEnd={handleDragEnd}
           onClick={isFront ? handleCardClick : undefined}
-          // ✅ [수정 2] 드래그할 때만 살짝 떠오르는 효과 (인터랙션 피드백)
+          // ✅ 드래그 시 살짝 떠오르는 효과 (그림자 진해짐 + 확대)
           whileDrag={{
-            scale: 1.02,
-            boxShadow: "0 8px 20px rgba(0,0,0,0.1)", // 잡았을 때만 그림자 생김
+            scale: 1,
+            boxShadow: "0 15px 30px rgba(0,0,0,0.15)",
             cursor: "grabbing",
           }}
-          whileTap={isFront ? { cursor: "grabbing" } : undefined}
         >
           <div className={`study-card-inner ${isFlipped ? "flipped" : ""}`}>
             <div className="card-face front">
@@ -155,7 +157,8 @@ const StudyCard = forwardRef(
               </button>
               <h2>{word.word}</h2>
               <div className="flip-hint">
-                <RotateCw size={16} /> 클릭해서 뒤집기
+                <RotateCw size={16} /> 클릭해서 뒤집기 / 스페이스바 눌러서
+                뒤집기
               </div>
             </div>
             <div className="card-face back">

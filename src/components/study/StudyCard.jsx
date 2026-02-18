@@ -130,29 +130,25 @@ const StudyCard = forwardRef(
             cursor: "grabbing",
           }}
         >
-          {" "}
+          {isFront && (
+            <button
+              onClick={handleSpeakerClick}
+              className="card-speaker-btn"
+              type="button"
+              style={{ zIndex: 10 }}
+            >
+              <Volume2 size={24} />
+            </button>
+          )}
+
           <div className={`study-card-inner ${isFlipped ? "flipped" : ""}`}>
             <div className="card-face front">
-              <button
-                onClick={handleSpeakerClick}
-                className="card-speaker-btn"
-                type="button"
-              >
-                <Volume2 size={20} />
-              </button>
               <h2>{word.word}</h2>
               <div className="flip-hint">
                 <RotateCw size={16} />
               </div>
             </div>
             <div className="card-face back">
-              <button
-                onClick={handleSpeakerClick}
-                className="card-speaker-btn"
-                type="button"
-              >
-                <Volume2 size={20} />
-              </button>
               <h2>{word.meaning}</h2>
               {word.example && <p>{word.example}</p>}
             </div>

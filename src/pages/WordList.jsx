@@ -31,6 +31,8 @@ const WordList = () => {
   const [localWords, setLocalWords] = useState([]);
   const [listLoading, setListLoading] = useState(true);
 
+  const [hideMode, setHideMode] = useState("none");
+
   const currentDeckName = useMemo(
     () => decodeURIComponent(urlDeckParam || ""),
     [urlDeckParam],
@@ -204,6 +206,10 @@ const WordList = () => {
           logic.setShuffleSeed(Math.random());
           logic.setDisplayLimit(30);
         }}
+        hideMode={hideMode}
+        onToggleMode={(mode) => {
+          setHideMode((prev) => (prev === mode ? "none" : mode));
+        }}
       />
 
       <div className="list-container">
@@ -219,6 +225,7 @@ const WordList = () => {
                   langCode={currentLangCode}
                   onEdit={() => handleEditWord(item)}
                   onDelete={async (id) => await performAction(deleteWord, id)}
+                  hideMode={hideMode}
                 />
               ))}
             </AnimatePresence>

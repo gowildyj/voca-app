@@ -1,4 +1,5 @@
 import React, { memo } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const FILTERS = [
   { id: "all", label: "전체", short: "전체" },
@@ -14,10 +15,12 @@ const FilterBar = ({
   setSortType,
   onShuffle,
   filterCounts = {},
+  hideMode,
+  onToggleMode,
 }) => {
   return (
     <div className="filter-bar">
-      <div className="filter-bar-filters" role="tablist">
+      <div className="filter-row top-row">
         {FILTERS.map((f) => {
           const count = filterCounts[f.id] ?? 0;
           const isActive = currentFilter === f.id;
@@ -36,27 +39,50 @@ const FilterBar = ({
         })}
       </div>
 
-      <div className="filter-bar-sort">
-        {sortType === "shuffle" && (
+      <div className="filter-row bottom-row">
+        <div className="visibility-group">
           <button
-            onClick={onShuffle}
-            className="shuffle-refresh-btn"
-            title="다시 섞기"
+            onClick={() => onToggleMode("word")}
+            className={`filter-btn ${hideMode === "word" ? "active" : ""}`}
+            title="단어 가리기"
           >
-            🔄
+            {hideMode === "word" ? <EyeOff size={15} /> : <Eye size={15} />}
+            <span>단어</span>
           </button>
-        )}
 
-        <select
-          value={sortType}
-          onChange={(e) => setSortType(e.target.value)}
-          className="sort-select"
-          aria-label="정렬 방식 선택"
-        >
-          <option value="default">등록순</option>
-          <option value="alpha">알파벳순</option>
-          <option value="shuffle">랜덤</option>
-        </select>
+          <button
+            onClick={() => onToggleMode("meaning")}
+            className={`filter-btn ${hideMode === "meaning" ? "active" : ""}`}
+            title="뜻 가리기"
+          >
+            {hideMode === "meaning" ? <EyeOff size={15} /> : <Eye size={15} />}
+            <span>뜻</span>
+          </button>
+        </div>
+
+        {/* 오른쪽: 정렬 및 셔플 */}
+        <div className="sort-group">
+          {sortType === "shuffle" && (
+            <button
+              onClick={onShuffle}
+              className="shuffle-refresh-btn"
+              title="다시 섞기"
+            >
+              🔄
+            </button>
+          )}
+
+          <select
+            value={sortType}
+            onChange={(e) => setSortType(e.target.value)}
+            className="sort-select"
+            aria-label="정렬 방식 선택"
+          >
+            <option value="default">등록순</option>
+            <option value="alpha">A-Z</option>
+            <option value="shuffle">랜덤</option>
+          </select>
+        </div>
       </div>
     </div>
   );

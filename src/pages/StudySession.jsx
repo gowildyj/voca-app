@@ -8,6 +8,7 @@ import {
 } from "@/hooks/useStudyPersistence";
 import StudyCard from "@/components/study/StudyCard";
 import StudyHeader from "@/components/study/StudyHeader";
+import StudyControls from "@/components/study/StudyControls";
 import StudyFinishView from "@/components/study/StudyFinishView";
 import { AnimatePresence } from "framer-motion";
 import { speak } from "@/utils/tts";
@@ -129,6 +130,12 @@ const StudySession = () => {
     logic,
   ]);
 
+  useEffect(() => {
+    return () => {
+      clearStudySession();
+    };
+  }, []);
+
   const handleExit = useCallback(() => {
     clearStudySession();
     if (onFinish) onFinish(currentDeckName);
@@ -170,16 +177,20 @@ const StudySession = () => {
   return (
     <div className="App study-session-page">
       <div className="study-main-container">
-        <StudyHeader
-          currentIndex={logic.currentIndex}
-          totalCount={logic.currentWords.length}
-          onUndo={logic.handleUndo}
-          onShuffle={logic.handleShuffle}
-          autoPlay={logic.autoPlay}
-          onToggleAutoPlay={logic.handleToggleAutoPlay}
-          onBack={handleToList}
-        />
+        <div className="study-section-header">
+          <StudyHeader
+            currentIndex={logic.currentIndex}
+            totalCount={logic.currentWords.length}
+            onUndo={logic.handleUndo}
+            onShuffle={logic.handleShuffle}
+            autoPlay={logic.autoPlay}
+            onToggleAutoPlay={logic.handleToggleAutoPlay}
+            onBack={handleToList}
+          />
+        </div>
 
+        {/* <div className="study-body-wrapper"> */}
+        {/* 카드 영역 */}
         <main className="study-card-area">
           {nextWord && (
             <StudyCard
@@ -189,7 +200,6 @@ const StudySession = () => {
               langCode={langCode}
             />
           )}
-
           <AnimatePresence mode="wait">
             {currentWord && (
               <StudyCard
@@ -207,23 +217,16 @@ const StudySession = () => {
           </AnimatePresence>
         </main>
 
-        {/* ✅ 기존 스코어 보드 디자인 복구 */}
-        <div className="study-score-board">
-          <div
-            className="score-item unknown"
-            onClick={() => triggerCardSwipe("left")}
-          >
-            <span className="label">몰라요</span>
-            <span className="count">{logic.unknownWords.length}</span>
-          </div>
-          <div
-            className="score-item know"
-            onClick={() => triggerCardSwipe("right")}
-          >
-            <span className="label">알아요</span>
-            <span className="count">{logic.knownWords.length}</span>
-          </div>
+        {/* 버튼 영역 */}
+        <div className="study-section-controls">
+          <StudyControls
+            onSwipeLeft={() => triggerCardSwipe("left")}
+            onSwipeRight={() => triggerCardSwipe("right")}
+            unknownCount={logic.unknownWords.length}
+            knownCount={logic.knownWords.length}
+          />
         </div>
+        {/* </div> */}
       </div>
     </div>
   );

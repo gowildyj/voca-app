@@ -36,7 +36,6 @@ const StudyCard = forwardRef(
       ],
     );
 
-    // ✅ 렌더링 도중 상태 조정 (디자인은 유지하고 에러만 해결)
     if (word.id !== prevWordId) {
       setPrevWordId(word.id);
       setIsFlipped(false);
@@ -131,7 +130,7 @@ const StudyCard = forwardRef(
             cursor: "grabbing",
           }}
         >
-          {/* ✅ 기존 3D 플립 구조 및 클래스 복구 */}
+          {" "}
           <div className={`study-card-inner ${isFlipped ? "flipped" : ""}`}>
             <div className="card-face front">
               <button
@@ -143,8 +142,7 @@ const StudyCard = forwardRef(
               </button>
               <h2>{word.word}</h2>
               <div className="flip-hint">
-                <RotateCw size={16} /> 클릭해서 뒤집기 / 스페이스바 눌러서
-                뒤집기
+                <RotateCw size={16} />
               </div>
             </div>
             <div className="card-face back">

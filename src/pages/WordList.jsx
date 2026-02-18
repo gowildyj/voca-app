@@ -101,7 +101,12 @@ const WordList = () => {
     const queryString = params.toString();
     const suffix = queryString ? `?${queryString}` : "";
 
-    navigate(`/study/${encodeURIComponent(currentDeckName)}${suffix}`);
+    navigate(`/list/${encodeURIComponent(currentDeckName)}${suffix}`, {
+      replace: true,
+    });
+    setTimeout(() => {
+      navigate(`/study/${encodeURIComponent(currentDeckName)}${suffix}`);
+    }, 0);
   };
 
   const handleResetProgress = async (deckId) => {
@@ -133,7 +138,10 @@ const WordList = () => {
     <div className="word-list-page">
       <header className="list-header">
         <div className="header-left">
-          <button onClick={() => navigate("/")} className="back-btn">
+          <button
+            onClick={() => navigate("/", { replace: true })}
+            className="back-btn"
+          >
             <ArrowLeft size={24} />
           </button>
           <h1 className="list-header-title">{currentDeckName}</h1>

@@ -118,7 +118,7 @@ const EditDeckModal = ({
           onClick={handleReset}
         >
           <RotateCcw size={16} />
-          학습 기록 초기화 (모든 단어 상태 리셋)
+          학습 기록 초기화
         </button>
 
         <button

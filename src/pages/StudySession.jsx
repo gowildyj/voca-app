@@ -154,7 +154,9 @@ const StudySession = () => {
     const queryString = params.toString();
     const suffix = queryString ? `?${queryString}` : "";
 
-    navigate(`/list/${encodeURIComponent(currentDeckName)}${suffix}`);
+    navigate(`/list/${encodeURIComponent(currentDeckName)}${suffix}`, {
+      replace: true,
+    });
   }, [currentDeckName, navigate, onFinish, filterParam, sortParam]);
 
   if (loading)

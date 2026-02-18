@@ -21,15 +21,27 @@ const WordItem = React.memo(
     const isWordHidden = hideMode === "word" && !tempReveal.word;
     const isMeaningHidden = hideMode === "meaning" && !tempReveal.meaning;
 
+    const handleSpeak = (e) => {
+      if (e) e.stopPropagation(); // 이벤트 전파 방지
+      if (!isGuide && item.word) {
+        speak(item.word, langCode);
+      }
+    };
+
     return (
       <div
         className={`word-item-card ${isGuide ? "guide-mode" : ""}${statusClass}`}
       >
-        <div className="word-item-icon">
+        <div
+          className="word-item-icon"
+          onClick={!isGuide ? handleSpeak : undefined}
+          style={{ cursor: !isGuide ? "pointer" : "default" }}
+        >
           {isGuide ? (
             <Sparkles size={20} className="guide-icon" />
           ) : (
-            <BookOpen size={20} />
+            // <BookOpen size={20} />
+            <Volume2 size={18} />
           )}
         </div>
 
@@ -37,30 +49,29 @@ const WordItem = React.memo(
           <div className="word-text-wrapper">
             <span
               className={`word-text ${isWordHidden ? "masked" : ""}`}
-              onClick={() =>
-                setTempReveal((prev) => ({ ...prev, word: !prev.word }))
-              }
+              onClick={(e) => {
+                e.stopPropagation();
+                setTempReveal((prev) => ({ ...prev, word: !prev.word }));
+              }}
             >
               {item.word}
             </span>
-            {!isGuide && (
+            {/* {!isGuide && (
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (item.word) speak(item.word, langCode);
-                }}
+                onClick={handleSpeak}
                 className="speaker-btn"
                 aria-label="발음 듣기"
               >
                 <Volume2 size={18} />
               </button>
-            )}
+            )} */}
           </div>
           <div
             className={`word-meaning ${isMeaningHidden ? "masked" : ""}`}
-            onClick={() =>
-              setTempReveal((prev) => ({ ...prev, meaning: !prev.meaning }))
-            }
+            onClick={(e) => {
+              e.stopPropagation();
+              setTempReveal((prev) => ({ ...prev, meaning: !prev.meaning }));
+            }}
           >
             {item.meaning}
           </div>

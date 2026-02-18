@@ -69,7 +69,7 @@ header-right .deck-action-btn {
   padding: 20px;
   border-radius: 18px;
   color: white;
-  margin-bottom: 24px;
+  margin-bottom: 15px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   justify-content: space-between;
@@ -83,8 +83,8 @@ header-right .deck-action-btn {
   position: relative;
   background-color: var(--card);
   margin-bottom: 10px;
-  padding: 14px 16px;
-  padding-right: 48px;
+  padding: 14px 10px;
+  padding-right: 50px;
   border-radius: 18px;
   display: flex;
   align-items: center;
@@ -135,6 +135,8 @@ header-right .deck-action-btn {
 
 .word-item-content {
   flex: 1;
+  min-width: 0;
+  margin-right: 10px;
 }
 
 .word-text-wrapper {
@@ -147,6 +149,8 @@ header-right .deck-action-btn {
   font-weight: 700;
   font-size: 1.1rem;
   color: var(--text);
+  word-break: break-all;
+  overflow-wrap: break-word;
 }
 
 .word-meaning {
@@ -248,7 +252,7 @@ header-right .deck-action-btn {
 }
 
 .filter-bar-sort .sort-select {
-  padding: 6px 10px;
+  padding: 5px 10px;
   border-radius: 8px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   background-color: var(--card);
@@ -322,7 +326,7 @@ header-right .deck-action-btn {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .filter-row {
@@ -362,8 +366,8 @@ header-right .deck-action-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 8px 14px;
+  gap: 2px;
+  padding: 5px 10px;
   border-radius: 18px;
   border: 1px solid transparent;
   font-weight: 600;
@@ -413,8 +417,8 @@ header-right .deck-action-btn {
 }
 
 .sort-select {
-  padding: 8px 12px;
-  border-radius: 12px;
+  padding: 5px 10px;
+  border-radius: 18px;
   border: none;
   background-color: var(--card);
   color: var(--text);

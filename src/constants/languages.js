@@ -23,6 +23,7 @@ export const LANG_OPTIONS = [
   { value: "pl-PL", label: "폴란드어" },
   { value: "fr-FR", label: "프랑스어" },
   { value: "fi-FI", label: "핀란드어" },
+  { value: "tl-PH", label: "필리핀어" },
   { value: "ko-KR", label: "한국어" },
   { value: "hi-IN", label: "힌디어" },
 ];

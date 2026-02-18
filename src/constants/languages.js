@@ -8,6 +8,7 @@ export const LANG_OPTIONS = [
   { value: "es-ES", label: "스페인어" },
   { value: "th-TH", label: "태국어" },
   { value: "vi-VN", label: "베트남어" },
+  { value: "ru-RU", label: "러시아어" },
 ];
 
 export const DEFAULT_LANG = "en-US";

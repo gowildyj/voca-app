@@ -227,22 +227,21 @@
   justify-content: center;
   gap: 8px;
   transition: all 0.2s;
-  opacity: 0.8;
+  opacity: 0.7;
 }
 
-/* 호버 시 약간의 경고색 (오렌지 계열 추천) */
 .reset-progress-btn:hover {
-  background: #fff7ed;
-  color: #ea580c;
-  border-color: #ea580c;
+  background: var(--bg);
+  color: var(--primary);
+  border-color: var(--primary);
+  border-style: solid;
   opacity: 1;
 }
 
-/* 다크모드 대응 */
 [data-theme="dark"] .reset-progress-btn:hover {
-  background: rgba(234, 88, 12, 0.15);
-  color: #fb923c;
-  border-color: #fb923c;
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary);
+  border-color: var(--primary);
 }
 
 /* ========== Bulk Edit Modal Styles ========== */

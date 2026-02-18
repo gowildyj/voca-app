@@ -64,16 +64,25 @@ const Dashboard = () => {
             <div key={i} className="deck-card skeleton-card animate-pulse" />
           ))
         ) : (
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence>
+            {" "}
             {memoizedDecks.length > 0 ? (
               memoizedDecks.map((deck) => (
-                <DeckCard
+                <motion.div
                   key={deck.id}
-                  deck={deck}
-                  onSelect={() => handleSelectDeck(deck.deck_name)}
-                  onEdit={handleEditClick}
-                  onDelete={handleDeleteClick}
-                />
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <DeckCard
+                    deck={deck}
+                    onSelect={() => handleSelectDeck(deck.deck_name)}
+                    onEdit={handleEditClick}
+                    onDelete={handleDeleteClick}
+                  />
+                </motion.div>
               ))
             ) : (
               <div className="empty-state">

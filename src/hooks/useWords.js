@@ -242,6 +242,42 @@ export const useWords = () => {
     }
   };
 
+  // 대량 수정
+  const updateWordsBulk = async (updatedWordsArray) => {
+    try {
+      if (!updatedWordsArray || updatedWordsArray.length === 0) return;
+
+      const updates = updatedWordsArray.map(
+        ({ id, word, meaning, example, deck_id }) => ({
+          id,
+          word,
+          meaning,
+          example,
+          deck_id,
+        }),
+      );
+
+      const { data, error } = await supabase
+        .from("words")
+        .upsert(updates)
+        .select();
+
+      if (error) throw error;
+
+      setWords((prev) =>
+        prev.map((existingWord) => {
+          const match = updates.find((u) => u.id === existingWord.id);
+          return match ? { ...existingWord, ...match } : existingWord;
+        }),
+      );
+
+      return { success: true };
+    } catch (error) {
+      console.error("대량 수정 실패:", error.message);
+      return { success: false, error: error.message };
+    }
+  };
+
   return {
     words,
     decks,
@@ -254,6 +290,7 @@ export const useWords = () => {
     deleteWord,
     updateWordStatus,
     addWordsBulk,
+    updateWordsBulk,
     fetchDecks,
     fetchWordsByDeck,
     refresh: fetchDecks,

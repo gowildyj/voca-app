@@ -6,6 +6,7 @@ const ModalComponents = {
   ADD_WORD: lazy(() => import("@/components/common/modals/AddWordModal")),
   EDIT_DECK: lazy(() => import("@/components/common/modals/EditDeckModal")),
   EDIT_WORD: lazy(() => import("@/components/common/modals/EditWordModal")),
+  BULK_EDIT: lazy(() => import("@/components/common/modals/BulkEditModal")),
 };
 
 const ModalRenderer = ({ config, onClose }) => {

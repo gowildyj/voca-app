@@ -1,7 +1,14 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, ArrowLeft, Plus, Edit3, Trash2 } from "lucide-react";
+import {
+  Play,
+  ArrowLeft,
+  Plus,
+  Edit3,
+  Trash2,
+  FilePenLine,
+} from "lucide-react";
 
 import { useWordsContext } from "@/hooks/useWordsContext";
 import { useModal } from "@/contexts/ModalContext";
@@ -26,6 +33,7 @@ const WordList = () => {
     updateDeck,
     deleteDeck,
     resetDeckProgress,
+    updateWordsBulk,
   } = useWordsContext();
 
   const [localWords, setLocalWords] = useState([]);
@@ -93,6 +101,15 @@ const WordList = () => {
     });
   };
 
+  const handleOpenBulkEdit = () => {
+    openModal("BULK_EDIT", {
+      words: logic.filteredWords, // 현재 보이는 단어들 전달
+      onSave: async (updates) => {
+        await performAction(updateWordsBulk, updates);
+      },
+    });
+  };
+
   const handleStartStudy = () => {
     if (logic.filteredWords.length === 0) return;
     const params = new URLSearchParams();
@@ -149,6 +166,14 @@ const WordList = () => {
           <h1 className="list-header-title">{currentDeckName}</h1>
         </div>
         <div className="header-right">
+          <button
+            onClick={handleOpenBulkEdit}
+            className="deck-action-btn"
+            title="일괄 수정"
+          >
+            <FilePenLine size={18} />
+          </button>
+
           <button
             onClick={() =>
               openModal("EDIT_DECK", {

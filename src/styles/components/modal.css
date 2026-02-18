@@ -244,3 +244,97 @@
   color: #fb923c;
   border-color: #fb923c;
 }
+
+/* ========== Bulk Edit Modal Styles ========== */
+
+.modal-body-scroll {
+  padding: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+  background-color: var(--bg);
+}
+
+.modal-body-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-body-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(128, 128, 128, 0.3);
+  border-radius: 3px;
+}
+.modal-body-scroll::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.bulk-edit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bulk-edit-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+}
+
+.bulk-edit-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+@media (max-width: 480px) {
+  .bulk-edit-item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    background: var(--card);
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(128, 128, 128, 0.1);
+  }
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.bulk-edit-item .modal-input {
+  margin-bottom: 0;
+}
+
+.modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(128, 128, 128, 0.1);
+  background: var(--card);
+}
+
+.btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.spinner {
+  animation: rotate 1s linear infinite;
+  color: var(--primary);
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}

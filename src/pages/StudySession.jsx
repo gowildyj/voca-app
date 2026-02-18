@@ -33,18 +33,26 @@ const StudySession = () => {
 
   const logic = useStudyLogic([], updateWordStatus);
 
+  const { setCurrentWords, setCurrentIndex, setUnknownWords, setKnownWords } =
+    logic;
+
+  const handleStudyStateChange = useCallback(
+    (state) => {
+      setCurrentWords(state.currentWords);
+      setCurrentIndex(state.currentIndex);
+      setUnknownWords(state.unknownWords);
+      setKnownWords(state.knownWords);
+    },
+    [setCurrentWords, setCurrentIndex, setUnknownWords, setKnownWords],
+  );
+
   const { loading } = useStudyPersistence(
     currentDeckId,
     logic.currentWords,
     logic.currentIndex,
     logic.unknownWords,
     logic.knownWords,
-    (state) => {
-      logic.setCurrentWords(state.currentWords);
-      logic.setCurrentIndex(state.currentIndex);
-      logic.setUnknownWords(state.unknownWords);
-      logic.setKnownWords(state.knownWords);
-    },
+    handleStudyStateChange,
   );
 
   const isFinished =
@@ -112,7 +120,6 @@ const StudySession = () => {
       !logic.isAnimating &&
       logic.lastPlayedIndex.current !== logic.currentIndex
     ) {
-      // 카드가 교체되는 애니메이션 시간을 고려해 약간의 딜레이를 줍니다.
       const timer = setTimeout(() => {
         speak(currentWord.word, langCode);
         logic.lastPlayedIndex.current = logic.currentIndex;
@@ -135,12 +142,6 @@ const StudySession = () => {
       clearStudySession();
     };
   }, []);
-
-  const handleExit = useCallback(() => {
-    clearStudySession();
-    if (onFinish) onFinish(currentDeckName);
-    navigate("/");
-  }, [currentDeckName, navigate, onFinish]);
 
   const handleToList = useCallback(() => {
     clearStudySession();
@@ -175,7 +176,7 @@ const StudySession = () => {
   }
 
   return (
-    <div className="App study-session-page">
+    <div className="App study-session-page" key={currentDeckId}>
       <div className="study-main-container">
         <div className="study-section-header">
           <StudyHeader
@@ -189,7 +190,6 @@ const StudySession = () => {
           />
         </div>
 
-        {/* <div className="study-body-wrapper"> */}
         {/* 카드 영역 */}
         <main className="study-card-area">
           {nextWord && (
@@ -226,7 +226,6 @@ const StudySession = () => {
             knownCount={logic.knownWords.length}
           />
         </div>
-        {/* </div> */}
       </div>
     </div>
   );

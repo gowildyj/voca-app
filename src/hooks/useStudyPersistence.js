@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export const useStudyPersistence = (
   currentDeckId,
@@ -9,31 +9,38 @@ export const useStudyPersistence = (
   setStudyState,
 ) => {
   const [loading, setLoading] = useState(true);
+  const isLoadedRef = useRef(false);
 
-  // 데이터 복구 (초기 1회)
   useEffect(() => {
     if (!currentDeckId) return;
 
+    setLoading(true);
+    isLoadedRef.current = false;
+
     const savedDeckId = localStorage.getItem("temp_study_deck_id");
+
     if (savedDeckId === String(currentDeckId)) {
       const savedWords = localStorage.getItem("temp_study_words");
       const savedIndex = localStorage.getItem("temp_study_index");
       const savedUnknown = localStorage.getItem("temp_study_unknown");
       const savedKnown = localStorage.getItem("temp_study_known");
 
-      setStudyState({
-        currentWords: savedWords ? JSON.parse(savedWords) : [],
-        currentIndex: savedIndex ? parseInt(savedIndex, 10) : 0,
-        unknownWords: savedUnknown ? JSON.parse(savedUnknown) : [],
-        knownWords: savedKnown ? JSON.parse(savedKnown) : [],
-      });
+      if (savedWords) {
+        setStudyState({
+          currentWords: JSON.parse(savedWords),
+          currentIndex: savedIndex ? parseInt(savedIndex, 10) : 0,
+          unknownWords: savedUnknown ? JSON.parse(savedUnknown) : [],
+          knownWords: savedKnown ? JSON.parse(savedKnown) : [],
+        });
+      }
     }
-    setLoading(false);
-  }, [currentDeckId]);
 
-  // 데이터 저장
+    setLoading(false);
+    isLoadedRef.current = true;
+  }, [currentDeckId, setStudyState]);
+
   useEffect(() => {
-    if (!currentDeckId || currentWords.length === 0 || loading) return;
+    if (!currentDeckId || !isLoadedRef.current || loading) return;
 
     localStorage.setItem("temp_study_deck_id", String(currentDeckId));
     localStorage.setItem("temp_study_words", JSON.stringify(currentWords));

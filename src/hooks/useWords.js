@@ -108,12 +108,14 @@ export const useWords = () => {
   };
 
   // 덱 수정
-  const updateDeck = async (deckId, oldDeckName, newDeckName, newLang) => {
+  const updateDeck = async (deckId, newDeckName, newLang) => {
     if (!newDeckName?.trim()) return;
+
     const { error } = await supabase
       .from("decks")
       .update({ deck_name: newDeckName, lang_code: newLang })
       .eq("id", deckId);
+
     if (error) throw error;
 
     setDecks((prev) =>
@@ -123,6 +125,7 @@ export const useWords = () => {
           : d,
       ),
     );
+
     setWords((prev) => prev.map((w) => (w.deck_id === deckId ? { ...w } : w)));
   };
 

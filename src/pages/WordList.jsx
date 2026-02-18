@@ -152,6 +152,7 @@ const WordList = () => {
               openModal("EDIT_DECK", {
                 deckId: currentDeckId,
                 oldName: currentDeckName,
+                oldLangCode: currentLangCode,
                 onRename: updateDeck,
                 onResetProgress: handleResetProgress,
               })

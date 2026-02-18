@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export const useStudyPersistence = (
   currentDeckId,
@@ -8,13 +8,11 @@ export const useStudyPersistence = (
   knownWords,
   setStudyState,
 ) => {
-  const [loading, setLoading] = useState(true);
   const isLoadedRef = useRef(false);
 
   useEffect(() => {
     if (!currentDeckId) return;
 
-    setLoading(true);
     isLoadedRef.current = false;
 
     const savedDeckId = localStorage.getItem("temp_study_deck_id");
@@ -35,28 +33,20 @@ export const useStudyPersistence = (
       }
     }
 
-    setLoading(false);
     isLoadedRef.current = true;
   }, [currentDeckId, setStudyState]);
 
   useEffect(() => {
-    if (!currentDeckId || !isLoadedRef.current || loading) return;
+    if (!currentDeckId || !isLoadedRef.current) return;
 
     localStorage.setItem("temp_study_deck_id", String(currentDeckId));
     localStorage.setItem("temp_study_words", JSON.stringify(currentWords));
     localStorage.setItem("temp_study_index", String(currentIndex));
     localStorage.setItem("temp_study_unknown", JSON.stringify(unknownWords));
     localStorage.setItem("temp_study_known", JSON.stringify(knownWords));
-  }, [
-    currentDeckId,
-    currentWords,
-    currentIndex,
-    unknownWords,
-    knownWords,
-    loading,
-  ]);
+  }, [currentDeckId, currentWords, currentIndex, unknownWords, knownWords]);
 
-  return { loading };
+  return { loading: false };
 };
 
 export const clearStudySession = () => {

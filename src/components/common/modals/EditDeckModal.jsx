@@ -37,7 +37,7 @@ const EditDeckModal = ({
 
     setIsSubmitting(true);
     try {
-      await onRename(deckId, oldName, trimmedName, formData.lang);
+      await onRename(deckId, trimmedName, formData.lang);
       onClose();
     } catch (err) {
       console.error("[UpdateDeckModal] Update error:", err);

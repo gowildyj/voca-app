@@ -140,6 +140,7 @@ const StudySession = () => {
   useEffect(() => {
     return () => {
       clearStudySession();
+      window.speechSynthesis.cancel();
     };
   }, []);
 

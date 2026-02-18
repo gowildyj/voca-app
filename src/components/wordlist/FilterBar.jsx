@@ -43,7 +43,7 @@ const FilterBar = ({
             className="shuffle-refresh-btn"
             title="다시 섞기"
           >
-            🔄 섞기
+            🔄
           </button>
         )}
 
@@ -55,7 +55,7 @@ const FilterBar = ({
         >
           <option value="default">등록순</option>
           <option value="alpha">알파벳순</option>
-          <option value="shuffle">무작위</option>
+          <option value="shuffle">랜덤</option>
         </select>
       </div>
     </div>

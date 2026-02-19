@@ -1,44 +1,84 @@
-/* ========== Modal Overlay ========== */
+/* ========== Modal Overlay (배경) ========== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   z-index: 2000;
-  padding: 20px;
   cursor: default;
 }
 
-/* ========== Modal Content ========== */
-.modal-content {
+/* ========== Modal Content (바텀 시트 본체) ========== */
+.modal-content.bottom-sheet {
   background: var(--card);
   color: var(--text);
   width: 100%;
-  max-width: 450px;
-  border-radius: 28px;
-  overflow: hidden;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  border-radius: 28px 28px 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
   position: relative;
+  box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
 }
 
-.modal-content.small {
-  max-width: 380px;
-  padding: 32px 24px 24px 24px;
+/* ========== Drag Handle (상단 바) ========== */
+.modal-drag-handle {
+  width: 100%;
+  padding: 12px 0 8px;
+  display: flex;
+  justify-content: center;
+  cursor: grab;
+  flex-shrink: 0;
 }
 
-/* ========== Header ========== */
+.modal-drag-handle:active {
+  cursor: grabbing;
+}
+
+.handle-bar {
+  width: 40px;
+  height: 5px;
+  background-color: rgba(128, 128, 128, 0.3);
+  border-radius: 10px;
+}
+
+/* ========== Scroll Area (내부 콘텐츠) ========== */
+.modal-scroll-area,
+.modal-body-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 24px;
+  user-select: auto;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 스크롤바 스타일 */
+.modal-body-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-body-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(128, 128, 128, 0.3);
+  border-radius: 3px;
+}
+
+/* ========== Header & Tabs ========== */
 .modal-header {
-  padding: 20px;
+  padding: 10px 20px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.2);
 }
 
 .modal-title {
@@ -54,7 +94,7 @@
   color: var(--text);
   opacity: 0.5;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -62,25 +102,18 @@
   transition: all 0.2s;
 }
 
-.modal-close-btn:hover {
-  background-color: rgba(128, 128, 128, 0.1);
-  opacity: 1;
-}
-
-/* ========== Tabs ========== */
 .modal-tab-container {
   display: flex;
-  padding: 10px 20px;
+  padding: 0 20px 16px;
   gap: 10px;
-  background: var(--bg);
 }
 
 .modal-tab {
   flex: 1;
-  padding: 10px;
+  padding: 12px;
   border: none;
-  border-radius: 18px;
-  background: transparent;
+  border-radius: 14px;
+  background: var(--bg);
   color: var(--text);
   opacity: 0.5;
   cursor: pointer;
@@ -92,16 +125,12 @@
   transition: all 0.2s;
 }
 
-.modal-tab:hover {
-  opacity: 0.8;
-  background: rgba(128, 128, 128, 0.1);
-}
-
 .modal-tab.active {
   background: var(--card);
   opacity: 1;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   color: var(--primary);
+  border: 1px solid rgba(128, 128, 128, 0.1);
 }
 
 /* ========== Form & Inputs ========== */
@@ -109,13 +138,7 @@
   display: flex;
   flex-direction: column;
   padding: 20px;
-}
-
-.modal-guide-text {
-  font-size: 0.85rem;
-  color: var(--text);
-  opacity: 0.7;
-  margin-bottom: 16px;
+  padding: 20px;
 }
 
 .modal-label {
@@ -124,66 +147,43 @@
   color: var(--primary);
   margin-bottom: 6px;
   display: block;
-  opacity: 0.9;
 }
 
-/* 입력창 공통 스타일 */
 .modal-input,
 .modal-textarea,
 .modal-select {
   width: 100%;
   padding: 14px;
-  border-radius: 18px;
-
-  /* 배경과 글자색을 명시적으로 지정해야 다크모드에서 보임 */
+  border-radius: 16px;
   background: var(--bg);
   color: var(--text);
-
   border: 1px solid rgba(128, 128, 128, 0.2);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   outline: none;
   font-size: 1rem;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
 }
 
-/* 포커스 효과 */
 .modal-input:focus,
 .modal-textarea:focus,
 .modal-select:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-}
-
-/* 플레이스홀더 색상 (다크모드 대응) */
-.modal-input::placeholder,
-.modal-textarea::placeholder {
-  color: var(--text);
-  opacity: 0.4;
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
 }
 
 .modal-textarea {
-  height: 150px;
-  resize: none;
+  min-height: 250px;
+  height: auto;
+  line-height: 1.5;
+  resize: vertical;
 }
 
-/* Select 화살표 커스텀 */
-.modal-select {
-  appearance: none;
-  /* 기본(라이트모드) 화살표 색상: #888888 */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
+/* ========== Footer & Buttons ========== */
+.modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(128, 128, 128, 0.1);
+  background: var(--card);
 }
 
-/* 다크모드일 때 Select 화살표 흰색으로 변경 */
-[data-theme="dark"] .modal-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-}
-
-/* ========== Buttons ========== */
 .modal-submit-btn {
   width: 100%;
   padding: 16px;
@@ -192,30 +192,21 @@
   background: var(--primary);
   color: #ffffff;
   font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  margin-top: 8px;
   transition:
     opacity 0.2s,
     transform 0.1s;
-}
-
-.modal-submit-btn:hover {
-  opacity: 0.9;
 }
 
 .modal-submit-btn:active {
   transform: scale(0.98);
 }
 
-.modal-submit-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .reset-progress-btn {
   width: 100%;
   padding: 12px;
-  border-radius: 18px;
+  border-radius: 14px;
   border: 1px dashed rgba(128, 128, 128, 0.4);
   background: rgba(128, 128, 128, 0.05);
   color: var(--text);
@@ -226,114 +217,21 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: all 0.2s;
-  opacity: 0.7;
+  margin-bottom: 16px;
 }
 
-.reset-progress-btn:hover {
-  background: var(--bg);
-  color: var(--primary);
-  border-color: var(--primary);
-  border-style: solid;
-  opacity: 1;
-}
-
-[data-theme="dark"] .reset-progress-btn:hover {
-  background: rgba(var(--primary-rgb), 0.1);
-  color: var(--primary);
-  border-color: var(--primary);
-}
-
-/* ========== Bulk Edit Modal Styles ========== */
-
-.modal-body-scroll {
-  padding: 20px;
-  max-height: 60vh;
-  overflow-y: auto;
-  background-color: var(--bg);
-}
-
-.modal-body-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-.modal-body-scroll::-webkit-scrollbar-thumb {
-  background-color: rgba(128, 128, 128, 0.3);
-  border-radius: 3px;
-}
-.modal-body-scroll::-webkit-scrollbar-track {
-  background-color: transparent;
-}
-
-.bulk-edit-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
+/* ========== Utils ========== */
 .bulk-edit-item {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  padding-bottom: 16px;
   border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+  margin-bottom: 1px;
+  margin-top: 10px;
 }
-
-/* .bulk-edit-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-} */
 
 @media (max-width: 480px) {
   .bulk-edit-item {
     grid-template-columns: 1fr;
-    gap: 8px;
-    background: var(--card);
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(128, 128, 128, 0.1);
   }
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.bulk-edit-item .modal-input {
-  margin-bottom: 0;
-}
-
-.modal-footer {
-  padding: 16px 20px;
-  border-top: 1px solid rgba(128, 128, 128, 0.1);
-  background: var(--card);
-}
-
-.btn-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.spinner {
-  animation: rotate 1s linear infinite;
-  color: var(--primary);
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
 }

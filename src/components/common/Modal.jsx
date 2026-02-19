@@ -2,13 +2,8 @@ import React, { useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
-const Modal = ({
-  isOpen = false,
-  onClose,
-  children,
-  size = "normal",
-  className = "",
-}) => {
+const Modal = ({ isOpen = false, onClose, children, className = "" }) => {
+  // ESC 키로 닫기
   const handleKeyDown = useCallback(
     (e) => {
       if (e.key === "Escape") onClose();
@@ -18,10 +13,8 @@ const Modal = ({
 
   useEffect(() => {
     if (!isOpen) return;
-
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleKeyDown);
-
     return () => {
       document.body.style.overflow = "unset";
       window.removeEventListener("keydown", handleKeyDown);
@@ -38,31 +31,32 @@ const Modal = ({
           exit={{ opacity: 0 }}
           className="modal-overlay"
           onClick={onClose}
-          role="dialog"
-          aria-modal="true"
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            zIndex: 1000,
-          }}
         >
           <motion.div
             key="modal-content"
-            initial={{ scale: 0.95, opacity: 0, y: 10 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 10 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className={`modal-content ${size === "small" ? "small" : ""} ${className}`.trim()}
+            /* 1. 초기 위치 및 애니메이션 */
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            /* 2. 위로 못 올라가게 제한하는 핵심 설정 */
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }} // ✅ top을 0으로 두면 위로 드래그가 막힙니다.
+            dragElastic={{ top: 0, bottom: 0.5 }} // ✅ 위쪽 탄성(Elastic)을 0으로 주면 잡아당겨도 안 올라갑니다.
+            onDragEnd={(_, info) => {
+              // 아래로 100px 이상 내리거나, 빠르게 아래로 튕기면(velocity) 닫기
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
+            className={`modal-content bottom-sheet ${className}`}
             onClick={(e) => e.stopPropagation()}
           >
-            {children}
+            <div className="modal-drag-handle">
+              <div className="handle-bar" />
+            </div>
+
+            <div className="modal-scroll-area">{children}</div>
           </motion.div>
         </motion.div>
       )}

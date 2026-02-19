@@ -150,6 +150,9 @@ const StudyCard = forwardRef(
             </div>
             <div className="card-face back">
               <h2>{word.meaning}</h2>
+              <div className="flip-hint">
+                <RotateCw size={16} />
+              </div>
               {word.example && <p>{word.example}</p>}
             </div>
           </div>

@@ -1,5 +1,5 @@
 import React, { useState, lazy, Suspense } from "react";
-import { ModalContext } from "./ModalContext"; // 위에서 만든 파일 임포트
+import { ModalContext } from "./ModalContext";
 
 const ModalComponents = {
   ADD_DECK: lazy(() => import("@/components/common/modals/AddWordModal")),

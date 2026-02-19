@@ -306,12 +306,12 @@ header-right .deck-action-btn {
   font-size: 0.65rem;
   font-weight: 800;
   color: var(--text);
-  opacity: 0.3; /* 너무 눈에 띄지 않게 */
+  opacity: 0.3;
   background: rgba(0, 0, 0, 0.05);
   padding: 2px 6px;
   border-radius: 6px;
   letter-spacing: 0.5px;
-  pointer-events: none; /* 클릭 방해 금지 */
+  pointer-events: none;
   user-select: none;
 }
 
@@ -462,3 +462,104 @@ header-right .deck-action-btn {
 [data-theme="dark"] .masked:hover {
   background-color: #6b7280;
 }
+
+/* ------------------------------- */
+
+.filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.filter-tabs-container {
+  display: flex;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 4px;
+  border-radius: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+[data-theme="dark"] .filter-tabs-container {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.filter-tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.6;
+}
+
+.filter-tab-item.active {
+  background-color: var(--card);
+  color: var(--primary);
+  opacity: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tab-count {
+  font-size: 0.75rem;
+  font-weight: 800;
+  opacity: 0.5;
+  margin-top: 0;
+}
+
+.filter-tab-item.active .tab-count {
+  opacity: 1;
+}
+
+.segment-group {
+  display: flex;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 3px;
+  border-radius: 10px;
+}
+
+.segment-btn {
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text);
+  opacity: 0.5;
+}
+
+.segment-btn.active {
+  background-color: var(--card);
+  color: var(--primary);
+  opacity: 1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.sort-select-minimal {
+  border: none;
+  background: transparent;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+  padding-right: 4px;
+}
+
+/* ------------------------------- */

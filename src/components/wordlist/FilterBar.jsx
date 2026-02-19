@@ -20,63 +20,58 @@ const FilterBar = ({
 }) => {
   return (
     <div className="filter-bar">
+      {/* 탭 스타일의 상단 필터 */}
       <div className="filter-row top-row">
-        {FILTERS.map((f) => {
-          const count = filterCounts[f.id] ?? 0;
-          const isActive = currentFilter === f.id;
+        <div className="filter-tabs-container" role="tablist">
+          {FILTERS.map((f) => {
+            const count = filterCounts[f.id] ?? 0;
+            const isActive = currentFilter === f.id;
 
-          return (
-            <button
-              key={f.id}
-              onClick={() => setFilter(f.id)}
-              className={`filter-btn ${isActive ? "active" : ""}`}
-              role="tab"
-              aria-selected={isActive}
-            >
-              {f.short} <span className="count-num">{count}</span>
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={f.id}
+                onClick={() => setFilter(f.id)}
+                className={`filter-tab-item ${isActive ? "active" : ""}`}
+                role="tab"
+                aria-selected={isActive}
+              >
+                <span className="tab-label">{f.short}</span>
+                <span className="tab-count">{count}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="filter-row bottom-row">
-        <div className="visibility-group">
+        {/* 가리기 버튼들도 탭처럼 묶어주면 더 깔끔합니다 */}
+        <div className="visibility-group segment-group">
           <button
             onClick={() => onToggleMode("word")}
-            className={`filter-btn ${hideMode === "word" ? "active" : ""}`}
-            title="단어 가리기"
+            className={`segment-btn ${hideMode === "word" ? "active" : ""}`}
           >
-            {hideMode === "word" ? <EyeOff size={15} /> : <Eye size={15} />}
+            {hideMode === "word" ? <EyeOff size={14} /> : <Eye size={14} />}
             <span>단어</span>
           </button>
-
           <button
             onClick={() => onToggleMode("meaning")}
-            className={`filter-btn ${hideMode === "meaning" ? "active" : ""}`}
-            title="뜻 가리기"
+            className={`segment-btn ${hideMode === "meaning" ? "active" : ""}`}
           >
-            {hideMode === "meaning" ? <EyeOff size={15} /> : <Eye size={15} />}
+            {hideMode === "meaning" ? <EyeOff size={14} /> : <Eye size={14} />}
             <span>뜻</span>
           </button>
         </div>
 
-        {/* 오른쪽: 정렬 및 셔플 */}
         <div className="sort-group">
           {sortType === "shuffle" && (
-            <button
-              onClick={onShuffle}
-              className="shuffle-refresh-btn"
-              title="다시 섞기"
-            >
+            <button onClick={onShuffle} className="shuffle-refresh-icon">
               🔄
             </button>
           )}
-
           <select
             value={sortType}
             onChange={(e) => setSortType(e.target.value)}
-            className="sort-select"
-            aria-label="정렬 방식 선택"
+            className="sort-select-minimal"
           >
             <option value="default">등록순</option>
             <option value="alpha">A-Z</option>

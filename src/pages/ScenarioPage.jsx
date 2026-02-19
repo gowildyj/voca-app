@@ -57,27 +57,33 @@ const ScenarioPage = () => {
       </div>
 
       {/* 미니 플로팅 셀렉터 (화면 하단에 작고 가볍게 표시) */}
+      {/* 미니 플로팅 셀렉터 (심플 리스트 버전) */}
       {activeSelector && (
         <div
           className="mini-selector-overlay"
           onClick={() => setActiveSelector(null)}
         >
           <div
-            className="mini-selector-content"
+            className="mini-selector-content slim-list"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mini-selector-header">대체 단어 선택</div>
-            <div className="chip-group">
+            <div className="list-group">
               {activeSelector.options.map((option, idx) => (
                 <button
                   key={idx}
-                  className={`chip ${selections[activeSelector.varName]?.word === option.word ? "active" : ""}`}
+                  className={`list-item ${selections[activeSelector.varName]?.word === option.word ? "active" : ""}`}
                   onClick={() =>
                     handleSelectOption(activeSelector.varName, option)
                   }
                 >
-                  <span className="chip-word">{option.word}</span>
-                  <span className="chip-meaning">{option.meaning}</span>
+                  <div className="item-info">
+                    <span className="item-word">{option.word}</span>
+                    <span className="item-meaning">{option.meaning}</span>
+                  </div>
+                  {/* 현재 선택된 항목에 체크 표시 등 포인트 가능 */}
+                  {selections[activeSelector.varName]?.word === option.word && (
+                    <span className="check-mark">✓</span>
+                  )}
                 </button>
               ))}
             </div>

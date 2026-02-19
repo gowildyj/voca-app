@@ -37,7 +37,7 @@
 }
 
 .bubble:active {
-  transform: scale(0.98);
+  transform: scale(0.99);
 }
 
 .staff .bubble {
@@ -101,8 +101,8 @@
 .mini-selector-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(2px);
+  /* background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px); */
   display: flex;
   align-items: flex-end;
   z-index: 1000;
@@ -217,4 +217,83 @@
   to {
     transform: translateY(0);
   }
+}
+
+/* 오버레이에서 블러 제거 (문장 가독성 확보) */
+.mini-selector-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2); /* 배경만 살짝 어둡게 */
+  display: flex;
+  align-items: flex-end; /* 아래쪽에서 올라오는 느낌 유지 */
+  z-index: 1000;
+}
+
+/* 슬림 리스트 컨테이너 */
+.mini-selector-content.slim-list {
+  width: 100%;
+  max-height: 50vh; /* 선택지가 많으면 여기서 내부 스크롤 */
+  background: var(--card);
+  border-radius: 20px 20px 0 0;
+  padding: 12px 0; /* 좌우 여백 제거 */
+  overflow-y: auto;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.list-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 각 항목: 훨씬 얇고 심플하게 */
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03); /* 아주 연한 구분선 */
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-word {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.item-meaning {
+  font-size: 0.85rem;
+  color: var(--text);
+  opacity: 0.5;
+}
+
+/* 활성 상태: 배경색과 보더 대신 글자색으로 강조 */
+.list-item.active {
+  background-color: rgba(var(--primary-rgb), 0.05);
+}
+
+.list-item.active .item-word,
+.list-item.active .item-meaning,
+.list-item.active .check-mark {
+  color: var(--primary);
+  opacity: 1;
+}
+
+.check-mark {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: transparent;
 }

@@ -5,6 +5,7 @@ import { useModal } from "@/contexts/ModalContext";
 import DeckCard from "@/components/dashboard/DeckCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlusCircle, LayoutGrid } from "lucide-react";
+import "@/styles/pages/Dashboard.css";
 
 const Dashboard = () => {
   const navigate = useNavigate();

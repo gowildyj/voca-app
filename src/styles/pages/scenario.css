@@ -1,0 +1,361 @@
+/* --- 컨테이너 및 레이아웃 --- */
+.scenario-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* padding: 20px; */
+  background-color: var(--bg);
+  min-height: 100vh;
+  padding-bottom: 120px; /* 하단 셀렉터 공간 확보 */
+}
+
+.chat-row {
+  display: flex;
+  width: 100%;
+}
+
+/* 직원: 왼쪽 정렬 */
+.chat-row.left {
+  justify-content: flex-start;
+}
+
+/* 나(사용자): 오른쪽 정렬 */
+.chat-row.right {
+  justify-content: flex-end;
+}
+
+/* --- 말풍선 기본 디자인 --- */
+.bubble {
+  max-width: 85%;
+  padding: 14px 18px;
+  border-radius: 20px;
+  font-size: 1rem;
+  line-height: 1.5;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+}
+
+.left .bubble {
+  background-color: var(--card);
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.right .bubble {
+  background-color: var(--primary);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.left.playing-bubble .bubble {
+  box-shadow: 0 0 0 3px var(--primary);
+}
+
+.right.playing-bubble .bubble {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9);
+}
+
+/* --- 텍스트 및 슬롯 스타일 --- */
+.main-text {
+  display: block;
+}
+
+.translation-text {
+  display: block;
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-top: 8px;
+  padding-top: 6px;
+}
+
+.left .translation-text {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.right .translation-text {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/*---------------------------------------*/
+/* 인라인 단어 슬롯 (문장 속 선택 영역) */
+.inline-slot {
+  display: inline-block;
+  padding: 0 4px;
+  margin: 0 2px;
+  /* border-radius: 4px; */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 유저 말풍선 안의 슬롯 */
+.right .inline-slot {
+  /* background-color: rgba(255, 255, 255, 0.2); */
+  color: #ffffff;
+  border-bottom: 1.5px dashed rgba(255, 255, 255, 0.5);
+}
+
+/* 직원 말풍선 안의 슬롯 (테마색 반영) */
+.left .inline-slot {
+  /* background-color: rgba(0, 0, 0, 0.03); */
+  /* color: var(--primary); */
+  border-bottom: 1.5px dashed var(--primary);
+}
+
+/*---------------------------------------*/
+/* 🙈 가리기 효과 (사이즈 1px도 안 변하는 완벽 고정형) */
+
+/* 1. 배경 박스 생성 */
+.masked {
+  background-color: #d1d5db !important; /* 가림 박스 색상 */
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+  /* 레이아웃(margin, padding, display)을 절대 건드리지 않으므로 크기 불변 */
+}
+
+[data-theme="dark"] .masked {
+  background-color: #4b5563 !important;
+}
+
+/* 오른쪽(나) 말풍선 마스크 색상 보정 */
+.right .masked {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* 2. 글자 및 슬롯 완벽 숨김 (공간은 유지) */
+.masked * {
+  opacity: 0 !important; /* 투명도를 0으로 하여 공간은 유지하되 완벽히 숨김 */
+  pointer-events: none !important; /* 클릭 방지 */
+}
+
+/* 뜻 가리기 시 테두리(border-top) 숨김 처리 */
+.translation-text.masked {
+  border-top-color: transparent !important;
+}
+
+/*---------------------------------------*/
+
+/* =========================================
+   상단 헤더 및 컨트롤러 디자인 (왼쪽 정렬, 3줄 완벽 분리)
+   ========================================= */
+
+/* 1. 전체 헤더 컨테이너 (세로 배치, 왼쪽 정렬) */
+.list-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px 0;
+  background-color: var(--bg);
+  margin-bottom: 0;
+}
+
+/* 2. 첫 번째 줄: 뒤로가기 화살표 + 영어 제목 */
+.header-title-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center; /* 세로 중앙 정렬 */
+  gap: 12px; /* 화살표와 텍스트 사이 간격 */
+  margin-bottom: 6px;
+  width: 100%;
+}
+
+/* 화살표 버튼 스타일 */
+.back-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 영어 제목 */
+.list-header-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  padding: 10px;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+/* 3. 두 번째 줄: 한글 제목 */
+.list-header-subtitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  opacity: 0.6; /* 보조 텍스트 느낌 */
+  margin: 0 0 20px 0; /* 컨트롤러 박스와의 간격 */
+  line-height: 1.4;
+  word-break: keep-all;
+  padding-left: 38px; /* 화살표(26px) + 간격(12px) 만큼 들여쓰기 */
+}
+
+/* 4. 세 번째 줄: 컨트롤러 박스 */
+.top-study-controls {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
+  background: var(--card);
+  border-radius: 14px;
+  padding: 10px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+}
+
+/* 개별 버튼 디자인 (색상 선명하게 복구) */
+.study-tool-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  min-width: 70px;
+  opacity: 1; /* 원래 색상으로 뚜렷하게 */
+  transition: all 0.2s ease;
+}
+
+/* 버튼 켜졌을 때 (active/playing) */
+.study-tool-btn.active,
+.study-tool-btn.playing {
+  color: var(--primary);
+}
+
+/* 전체 재생 중일 때 비활성화 상태 */
+.study-tool-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 버튼 사이 세로 구분선 */
+.control-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* 다크 모드 보정 */
+[data-theme="dark"] .top-study-controls {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+[data-theme="dark"] .control-divider {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- 미니 셀렉터 (Slim List) --- */
+.mini-selector-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: flex-end;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.mini-selector-content.slim-list {
+  width: 100%;
+  max-height: 50vh;
+  background: var(--card);
+  border-radius: 20px 20px 0 0;
+  padding: 12px 0;
+  overflow-y: auto;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.list-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  width: 100%;
+  border: none;
+  background: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item.active {
+  background: rgba(var(--primary-rgb), 0.05);
+  color: var(--primary);
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-word {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.item-meaning {
+  font-size: 0.85rem;
+  color: var(--text);
+  opacity: 0.5;
+}
+
+.list-item.active .item-word,
+.list-item.active .item-meaning {
+  color: var(--primary);
+  opacity: 1;
+}
+
+.check-mark {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: transparent;
+}
+
+.list-item.active .check-mark {
+  color: var(--primary);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

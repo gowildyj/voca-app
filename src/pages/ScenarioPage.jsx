@@ -1,63 +1,188 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { hotelBreakfast } from "@/data/scenarios/hotel_breakfast";
 import ChatBubble from "@/components/scenario/ChatBubble";
-import "@/styles/components/scenario/scenario.css";
+import { speak } from "@/utils/tts";
+import { Play, Square, Eye, EyeOff, Type, ArrowLeft } from "lucide-react";
+import "@/styles/pages/scenario.css";
 
 const ScenarioPage = () => {
-  // 1. 상태 관리 (이제 모든 단계를 한 번에 보여주므로 currentStepIndex는 필요 없음)
   const [selections, setSelections] = useState({});
-  const [activeSelector, setActiveSelector] = useState(null); // { stepId, varName, options }
+  const [activeSelector, setActiveSelector] = useState(null);
+  const [showWord, setShowWord] = useState(true);
+  const [showMeaning, setShowMeaning] = useState(true);
+  const [playingId, setPlayingId] = useState(null);
+  const [resetKey, setResetKey] = useState(0);
 
-  // 2. 단어 선택 처리
+  const bubbleRefs = useRef({});
+  const isPlayingAll = useRef(false);
+
+  // 단어 가리기 토글 (뜻 가리기는 해제)
+  const toggleWord = () => {
+    if (showWord) {
+      // 가리려고 할 때
+      setShowWord(false);
+      setShowMeaning(true); // 뜻은 무조건 보여줌
+    } else {
+      // 보이게 할 때
+      setShowWord(true);
+    }
+    setResetKey((prev) => prev + 1);
+  };
+
+  // 뜻 가리기 토글 (단어 가리기는 해제)
+  const toggleMeaning = () => {
+    if (showMeaning) {
+      // 가리려고 할 때
+      setShowMeaning(false);
+      setShowWord(true); // 단어는 무조건 보여줌
+    } else {
+      // 보이게 할 때
+      setShowMeaning(true);
+    }
+    setResetKey((prev) => prev + 1);
+  };
+
   const handleSelectOption = (varName, option) => {
-    setSelections((prev) => ({
-      ...prev,
-      [varName]: option,
-    }));
-    setActiveSelector(null); // 선택 후 셀렉터 닫기
+    setSelections((prev) => ({ ...prev, [varName]: option }));
+    setActiveSelector(null);
   };
 
-  const handlePlayAudio = (text) => {
-    // 1. 기존에 읽고 있던 게 있으면 멈춤
+  const playText = async (text, id, onEnd = () => {}) => {
+    // 1. 기존 재생 취소 및 현재 재생 ID 설정
     window.speechSynthesis.cancel();
+    setPlayingId(id);
 
-    // 2. 읽을 내용 생성
-    const utterance = new SpeechSynthesisUtterance(text);
+    // 2. 화면 스크롤 이동
+    if (bubbleRefs.current[id]) {
+      bubbleRefs.current[id].scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
 
-    // 3. 언어 설정 (학습 언어에 맞춰서)
-    utterance.lang = "en-US"; // 나중에 데이터의 learning_lang에 맞게 변경 가능
-    utterance.rate = 1.0; // 재생 속도
+    // 3. TTS 재생 (객체 대신 숫자 1.0만 전달) 및 완료 대기
+    await speak(text, hotelBreakfast.learning_lang, 1.0);
 
-    // 4. 재생
-    window.speechSynthesis.speak(utterance);
+    // 4. 재생이 완료되면 상태 초기화 및 콜백 실행
+    setPlayingId(null);
+    onEnd();
   };
+  // ScenarioPage.jsx 의 handleFullPlay 함수 교체
+
+  const handleFullPlay = async () => {
+    // 🌟 수정된 부분: playingId가 있거나 전체 재생 루프가 돌고 있다면 멈춤
+    if (playingId || isPlayingAll.current) {
+      isPlayingAll.current = false; // 🛑 1. 핵심: 다음 문장으로 넘어가지 못하게 루프 강제 종료 신호!
+      window.speechSynthesis.cancel(); // 🛑 2. 현재 읽고 있는 TTS 즉시 중지
+      setPlayingId(null); // 🛑 3. UI 상태(테두리, 아이콘 등) 초기화
+      return;
+    }
+
+    isPlayingAll.current = true;
+
+    for (const step of hotelBreakfast.steps) {
+      if (!isPlayingAll.current) break; // 🛑 여기서 신호를 확인하고 루프를 완전히 빠져나감
+
+      const textToSpeak = step.text.replace(
+        /{(\w+)}/g,
+        (match, key, offset, fullString) => {
+          const originStep =
+            hotelBreakfast.steps.find(
+              (s) => s.text?.includes(`{${key}}`) && s.options,
+            ) || step;
+          const selected = selections[key] || originStep?.default;
+          let word = selected?.word || match;
+
+          const prevText = fullString.slice(0, offset);
+          const isFirstInSentence =
+            offset === 0 || /(?:^|[.?!])\s*$/.test(prevText);
+
+          if (isFirstInSentence && typeof word === "string") {
+            word = word.charAt(0).toUpperCase() + word.slice(1);
+          }
+
+          return word;
+        },
+      );
+
+      await new Promise((resolve) => playText(textToSpeak, step.id, resolve));
+    }
+
+    isPlayingAll.current = false;
+    setPlayingId(null);
+  };
+
+  const isPlaying = playingId !== null;
+  const effectiveShowWord = isPlaying ? true : showWord;
+  const effectiveShowMeaning = isPlaying ? true : showMeaning;
 
   return (
     <div className="scenario-page">
       <header className="list-header">
-        <div className="header-content">
-          <h1 className="list-header-title">{hotelBreakfast.title_learning}</h1>
-          <p className="list-header-sub">{hotelBreakfast.title_base}</p>
+        <div className="header-left">
+          <button className="back-btn" onClick={() => window.history.back()}>
+            <ArrowLeft size={24} />
+            <h1 className="list-header-title">
+              {hotelBreakfast.title_learning}
+            </h1>
+          </button>
+        </div>
+        <h2 className="list-header-subtitle">{hotelBreakfast.title_base}</h2>
+        <div className="top-study-controls">
+          <button
+            className={`study-tool-btn ${isPlaying ? "playing" : ""}`}
+            onClick={handleFullPlay}
+          >
+            {isPlaying ? (
+              <Square size={18} fill="currentColor" />
+            ) : (
+              <Play size={18} fill="currentColor" />
+            )}
+            <span>전체 재생</span>
+          </button>
+          <div className="control-divider" />
+          <button
+            className={`study-tool-btn ${!showWord ? "active" : ""}`}
+            onClick={toggleWord}
+            disabled={isPlaying}
+          >
+            {showWord ? <Eye size={18} /> : <EyeOff size={18} />}
+            <span>단어 가리기</span>
+          </button>
+          <div className="control-divider" />
+          <button
+            className={`study-tool-btn ${!showMeaning ? "active" : ""}`}
+            onClick={toggleMeaning}
+            disabled={isPlaying}
+          >
+            {showMeaning ? <Eye size={18} /> : <EyeOff size={18} />}
+            <span>뜻 가리기</span>
+          </button>
         </div>
       </header>
 
-      <div className="scenario-container">
+      <div className="scenario-container" key={resetKey}>
         {hotelBreakfast.steps.map((step) => (
-          <ChatBubble
-            key={step.id}
-            step={step}
-            selections={selections}
-            allSteps={hotelBreakfast.steps} // 👈 전체 단계 정보를 전달
-            onOpenSelector={(varName, options) => {
-              setActiveSelector({ varName, options });
-            }}
-            onPlayAudio={handlePlayAudio}
-          />
+          <div
+            key={`${resetKey}-${step.id}`}
+            ref={(el) => (bubbleRefs.current[step.id] = el)}
+            className={`bubble-wrapper ${step.role} ${playingId === step.id ? "playing-bubble" : ""}`}
+          >
+            <ChatBubble
+              step={step}
+              selections={selections}
+              allSteps={hotelBreakfast.steps}
+              onOpenSelector={(varName, options) =>
+                setActiveSelector({ varName, options })
+              }
+              onPlayAudio={(text) => playText(text, step.id)}
+              showWord={effectiveShowWord}
+              showMeaning={effectiveShowMeaning}
+            />
+          </div>
         ))}
       </div>
 
-      {/* 미니 플로팅 셀렉터 (화면 하단에 작고 가볍게 표시) */}
-      {/* 미니 플로팅 셀렉터 (심플 리스트 버전) */}
       {activeSelector && (
         <div
           className="mini-selector-overlay"
@@ -68,20 +193,19 @@ const ScenarioPage = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="list-group">
-              {activeSelector.options.map((option, idx) => (
+              {activeSelector.options.map((opt, idx) => (
                 <button
                   key={idx}
-                  className={`list-item ${selections[activeSelector.varName]?.word === option.word ? "active" : ""}`}
+                  className={`list-item ${selections[activeSelector.varName]?.word === opt.word ? "active" : ""}`}
                   onClick={() =>
-                    handleSelectOption(activeSelector.varName, option)
+                    handleSelectOption(activeSelector.varName, opt)
                   }
                 >
                   <div className="item-info">
-                    <span className="item-word">{option.word}</span>
-                    <span className="item-meaning">{option.meaning}</span>
+                    <span className="item-word">{opt.word}</span>
+                    <span className="item-meaning">{opt.meaning}</span>
                   </div>
-                  {/* 현재 선택된 항목에 체크 표시 등 포인트 가능 */}
-                  {selections[activeSelector.varName]?.word === option.word && (
+                  {selections[activeSelector.varName]?.word === opt.word && (
                     <span className="check-mark">✓</span>
                   )}
                 </button>

@@ -49,12 +49,12 @@ export const useScenarioLogic = (scenario) => {
   useEffect(() => {
     if (!currentStep) return;
 
-    if (currentStep.role === "staff") {
+    if (currentStep.role === "left") {
       const timer = setTimeout(moveToNext, 2000);
       return () => clearTimeout(timer);
     }
 
-    if (currentStep.role === "user" && currentStep.options) {
+    if (currentStep.role === "right" && currentStep.options) {
       const timer = setTimeout(() => setIsOptionOpen(true), 500);
       return () => clearTimeout(timer);
     }

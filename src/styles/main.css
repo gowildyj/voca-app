@@ -10,9 +10,10 @@
 @import "./components/cards.css";
 
 /* Pages */
-@import "./pages/dashboard.css";
-@import "./pages/wordList.css";
-@import "./pages/study.css";
+/* @import "./pages/dashboard.css"; */
+/* @import "./pages/wordList.css"; */
+/* @import "./pages/study.css"; */
+/* @import "./pages/scenario.css"; */
 
 /* Utilities */
 @import "./utilities/utils.css";

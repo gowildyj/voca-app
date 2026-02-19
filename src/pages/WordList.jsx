@@ -17,6 +17,7 @@ import { useWordListLogic } from "@/hooks/useWordListLogic";
 import WordItem from "@/components/wordlist/WordItem";
 import SearchBar from "@/components/wordlist/SearchBar";
 import FilterBar from "@/components/wordlist/FilterBar";
+import "@/styles/pages/WordList.css";
 
 const WordList = () => {
   const navigate = useNavigate();

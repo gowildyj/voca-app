@@ -1,6 +1,9 @@
 export const hotelBreakfast = {
   id: "hb_01",
-  title: "호텔 조식 주문하기",
+  learning_lang: "en",
+  base_lang: "ko",
+  title_learning: "Ordering Hotel Breakfast",
+  title_base: "호텔 조식 주문하기",
   steps: [
     {
       id: 1,
@@ -11,14 +14,42 @@ export const hotelBreakfast = {
     {
       id: 2,
       role: "user",
-      variable: "drink",
       text: "Good morning. I’ll have a hot {drink}, please.",
-      translation: "좋은 아침이에요. 따뜻한 {drink_ko} 한 잔 주세요.",
+      translation: "좋은 아침이에요. 따뜻한 {drink} 한 잔 주세요.",
       options: [
-        { value: "Americano", ko: "아메리카노" },
-        { value: "Caffe Latte", ko: "카페라떼" },
+        { word: "americano", meaning: "아메리카노" },
+        { word: "caffe latte", meaning: "카페라떼" },
+        { word: "espresso", meaning: "에스프레소" },
       ],
-      default: { value: "Americano", ko: "아메리카노" },
+      default: { word: "americano", meaning: "아메리카노" },
+    },
+    {
+      id: 3,
+      role: "staff",
+      text: "Sure. And how would you like your eggs?",
+      translation: "네, 알겠습니다. 계란 요리는 어떻게 해 드릴까요?",
+    },
+    {
+      id: 4,
+      role: "user",
+      text: "{egg_style}, please.",
+      translation: "{egg_style} 주세요.",
+      options: [
+        { word: "an omelet with everything", meaning: "재료 전부 넣은 오믈렛" },
+        { word: "scrambled eggs", meaning: "스크램블 에그" },
+        { word: "sunny-side up", meaning: "서니사이드업" },
+      ],
+      default: {
+        word: "an omelet with everything",
+        meaning: "재료 전부 넣은 오믈렛",
+      },
+    },
+    {
+      id: 5,
+      role: "staff",
+      text: "Certainly. I'll prepare a hot {drink} and {egg_style} for you.",
+      translation:
+        "알겠습니다. 따뜻한 {drink} 한 잔과 {egg_style} 준비해 드릴게요.",
     },
   ],
 };

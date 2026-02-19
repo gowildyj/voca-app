@@ -1,0 +1,220 @@
+/* 전체 컨테이너 */
+.scenario-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background-color: var(--bg);
+  min-height: 100vh;
+  padding-bottom: 100px; /* 하단 셀렉터 공간 확보 */
+}
+
+.chat-row {
+  display: flex;
+  width: 100%;
+}
+
+/* 직원: 왼쪽 정렬 */
+.chat-row.staff {
+  justify-content: flex-start;
+}
+
+/* 나(사용자): 오른쪽 정렬 */
+.chat-row.user {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: 85%;
+  padding: 14px 18px;
+  border-radius: 20px;
+  font-size: 1rem;
+  line-height: 1.5;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
+}
+
+.bubble:active {
+  transform: scale(0.98);
+}
+
+.staff .bubble {
+  background-color: var(--card);
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.user .bubble {
+  background-color: var(--primary);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+/* 해석 텍스트 스타일 */
+.translation-text {
+  display: block;
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-top: 8px;
+  padding-top: 6px;
+}
+
+.user .translation-text {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.staff .translation-text {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/*---------------------------------------*/
+/* 인라인 단어 슬롯 (문장 속 선택 영역) */
+.inline-slot {
+  display: inline-block;
+  padding: 0 4px;
+  margin: 0 2px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 유저 말풍선 안의 슬롯 */
+.user .inline-slot {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.5);
+}
+
+/* 직원 말풍선 안의 슬롯 (테마색 반영) */
+.staff .inline-slot {
+  background-color: rgba(0, 0, 0, 0.03);
+  color: var(--primary);
+  border-bottom: 1.5px solid var(--primary);
+}
+
+/*---------------------------------------*/
+/* 미니 셀렉터 (하단 팝업) */
+.mini-selector-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: flex-end;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.mini-selector-content {
+  width: 100%;
+  background: var(--card);
+  color: var(--text);
+  border-radius: 24px 24px 0 0;
+  padding: 24px;
+  box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mini-selector-header {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  opacity: 0.6;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+/* 칩 그룹 */
+.chip-group {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 10px 4px 20px 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chip-group::-webkit-scrollbar {
+  display: block; /* inline 대신 block 사용 */
+  height: 6px; /* 가로 스크롤바의 두께 */
+}
+
+/* 스크롤바 손잡이 (움직이는 부분) */
+/* .chip-group::-webkit-scrollbar-thumb {
+  background-color: var(--primary);
+  border-radius: 10px;
+  opacity: 0.3;
+} */
+
+/* 스크롤바 바닥 (레일) */
+/* .chip-group::-webkit-scrollbar-track {
+  background-color: var(--bg);
+  border-radius: 10px;
+  margin: 0 10px; 
+} */
+
+.chip {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 20px;
+  background: var(--bg);
+  border: 2px solid transparent;
+  border-radius: 16px;
+  min-width: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 활성화된 칩: 테마의 --primary 색상 적용 */
+.chip.active {
+  background-color: var(--card);
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.chip-word {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text);
+}
+
+.chip.active .chip-word {
+  color: var(--primary);
+}
+
+.chip-meaning {
+  font-size: 0.85rem;
+  color: var(--text);
+  opacity: 0.6;
+  margin-top: 2px;
+}
+
+.chip.active .chip-meaning {
+  color: var(--primary);
+  opacity: 0.9;
+}
+
+/* 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

@@ -5,7 +5,7 @@ import HeroCard from "@/components/cards/HeroCard";
 import DeckCard from "@/components/cards/DeckCard";
 import { ROUTES } from "@/routes/AppRoutes";
 import { useHomePage } from "@/hooks/pages/useHomePage";
-import "@/styles/pages/homepage.css";
+import "@/styles/pages/homePage.css";
 
 import { LANG_OPTIONS } from "@/constants/languages";
 

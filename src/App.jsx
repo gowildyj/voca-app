@@ -108,7 +108,6 @@ function AppContent() {
             <Route
               key={path}
               path={path}
-              // 🌟 페이지 컴포넌트에 현재 언어 값을 주입합니다.
               element={React.cloneElement(element, {
                 currentLangValue: selectedLang.value,
               })}
@@ -123,8 +122,6 @@ function AppContent() {
 const App = () => (
   <Router>
     <ThemeProvider>
-      {/* 🌟 나중에 WordsProvider 내부에서 useWords를 쓰고 싶다면 
-          여기로 selectedLang을 옮기는 구조로 발전시킬 수 있습니다. */}
       <WordsProvider>
         <ModalProvider>
           <AppContent />

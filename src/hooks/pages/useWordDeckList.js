@@ -9,7 +9,7 @@ import { useModal } from "@/contexts/ModalContext";
  */
 export const useWordDeckList = (currentLangValue) => {
   // 1. Core Hooks
-  const { decks, loading, addDeck, updateDeck, deleteDeck } =
+  const { decks, loading, addDeck, updateDeck, deleteDeck, fetchDecks } =
     useWords(currentLangValue);
   const { openModal, closeModal } = useModal();
 
@@ -96,5 +96,6 @@ export const useWordDeckList = (currentLangValue) => {
     onAddDeck,
     onEditDeck,
     handleDeleteClick,
+    fetchDecks,
   };
 };

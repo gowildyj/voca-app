@@ -135,6 +135,7 @@
 .v-result-btn.secondary {
   background-color: #f3f4f6;
   color: var(--text-main);
+  border: 1px solid var(--text-main);
 }
 
 .v-result-btn.ghost {

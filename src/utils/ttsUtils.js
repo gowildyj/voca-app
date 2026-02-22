@@ -50,3 +50,33 @@ export const speak = (voices, langCode, preferredGender) => {
 
   return match || filteredVoices[0];
 };
+
+// src/utils/ttsUtils.js
+
+/**
+ * 실제로 텍스트를 읽어주는 함수
+ */
+export const playText = (text, langCode = "ko-KR") => {
+  if (!window.speechSynthesis) {
+    console.error("이 브라우저는 TTS를 지원하지 않습니다.");
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+
+  const voices = window.speechSynthesis.getVoices();
+
+  const selectedVoice = speak(voices, langCode, "female");
+
+  if (selectedVoice) {
+    utterance.voice = selectedVoice;
+  }
+
+  utterance.lang = langCode;
+  utterance.rate = 1.0; // 속도
+  utterance.pitch = 1.0; // 음높이
+
+  window.speechSynthesis.speak(utterance);
+};

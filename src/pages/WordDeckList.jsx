@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import "@/styles/pages/wordDeckList.css";
@@ -25,7 +25,12 @@ const WordDeckList = ({ currentLangValue }) => {
     onAddDeck,
     onEditDeck,
     handleDeleteClick,
+    fetchDecks,
   } = useWordDeckList(currentLangValue);
+
+  useEffect(() => {
+    fetchDecks();
+  }, [currentLangValue]);
 
   const getLangIcon = (langCode) => {
     const target = LANG_OPTIONS.find((lang) => lang.value === langCode);

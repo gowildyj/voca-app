@@ -20,14 +20,18 @@ export const useWords = (currentLangValue = "all") => {
   // =====================================================
 
   const fetchDecks = useCallback(async () => {
+    if (!currentLangValue) return;
+
     try {
       setLoading(true);
+      // console.log("🚀 DB 요청 언어:", currentLangValue);
 
       const { data, error } = await supabase.rpc("get_deck_stats", {
         p_lang_code: currentLangValue,
       });
 
       if (error) throw error;
+      // console.log("data", data);
 
       const normalized = (data ?? []).map((d) => ({
         id: d.id,
@@ -50,10 +54,6 @@ export const useWords = (currentLangValue = "all") => {
       setLoading(false);
     }
   }, [currentLangValue]);
-
-  useEffect(() => {
-    fetchDecks();
-  }, [fetchDecks]);
 
   const addDeck = async ({ name, language, icon = "", description = "" }) => {
     try {
@@ -130,6 +130,7 @@ export const useWords = (currentLangValue = "all") => {
 
       const normalized = (data ?? []).map((w) => ({
         id: w.id,
+        deck_id: w.deck_id,
         word: w.word,
         meaning: w.meaning,
         example: w.example,
@@ -216,24 +217,36 @@ export const useWords = (currentLangValue = "all") => {
   // ✅ Bulk Upsert
   const updateWordsBulk = async (wordsList) => {
     try {
+      // 🌟 전처리: deck_id가 유효하지 않거나 빈 객체가 들어가는 것을 방지
+      const payload = wordsList.map((w) => ({
+        id: w.id,
+        word: w.word,
+        meaning: w.meaning,
+        deck_id: w.deck_id, // 🌟 필수! deck_id가 포함되어야 안전합니다.
+      }));
+
       const { data, error } = await supabase
         .from("words")
-        .upsert(wordsList)
+        .upsert(payload, {
+          onConflict: "id", // 🌟 id가 겹치면 업데이트하라고 명시
+        })
         .select();
 
       if (error) throw error;
 
+      // 로컬 상태 즉시 업데이트
       setWords((prev) =>
         prev.map((w) => {
-          const updated = wordsList.find((nw) => nw.id === w.id);
+          const updated = payload.find((nw) => nw.id === w.id);
           return updated ? { ...w, ...updated } : w;
         }),
       );
 
-      toast.success("일괄 수정 완료");
+      toast.success("일괄 수정이 완료되었습니다.");
       return data;
-    } catch {
-      toast.error("일괄 수정 실패");
+    } catch (err) {
+      console.error("❌ Bulk Update Error:", err);
+      toast.error("일괄 수정에 실패했습니다.");
     }
   };
 

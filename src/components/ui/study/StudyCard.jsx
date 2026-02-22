@@ -33,12 +33,12 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
         <div className="card-inner">
           <div className="card-face card-front">
             {/* 메인 카드와 동일한 구성 요소 배치 */}
-            <span className="emoji-display">{cardData.emoji || "📝"}</span>
+            {/* <span className="emoji-display">{cardData.emoji || "📝"}</span> */}
             <h2 className="word-text">{cardData.word}</h2>
-            <span className="pronunciation-text">
+            {/* <span className="pronunciation-text">
               [{cardData.pronunciation}]
-            </span>
-            <div className="hint-text"></div>
+            </span> */}
+            {/* <div className="hint-text"></div> */}
           </div>
         </div>
       </div>
@@ -146,22 +146,22 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
 
           {/* 앞면 */}
           <div className="card-face card-front">
-            <span className="emoji-display">{cardData.emoji || "📝"}</span>
+            {/* <span className="emoji-display">{cardData.emoji || "📝"}</span> */}
             <h2 className="word-text">{cardData.word}</h2>
-            <span className="pronunciation-text">
+            {/* <span className="pronunciation-text">
               [{cardData.pronunciation}]
-            </span>
+            </span> */}
             <div className="hint-text"></div>
           </div>
 
           {/* 뒷면 */}
           <div className="card-face card-back">
-            <span className="part-of-speech">{cardData.partOfSpeech}</span>
+            {/* <span className="part-of-speech">{cardData.partOfSpeech}</span> */}
             <h3 className="meaning-text">{cardData.meaning}</h3>
-            <div className="example-box">
-              <p className="example-en">“{cardData.exampleEn}”</p>
+            {/* <div className="example-box">
+              <p className="example-en">“{cardData.example}”</p>
               <p className="example-ko">{cardData.exampleKo}</p>
-            </div>
+            </div> */}
           </div>
         </motion.div>
       </motion.div>

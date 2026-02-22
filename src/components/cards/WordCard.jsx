@@ -1,10 +1,15 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Volume2, Edit3, Trash2, Heart, Sparkles } from "lucide-react";
+import { playText } from "@/utils/ttsUtils";
 import "@/styles/components/cards/wordCard.css";
 
 const WordCard = React.memo(
   ({ item, onEdit, onDelete, onPlay, onToggleFavorite, hideMode }) => {
     const [tempShow, setTempShow] = useState(false);
+
+    useEffect(() => {
+      setTempShow(false);
+    }, [hideMode]);
 
     if (!item) return null;
 
@@ -48,7 +53,7 @@ const WordCard = React.memo(
             className="v-word-audio-btn"
             onClick={(e) => {
               e.stopPropagation();
-              onPlay && onPlay(item.word);
+              if (onPlay) onPlay(item.word);
             }}
             aria-label="발음 듣기"
           >

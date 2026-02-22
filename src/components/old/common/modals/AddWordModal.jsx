@@ -223,10 +223,10 @@ const AddWordModal = ({
         ) : (
           <div className="modal-form--bulk">
             <p className="modal-guide-text">
-              줄바꿈으로 구분 (콜론, 쉼표, 탭 지원)
+              줄바꿈으로 구분 (콜론, 쉼표 지원)
             </p>
             <textarea
-              placeholder={"apple:사과\nbanana,바나나\ncherry\t체리"}
+              placeholder={"apple:사과\nbanana,바나나"}
               value={bulkText}
               onChange={(e) => setBulkText(e.target.value)}
               className="modal-textarea"

@@ -43,7 +43,7 @@ const StudyResult = ({ total, counts, onRetryUnknown, deckId }) => {
         {counts.unknown > 0 && (
           <button className="v-result-btn primary" onClick={onRetryUnknown}>
             <RotateCcw size={18} />
-            틀린 단어 다시 풀기
+            틀린 단어 다시 풀기 ({counts.unknown}개)
           </button>
         )}
         <button
@@ -53,10 +53,10 @@ const StudyResult = ({ total, counts, onRetryUnknown, deckId }) => {
           <List size={18} />
           단어 목록으로 돌아가기
         </button>
-        <button className="v-result-btn ghost" onClick={() => navigate("/")}>
+        {/* <button className="v-result-btn ghost" onClick={() => navigate("/")}>
           홈으로 가기
           <ChevronRight size={18} />
-        </button>
+        </button> */}
       </div>
     </div>
   );

@@ -1,26 +1,55 @@
+// src/components/modals/WordEditForm.jsx
 import React from "react";
-import BottomSheet from "./BottomSheet";
-import { StyledInput, StyledTextArea } from "@/components/common/StyledInput";
+import BottomSheet from "@/components/modals/BottomSheet";
+import { StyledInput } from "@/components/common/StyledInput";
 import Button from "@/components/common/Button";
 
-const WordEditForm = ({ isOpen, onClose, onSave, initialData = {} }) => {
+const WordEditForm = ({ isOpen, onClose, onSubmit, initialData }) => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    // 변경된 데이터 수집
+    const updates = {
+      word: formData.get("word"),
+      meaning: formData.get("meaning"),
+      example: formData.get("example"),
+    };
+
+    if (onSubmit) {
+      onSubmit(updates);
+    }
+
+    onClose();
+  };
+
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} title="단어 추가/수정">
-      <div className="form-container" style={{ paddingBottom: "20px" }}>
+    <BottomSheet isOpen={isOpen} onClose={onClose} title="단어 수정">
+      <form
+        className="modal-form"
+        onSubmit={handleSubmit}
+        key={initialData?.id || "edit-form"}
+      >
         <StyledInput
-          label="단어 (Word)"
-          placeholder="영단어나 문장을 입력하세요"
-          defaultValue={initialData.word || ""}
+          name="word"
+          label="단어"
+          defaultValue={initialData?.word}
         />
-        <StyledTextArea
-          label="뜻 (Meaning)"
-          placeholder="한글 뜻을 입력하세요"
-          defaultValue={initialData.meaning || ""}
+        <StyledInput
+          name="meaning"
+          label="뜻"
+          defaultValue={initialData?.meaning}
         />
-        <Button fullWidth onClick={onClose} className="mt-16">
-          저장하기
+        <StyledInput
+          name="example"
+          label="예문"
+          defaultValue={initialData?.example}
+        />
+
+        <Button type="submit" fullWidth className="mt-16">
+          수정 완료
         </Button>
-      </div>
+      </form>
     </BottomSheet>
   );
 };

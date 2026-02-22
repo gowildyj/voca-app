@@ -1,276 +1,154 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  Play,
-  ArrowLeft,
   Plus,
-  Edit3,
-  Trash2,
+  ChevronLeft,
+  ListChecks,
+  PencilLine,
   FilePenLine,
+  Trash2,
 } from "lucide-react";
+import "@/styles/pages/wordList.css";
 
-import { useWordsContext } from "@/hooks/useWordsContext";
+import HeroCard from "@/components/cards/HeroCard";
+import ComplexFilterBar from "@/components/common/ComplexFilterBar";
+import SearchBar from "@/components/common/SearchBar";
+import WordCard from "@/components/cards/WordCard";
+import Button from "@/components/common/Button";
 import { useModal } from "@/contexts/ModalContext";
-import { useWordListLogic } from "@/hooks/useWordListLogic";
-
-import WordItem from "@/components/wordlist/WordItem";
-import SearchBar from "@/components/wordlist/SearchBar";
-import FilterBar from "@/components/wordlist/FilterBar";
-import "@/styles/pages/WordList.css";
 
 const WordList = () => {
+  const { deckId } = useParams();
   const navigate = useNavigate();
-  const { deckName: urlDeckParam } = useParams();
   const { openModal } = useModal();
 
-  const {
-    decks,
-    fetchWordsByDeck,
-    deleteWord,
-    addWord,
-    addWordsBulk,
-    updateWord,
-    updateDeck,
-    deleteDeck,
-    resetDeckProgress,
-    updateWordsBulk,
-  } = useWordsContext();
+  // 필터 및 표시 상태 관리
+  const [currentFilter, setFilter] = useState("all");
+  const [sortType, setSortType] = useState("default");
+  const [hideMode, setHideMode] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const [localWords, setLocalWords] = useState([]);
-  const [listLoading, setListLoading] = useState(true);
+  const testFilters = [
+    { id: "all", label: "전체" },
+    { id: "new", label: "미학습" },
+    { id: "review", label: "몰라" },
+    { id: "mastered", label: "알아" },
+  ];
 
-  const [hideMode, setHideMode] = useState("none");
-
-  const currentDeckName = useMemo(
-    () => decodeURIComponent(urlDeckParam || ""),
-    [urlDeckParam],
-  );
-  const foundDeck = useMemo(
-    () => decks?.find((d) => d.deck_name === currentDeckName),
-    [decks, currentDeckName],
-  );
-  const currentDeckId = foundDeck?.id;
-  const currentLangCode = foundDeck?.lang_code;
-
-  const logic = useWordListLogic(localWords);
-
-  const handleRefreshList = useCallback(
-    async (showLoading = true) => {
-      if (!currentDeckId) return;
-      if (showLoading) setListLoading(true);
-      try {
-        const data = await fetchWordsByDeck(currentDeckId);
-        setLocalWords(data || []);
-      } finally {
-        setListLoading(false);
-      }
+  // 샘플 데이터 (스크린샷 기반)
+  const words = [
+    {
+      id: 1,
+      word: "¡Ayuda! (아유다!)",
+      meaning: "도와주세요!",
+      isFavorite: false,
     },
-    [currentDeckId, fetchWordsByDeck],
-  );
-
-  useEffect(() => {
-    handleRefreshList(true);
-  }, [handleRefreshList]);
-
-  const performAction = useCallback(
-    async (action, ...args) => {
-      try {
-        await action(...args);
-        await handleRefreshList(false);
-      } catch (error) {
-        console.error("작업 실패:", error);
-        alert("처리에 실패했습니다.");
-      }
+    { id: 2, word: "¡Salud! (쌀루드!)", meaning: "건배!", isFavorite: true },
+    {
+      id: 3,
+      word: "¿Cómo está? (꼬모 에스따?)",
+      meaning: "어떻게 지내세요?",
+      isFavorite: false,
     },
-    [handleRefreshList],
-  );
+    {
+      id: 4,
+      word: "Esta es 한 문장이 아주 길어질 때 테스트를 위한 데이터입니다.",
+      meaning: "이것은 긴 문장 테스트입니다.",
+      isFavorite: false,
+    },
+  ];
 
-  const handleAddWord = () => {
-    openModal("ADD_WORD", {
-      defaultDeckId: currentDeckId,
-      defaultDeckName: currentDeckName,
-      onAdd: async (newWord) => await performAction(addWord, newWord),
-      onAddBulk: async (words) => await performAction(addWordsBulk, words),
-    });
+  const handleToggleMode = (mode) => {
+    setHideMode((prev) => (prev === mode ? null : mode));
   };
-
-  const handleEditWord = (item) => {
-    openModal("EDIT_WORD", {
-      item,
-      onUpdate: async (id, data) => await performAction(updateWord, id, data),
-    });
-  };
-
-  const handleOpenBulkEdit = () => {
-    openModal("BULK_EDIT", {
-      words: logic.filteredWords, // 현재 보이는 단어들 전달
-      onSave: async (updates) => {
-        await performAction(updateWordsBulk, updates);
-      },
-    });
-  };
-
-  const handleStartStudy = () => {
-    if (logic.filteredWords.length === 0) return;
-    const params = new URLSearchParams();
-
-    if (logic.filter !== "all") params.append("filter", logic.filter);
-    if (logic.sortType !== "default") params.append("sort", logic.sortType);
-
-    const queryString = params.toString();
-    const suffix = queryString ? `?${queryString}` : "";
-
-    navigate(`/list/${encodeURIComponent(currentDeckName)}${suffix}`, {
-      replace: true,
-    });
-    setTimeout(() => {
-      navigate(`/study/${encodeURIComponent(currentDeckName)}${suffix}`);
-    }, 0);
-  };
-
-  const handleResetProgress = async (deckId) => {
-    const success = await resetDeckProgress(deckId);
-    if (success) {
-      setLocalWords((prev) => prev.map((w) => ({ ...w, status: "none" })));
-      logic.setFilter("all");
-    }
-  };
-
-  const EmptyGuide = ({ searchQuery }) => (
-    <div className="word-item-card guide-mode">
-      <div className="word-item-content">
-        <div className="word-text">
-          {searchQuery
-            ? `"${searchQuery}" 검색 결과가 없어요.`
-            : "첫 단어를 추가해보세요."}
-        </div>
-        <div className="word-meaning">
-          {searchQuery
-            ? "다른 검색어를 입력하거나 추가해보세요! 🚀"
-            : "우측 하단의 + 버튼 클릭! 🚀"}
-        </div>
-      </div>
-    </div>
-  );
 
   return (
-    <div className="word-list-page">
-      <header className="list-header">
-        <div className="header-left">
-          <button
-            onClick={() => navigate("/", { replace: true })}
-            className="back-btn"
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <h1 className="list-header-title">{currentDeckName}</h1>
-        </div>
-        <div className="header-right">
-          <button
-            onClick={handleOpenBulkEdit}
-            className="deck-action-btn"
-            title="일괄 수정"
-          >
-            <FilePenLine size={18} />
-          </button>
-
-          <button
-            onClick={() =>
-              openModal("EDIT_DECK", {
-                deckId: currentDeckId,
-                oldName: currentDeckName,
-                oldLangCode: currentLangCode,
-                onRename: updateDeck,
-                onResetProgress: handleResetProgress,
-              })
-            }
-            className="deck-action-btn"
-          >
-            <Edit3 size={18} />
-          </button>
-          <button
-            onClick={() => {
-              if (
-                window.confirm(`"${currentDeckName}" 덱을 삭제하시겠습니까?`)
-              ) {
-                deleteDeck(currentDeckId, currentDeckName);
-                navigate("/");
+    <div className="v-word-list-page">
+      <header className="v-word-list-intro">
+        <div className="v-intro-top">
+          <h1 className="v-deck-title">에스빠뇰</h1>
+          <div className="v-intro-actions">
+            <button
+              className="v-icon-action-btn"
+              onClick={() => openModal("WORD_EDIT_BULK", { id: deckId })}
+            >
+              <FilePenLine size={16} />
+            </button>
+            <button
+              className="v-icon-action-btn"
+              onClick={() => openModal("DECK_EDIT", { id: deckId })}
+            >
+              <PencilLine size={16} />
+            </button>
+            <button
+              className="v-icon-action-btn danger"
+              onClick={() =>
+                openModal("CONFIRM_DELETE", { type: "deck", id: deckId })
               }
-            }}
-            className="deck-action-btn"
-          >
-            <Trash2 size={18} />
-          </button>
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        </div>
+
+        <div className="v-intro-content">
+          <p className="v-deck-desc">기초 스페인어 여행 회화 정복하기 ✈️</p>
         </div>
       </header>
 
-      <SearchBar query={logic.searchQuery} setQuery={logic.setSearchQuery} />
+      <section className="v-word-list-header">
+        <HeroCard
+          variant="banner"
+          title="학습 시작"
+          subTitle={`${words.length}개의 단어 준비됨`}
+          onClick={() => navigate(`/study/${deckId}`)}
+        />
+      </section>
 
-      <div
-        className="study-start-card"
-        onClick={handleStartStudy}
-        style={{
-          opacity: logic.filteredWords.length > 0 ? 1 : 0.5,
-          cursor: "pointer",
-        }}
-      >
-        <div className="study-card-info">
-          <h3>학습 시작</h3>
-          <p>{logic.filteredWords.length}개의 단어 준비됨</p>
-        </div>
-        <Play fill="white" size={24} />
-      </div>
+      <section className="v-word-list-controls">
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="단어나 뜻을 검색해 보세요"
+        />
+      </section>
 
-      <FilterBar
-        currentFilter={logic.filter}
-        setFilter={logic.setFilter}
-        sortType={logic.sortType}
-        setSortType={logic.setSortType}
-        filterCounts={logic.filterCounts}
-        onShuffle={() => {
-          logic.setShuffleSeed(Math.random());
-          logic.setDisplayLimit(30);
-        }}
-        hideMode={hideMode}
-        onToggleMode={(mode) => {
-          setHideMode((prev) => (prev === mode ? "none" : mode));
-        }}
+      {/* 2. 복합 필터 바 (고정 영역) */}
+      <section className="v-word-list-controls">
+        <ComplexFilterBar
+          filters={testFilters}
+          currentFilter={currentFilter}
+          setFilter={setFilter}
+          sortType={sortType}
+          setSortType={setSortType}
+          hideMode={hideMode}
+          onToggleMode={handleToggleMode}
+          filterCounts={{ all: 104, new: 60, review: 13, mastered: 31 }}
+          onShuffle={() => alert("순서 셔플!")}
+        />
+      </section>
+
+      {/* 3. 단어 카드 리스트 */}
+      <main className="v-word-card-stack">
+        {words.map((item) => (
+          <WordCard
+            key={item.id}
+            item={item}
+            hideMode={hideMode}
+            onPlay={(w) => console.log("Playing:", w)}
+            onEdit={() => openModal("WORD_EDIT", { initialData: item })}
+            onDelete={() => openModal("CONFIRM_DELETE", { id: item.id })}
+          />
+        ))}
+      </main>
+
+      {/* 4. 플로팅 추가 버튼 (FAB) */}
+      <Button
+        variant="fab"
+        icon={<Plus size={28} />}
+        onClick={() => openModal("WORD_ADD", { deckId })}
+        aria-label="새 단어 추가"
       />
-
-      <div className="list-container">
-        {listLoading ? (
-          <div className="list-loading">불러오는 중...</div>
-        ) : (
-          <div className="word-items-wrapper">
-            <AnimatePresence>
-              {logic.filteredWords.slice(0, logic.displayLimit).map((item) => (
-                <WordItem
-                  key={item.id}
-                  item={item}
-                  langCode={currentLangCode}
-                  onEdit={() => handleEditWord(item)}
-                  onDelete={async (id) => await performAction(deleteWord, id)}
-                  hideMode={hideMode}
-                />
-              ))}
-            </AnimatePresence>
-            {!listLoading && logic.filteredWords.length === 0 && (
-              <EmptyGuide searchQuery={logic.searchQuery} />
-            )}
-            <div ref={logic.observerTarget} style={{ height: "20px" }} />
-          </div>
-        )}
-      </div>
-
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={handleAddWord}
-        className="floating-plus-btn"
-      >
-        <Plus size={32} />
-      </motion.button>
     </div>
   );
 };

@@ -1,0 +1,38 @@
+/* styledInput.css */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.input-label-pink {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+  padding-left: 4px;
+}
+
+.styled-input-pink {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: all var(--transition-base);
+}
+
+.styled-input-pink:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.styled-input-pink::placeholder {
+  color: var(--text-sub);
+  opacity: 0.6;
+}

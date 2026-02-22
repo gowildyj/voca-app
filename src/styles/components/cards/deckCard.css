@@ -1,0 +1,166 @@
+/* deckCard.css */
+
+/* 공통: 클릭 시 튕기는 효과 */
+.clickable-bounce {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+}
+.clickable-bounce:active {
+  transform: scale(0.95);
+}
+
+/* 1. 일반 단어장 카드 */
+.deck-card {
+  background-color: var(--card);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.deck-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.deck-card-main-info {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.deck-text-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.deck-card-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  background-color: var(--bg);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deck-emoji {
+  font-size: 1.5rem;
+}
+.deck-default-icon {
+  color: var(--text-sub);
+  width: 24px;
+  height: 24px;
+}
+
+.deck-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.deck-info {
+  font-size: 0.85rem;
+  color: var(--text-sub);
+  margin: 2px 0 0 0;
+}
+
+/* 카드 액션 아이콘 */
+.deck-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.action-icon {
+  color: var(--text-sub);
+  width: 20px;
+  height: 20px;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+.action-icon:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-main);
+}
+.action-icon.danger:hover {
+  background-color: #fff1f2;
+  color: var(--danger);
+}
+
+.action-icon.active {
+  color: #fbbf24;
+  opacity: 1;
+}
+
+/* 푸터: 진행바 */
+.deck-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-container {
+  flex: 1;
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--accent);
+  transition: width 0.4s ease;
+}
+
+.progress-percent {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 30px;
+}
+
+/* 2. 추가 버튼 카드 */
+.deck-card-add-trigger {
+  border: 2px dashed var(--border);
+  background-color: transparent;
+  border-radius: var(--radius-xl);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 120px;
+  color: var(--text-sub);
+}
+
+.add-card-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.add-card-text {
+  font-size: 0.95rem;
+  font-weight: 700;
+}

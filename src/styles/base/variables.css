@@ -1,0 +1,166 @@
+:root {
+  /* =========================================
+     레이아웃 & UI 상수 (테마와 무관한 공통 값)
+     ========================================= */
+
+  /* 둥근 모서리 (Border Radius) */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* 그림자 (Shadows) - 부드러운 느낌 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  /* 애니메이션 속도 */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+
+  /* Z-index 계층 */
+  --z-back: -1;
+  --z-base: 1;
+  --z-nav: 100;
+  --z-modal: 1000;
+  --z-toast: 2000;
+
+  /* =========================================
+     기본 테마 (Light Mode / Default)
+     ========================================= */
+
+  /* 배경색 */
+  --bg: #f8fafc;
+  --card: #ffffff;
+
+  /* 텍스트 색상 */
+  --text-main: #1e293b; /* 진한 본문 */
+  --text-sub: #64748b; /* 연한 설명글 (Caption 등) */
+  --text-inverse: #ffffff; /* 어두운 배경 위 텍스트 */
+
+  /* 테두리 색상 */
+  --border: #e2e8f0;
+
+  /* 포인트 컬러 (Primary) */
+  --primary: #4f46e5; /* 메인 색상 */
+  --primary-rgb: 79, 70, 229; /* 투명도 조절용 RGB 숫자 */
+  --primary-hover: #4338ca; /* 버튼 호버 시 진해지는 색 */
+
+  /* 강조 컬러 (Accent) */
+  --accent: #8b5cf6;
+  --accent-rgb: 139, 92, 246;
+
+  /* 상태 컬러 (Semantic) */
+  --danger: #ef4444; /* 삭제/에러 */
+  --success: #10b981; /* 성공/완료 */
+  --warning: #f59e0b; /* 주의 */
+}
+
+/* =========================================
+   다크 모드 (시스템 설정 & 테마 선택)
+   ========================================= */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text-main: #f1f5f9;
+    --text-sub: #94a3b8;
+    --text-inverse: #0f172a;
+    --border: #334155;
+
+    --primary: #6366f1;
+    --primary-rgb: 99, 102, 241;
+    --primary-hover: #818cf8;
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  }
+}
+
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --text-main: #f1f5f9;
+  --text-sub: #94a3b8;
+  --text-inverse: #0f172a;
+  --border: #334155;
+
+  --primary: #6366f1;
+  --primary-rgb: 99, 102, 241;
+  --primary-hover: #818cf8;
+
+  /* 다크모드에서는 그림자가 잘 안보이므로 조금 더 진하게 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+}
+
+/* =========================================
+   추가 컬러 테마 (커스텀 테마)
+   ========================================= */
+
+/* 모던 */
+[data-theme="modern"] {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text-main: #0f172a;
+  --text-sub: #64748b;
+  --border: #e2e8f0;
+  --primary: #0f172a;
+  --primary-rgb: 15, 23, 42;
+  --primary-hover: #334155;
+}
+
+/* 흑백 */
+[data-theme="bw"] {
+  --bg: #ffffff;
+  --card: #f8f8f8;
+  --text-main: #000000;
+  --text-sub: #555555;
+  --border: #000000;
+  --primary: #000000;
+  --primary-rgb: 0, 0, 0;
+  --primary-hover: #333333;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+}
+
+/* 파스텔 */
+[data-theme="pastel"] {
+  --bg: #fffcf2;
+  --card: #ffffff;
+  --text-main: #57534e;
+  --text-sub: #a8a29e;
+  --border: #e7e5e4;
+  --primary: #fb923c;
+  --primary-rgb: 251, 146, 60;
+  --primary-hover: #f97316;
+}
+
+/* 분홍색 */
+[data-theme="pink"] {
+  --bg: #fff1f2;
+  --card: #ffffff;
+  --text-main: #9f1239;
+  --text-sub: #be185d;
+  --border: #fecdd3;
+  --primary: #f43f5e;
+  --primary-rgb: 244, 63, 94;
+  --primary-hover: #e11d48;
+}
+
+/* 파란색 */
+[data-theme="blue"] {
+  --bg: #eff6ff;
+  --card: #ffffff;
+  --text-main: #1e3a8a;
+  --text-sub: #60a5fa;
+  --border: #dbeafe;
+  --primary: #2563eb;
+  --primary-rgb: 37, 99, 235;
+  --primary-hover: #1d4ed8;
+}

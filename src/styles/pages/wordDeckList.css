@@ -1,0 +1,65 @@
+.v-deck-list-page {
+  padding-bottom: 100px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.v-deck-list-header {
+  padding: 10px 20px;
+  background-color: var(--bg);
+}
+
+.v-deck-welcome-msg {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 16px;
+  padding-left: 4px;
+}
+
+.v-filter-wrapper {
+  margin-top: 16px;
+  margin-left: -16px; /* FilterBar의 내부 패딩 상쇄를 위해 */
+  margin-right: -16px;
+}
+
+/* 카드 리스트 컨테이너 */
+.v-deck-grid-container {
+  padding: 0 16px;
+}
+
+/* 빈 상태 디자인 */
+.v-empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: var(--text-sub);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.v-home-grid {
+  display: grid;
+  /* 모바일은 1열 (디자인 가이드 피드백 반영) */
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* 태블릿 이상 환경에서만 2열 배치 */
+@media (min-width: 600px) {
+  .v-home-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}

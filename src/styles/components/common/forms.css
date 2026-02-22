@@ -1,0 +1,204 @@
+/* =========================================
+   Form Inputs (General)
+   모달, 설정 화면 등 일반적인 입력 폼 스타일
+   ========================================= */
+
+/* 폼 컨테이너 (Label + Input 묶음) */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+/* 라벨 (Label) */
+.form-label {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  color: var(--text-main);
+  margin-left: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* 필수 항목 표시 (*) */
+.form-label.required::after {
+  content: "*";
+  color: var(--danger);
+  margin-left: 4px;
+}
+
+/* 기본 입력창 (Input, Select, Textarea) */
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 14px 16px;
+
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--text-main);
+  background-color: var(--bg); /* 배경색과 살짝 대비되게 */
+
+  border: 1px solid var(--border); /* 기본 테두리 */
+  border-radius: var(--radius-lg); /* 16px */
+
+  outline: none;
+  transition: all var(--transition-base);
+  box-sizing: border-box;
+
+  /* 모바일 확대 방지 */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* 플레이스홀더 색상 */
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--text-sub);
+  opacity: 0.7;
+}
+
+/* 포커스 (입력 중) 상태 - 브랜드 컬러 링 효과 */
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--primary);
+  background-color: var(--card);
+  box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.1);
+}
+
+/* 에러 상태 (빨간 테두리) */
+.form-input.error,
+.form-select.error {
+  border-color: var(--danger);
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.form-input.error:focus {
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+/* 텍스트 영역 (Textarea) 전용 */
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* 읽기 전용 / 비활성화 */
+.form-input:disabled,
+.form-input[readonly] {
+  background-color: rgba(0, 0, 0, 0.03);
+  color: var(--text-sub);
+  cursor: not-allowed;
+  border-color: transparent;
+}
+
+/* =========================================
+   체크박스 (Custom Checkbox)
+   ========================================= */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  user-select: none;
+}
+
+/* 실제 체크박스는 숨김 */
+.checkbox-input {
+  display: none;
+}
+
+/* 커스텀 박스 디자인 */
+.checkbox-custom {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  color: white; /* 체크 아이콘 색상 */
+}
+
+/* 체크되었을 때 */
+.checkbox-input:checked + .checkbox-custom {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  animation: bounce 0.3s;
+}
+
+/* 체크박스 안의 체크 표시 */
+.checkbox-custom::after {
+  content: "✔";
+  font-size: 14px;
+  display: none;
+}
+.checkbox-input:checked + .checkbox-custom::after {
+  display: block;
+}
+
+/* =========================================
+   토글 스위치 (Switch)
+   ========================================= */
+.switch-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  cursor: pointer;
+  padding: 12px 0;
+}
+
+.switch-input {
+  display: none;
+}
+
+.switch-track {
+  width: 50px;
+  height: 28px;
+  background-color: var(--border);
+  border-radius: 99px;
+  position: relative;
+  transition: background-color 0.3s;
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 켜졌을 때 */
+.switch-input:checked + .switch-track {
+  background-color: var(--success, #22c55e); /* 기본값 초록색 */
+}
+
+.switch-input:checked + .switch-track .switch-thumb {
+  transform: translateX(22px);
+}
+
+/* 애니메이션 */
+@keyframes bounce {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

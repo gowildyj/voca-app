@@ -1,0 +1,190 @@
+/* designGuide.css */
+
+.design-guide-page {
+  background-color: var(--bg, #fffcf2);
+  min-height: 100vh;
+  padding-bottom: 50px;
+}
+
+.design-header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.design-header h1 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-left: 12px;
+  color: var(--text-main);
+}
+
+.design-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.design-intro {
+  margin-bottom: 40px;
+}
+
+.design-intro h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.design-intro p {
+  color: var(--text-sub);
+}
+
+/* 섹션 스타일 */
+.component-section {
+  background-color: white;
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.section-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--bg);
+}
+
+/* 컴포넌트 전시 영역 */
+.component-display {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.component-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.item-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+}
+
+.flex-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* 임시 샘플 스타일 (나중에 실제 컴포넌트로 교체될 것들) */
+.sample-primary-btn {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.sample-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+}
+
+.sample-icon-wrapper.active {
+  color: var(--primary);
+  background-color: #fff7ed;
+}
+
+.sample-tag {
+  background-color: #f3f4f6;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.cards-grid-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+@media (min-width: 600px) {
+  .cards-grid-layout {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}
+
+/* designGuide.css */
+
+.section-desc {
+  font-size: 0.9rem;
+  color: var(--text-sub);
+  margin-bottom: 16px;
+}
+
+.color-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+  background-color: var(--card);
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+.color-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.color-swatch {
+  width: 100%;
+  height: 60px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.color-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.color-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.color-var {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  font-family: monospace;
+}
+/* wordDeckList.css */

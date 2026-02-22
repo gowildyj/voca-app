@@ -48,9 +48,9 @@ const Dashboard = () => {
         <p className="dashboard-subtitle">오늘도 암기 천재가 되어볼까요? 🚀</p>
       </header>
 
-      <div className="deck-grid">
+      <div className="card-grid">
         <motion.div
-          className="deck-card add-card"
+          className="card-card add-card"
           whileTap={{ scale: 0.98 }}
           onClick={() =>
             openModal("ADD_DECK", { mode: "deck", onAddDeck: addDeck })
@@ -62,7 +62,7 @@ const Dashboard = () => {
 
         {loading ? (
           Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="deck-card skeleton-card animate-pulse" />
+            <div key={i} className="card-card skeleton-card animate-pulse" />
           ))
         ) : (
           <AnimatePresence>

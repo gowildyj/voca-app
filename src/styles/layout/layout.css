@@ -1,44 +1,185 @@
-.App {
+/* =========================================
+   Global Layout System
+   ========================================= */
+
+/* 앱 전체 래퍼 (App Wrapper) */
+/* 모바일 브라우저 주소창 높이 변화에 대응하기 위해 100dvh 사용 */
+.app-layout {
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic Viewport Height */
+  background-color: var(--bg);
+  color: var(--text-main);
+  position: relative;
+  overflow-x: hidden; /* 가로 스크롤 방지 */
+  transition: background-color 0.3s ease;
+}
+
+/* 페이지 컨테이너 (Page Container) */
+/* 모든 페이지의 기본 여백 및 헤더/하단바 공간 확보 */
+.page-container {
   width: 100%;
-  max-width: clamp(320px, 95vw, 900px);
+  max-width: 800px;
   margin: 0 auto;
-  min-height: 100dvh;
+  padding-top: 80px;
+  padding-bottom: 90px;
+
+  /* 페이드인 애니메이션 (페이지 전환 시 부드럽게) */
+  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
-@media (min-width: 1024px) {
-  .App {
-    max-width: 800px;
-  }
+/* 꽉 찬 페이지 (여백 없는 레이아웃이 필요할 때) */
+.page-container.full-width {
+  padding-left: 0;
+  padding-right: 0;
+  max-width: 100%;
 }
 
-.app-nav {
+/* =========================================
+   Grid System (그리드 레이아웃)
+   ========================================= */
+
+/* 2열 그리드 (단어장 리스트 등) */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* 반응형 자동 그리드 (화면 크기에 따라 자동 줄바꿈) */
+/* 최소 140px 너비를 유지하며 꽉 채움 */
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+/* 1열 스택 (세로 쌓기) */
+.stack {
   display: flex;
-  justify-content: flex-end;
-  padding: 10px 0;
-  align-items: center;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.app-nav-settings {
+/* =========================================
+   Flex Utilities (자주 쓰는 배치)
+   ========================================= */
+
+/* 중앙 정렬 (가로/세로 모두) */
+.flex-center {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
-  color: var(--text);
-  opacity: 0.6;
-  transition: opacity 0.2s;
-  text-decoration: none;
 }
 
-.app-nav-settings:hover {
-  opacity: 1;
+/* 양끝 정렬 (좌우 배분) */
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.theme-select {
+/* 가로 정렬 (왼쪽 기준) */
+.flex-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 세로 정렬 */
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 하단 고정 (컨텐츠가 적어도 푸터를 바닥으로 밀 때) */
+.spacer-grow {
+  flex-grow: 1;
+}
+
+/* =========================================
+   Divider (구분선)
+   ========================================= */
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: var(--border);
   border: none;
-  background: transparent;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text);
-  outline: none;
-  cursor: pointer;
+  margin: 24px 0;
+}
+
+.divider-vertical {
+  width: 1px;
+  height: 100%; /* 부모 높이 기준 */
+  min-height: 20px;
+  background-color: var(--border);
+  margin: 0 12px;
+}
+
+/* =========================================
+   Animations
+   ========================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 스켈레톤 로딩 (로딩 중일 때 회색 박스 깜빡임) */
+.skeleton {
+  background-color: var(--border); /* 회색 */
+  border-radius: var(--radius-sm);
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+/* layout */
+/* src/styles/layout/layout.css */
+
+.v-app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden; /* 레이아웃 자체의 스크롤 방지 */
+}
+
+/* 🌟 핵심: 헤더 영역 */
+.v-layout-header {
+  flex-shrink: 0; /* 높이 고정 */
+  z-index: 100;
+}
+
+/* 🌟 핵심: 컨텐츠 영역 */
+.v-page-container {
+  flex: 1; /* 남은 모든 공간을 차지함 */
+  overflow-y: auto; /* 내용이 많아지면 여기서만 스크롤 발생 */
+  -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
+  background-color: var(--bg);
+  padding-top: 10px;
+}
+
+/* 🌟 핵심: 푸터 영역 */
+.v-layout-bottom {
+  flex-shrink: 0; /* 높이 고정 */
+  z-index: 100;
 }

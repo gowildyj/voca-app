@@ -1,0 +1,69 @@
+/* scenarioList.css */
+
+.v-scenario-list-page {
+  background-color: var(--bg);
+  min-height: 100vh;
+  padding-bottom: 100px;
+}
+
+.v-list-header {
+  padding: 16px 16px 8px;
+  background-color: var(--bg);
+}
+
+.v-welcome-msg {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 16px;
+  padding-left: 4px;
+}
+
+.v-filter-container {
+  margin-top: 16px;
+  margin-left: -16px;
+  margin-right: -16px;
+}
+
+/* 그리드 레이아웃 */
+.v-scenario-grid-container {
+  padding: 16px;
+}
+
+.v-scenario-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* 모바일 1열 */
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .v-scenario-grid {
+    grid-template-columns: 1fr 1fr; /* 태블릿 이상 2열 */
+    gap: 20px;
+  }
+}
+
+.v-empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  color: var(--text-sub);
+  font-size: 0.9rem;
+}
+
+/* 페이지 진입 애니메이션 */
+.v-scenario-list-page {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,133 @@
+/* wordCard.css */
+
+.v-word-card {
+  display: flex;
+  align-items: center;
+  background-color: var(--card);
+  padding: 10px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  gap: 5px;
+  margin-bottom: 10px;
+  min-height: 80px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* 상태별 왼쪽 포인트 선 */
+.v-word-card.status-review {
+  border-left: 4px solid var(--danger);
+}
+.v-word-card.status-mastered {
+  border-left: 4px solid #10b981;
+}
+
+/* 섹션 1: 오디오 영역 */
+.v-word-icon-section {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.v-word-audio-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--bg);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.v-word-audio-btn:active {
+  transform: scale(0.9);
+}
+
+/* 섹션 2: 단어 텍스트 본문 */
+.v-word-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.v-word-main {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.v-word-sub {
+  font-size: 0.9rem;
+  color: var(--text-sub);
+  opacity: 0.7;
+}
+
+/* 섹션 3: 액션 버튼들 (세로형 컴팩트) */
+.v-word-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 5px;
+  /* border-left: 1px solid var(--border); */
+}
+
+.v-action-icon-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  border-radius: 6px;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.v-action-icon-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-main);
+}
+.v-action-icon-btn.active {
+  color: #f43f5e;
+}
+.v-action-icon-btn.delete:hover {
+  background-color: #fff1f2;
+  color: var(--danger);
+}
+
+/* 가리기(마스킹) 효과 */
+.v-masked {
+  background-color: #e2e8f0;
+  color: transparent !important;
+  border-radius: 4px;
+  user-select: none;
+}
+[data-theme="dark"] .v-masked {
+  background-color: #334155;
+}
+
+/* 가이드 모드 (일반 카드와 크기/구조 동일화) */
+.v-word-card.guide-mode {
+  border: 2px dashed var(--border);
+  background-color: transparent;
+  box-shadow: none;
+  justify-content: flex-start;
+}
+
+.v-word-card.guide-mode .guide-icon {
+  color: var(--primary);
+}
+
+.v-word-card.guide-mode .v-word-main {
+  color: var(--text-sub);
+  font-size: 1rem;
+  font-weight: 700;
+}

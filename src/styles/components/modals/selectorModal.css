@@ -1,0 +1,61 @@
+/* selectorModal.css */
+
+.v-selector-container {
+  padding: 0 8px 20px 8px; /* 좌우 여백 살짝 조절 */
+}
+
+.v-selector-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.v-selector-item-slim {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--border); /* 카드 대신 구분선 사용 */
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+/* 마지막 항목의 구분선 제거 */
+.v-selector-item-slim:last-child {
+  border-bottom: none;
+}
+
+.v-selector-item-slim:active {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* 선택된 상태 스타일 */
+.v-selector-item-slim.active {
+  background-color: rgba(251, 146, 60, 0.05);
+}
+
+.v-item-text {
+  display: flex;
+  align-items: baseline; /* 단어와 뜻의 높이 맞춤 */
+  gap: 12px;
+}
+
+.v-word {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.v-selector-item-slim.active .v-word {
+  color: var(--primary);
+}
+
+.v-meaning {
+  font-size: 0.85rem;
+  color: var(--text-sub);
+}
+
+.v-check-icon {
+  color: var(--primary);
+  flex-shrink: 0;
+}

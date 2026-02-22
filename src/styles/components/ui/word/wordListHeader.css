@@ -1,0 +1,71 @@
+/* wordListHeader.css */
+
+.v-word-list-header {
+  padding: 20px 4px 12px;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 상단 배치 (제목 - 버튼들) */
+.v-list-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.v-list-header-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--text-main);
+  margin: 0;
+  word-break: break-all;
+  line-height: 1.2;
+}
+
+/* 액션 버튼 그룹 */
+.v-list-header-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.v-deck-action-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 10px;
+  color: var(--text-sub);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.v-deck-action-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-main);
+}
+
+.v-deck-action-btn.delete:hover {
+  background-color: #fff1f2;
+  color: var(--danger);
+}
+
+/* 설명 문구 스타일 */
+.v-list-header-desc {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-sub);
+  margin: 0;
+  opacity: 0.8;
+  /* 설명이 너무 길어질 경우 대비 */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

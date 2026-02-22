@@ -51,7 +51,7 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
       await controls.start({
         x: 500,
         opacity: 0,
-        transition: { duration: 0.2 },
+        transition: { duration: 0.15, ease: "easeOut" },
       });
       onSwipe("right");
     },
@@ -59,7 +59,7 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
       await controls.start({
         x: -500,
         opacity: 0,
-        transition: { duration: 0.2 },
+        transition: { duration: 0.15, ease: "easeOut" },
       });
       onSwipe("left");
     },

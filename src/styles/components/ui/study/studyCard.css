@@ -10,13 +10,7 @@
 
 /* --- 뒷장 카드 효과 --- */
 
-.study-card-area {
-  position: relative; /* 카드들이 겹칠 수 있도록 부모 기준 설정 */
-  width: 100%;
-  height: 450px; /* 적절한 높이 고정 */
-}
-
-.next-card-preview {
+/* .next-card-preview {
   position: absolute;
   top: 0;
   left: 0;
@@ -27,7 +21,7 @@
   opacity: 0.5;
   pointer-events: none;
   transition: all 0.3s ease;
-}
+} */
 
 .card-motion-wrapper {
   width: 100%;
@@ -230,11 +224,11 @@
 
 /* studySession.css 혹은 studyCard.css */
 
-.study-card-area {
+/* .study-card-area {
   position: relative;
   width: 100%;
   height: 480px;
-}
+} */
 
 /* 뒤에 깔린 카드 (모달의 아래 레이어) */
 .next-card-preview {
@@ -243,13 +237,53 @@
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1; /* 낮은 우선순위 */
-  transform: translateY(20px) scale(0.9); /* 확실히 아래로, 작게 */
-  opacity: 1; /* 더 투명하게 */
+  z-index: 1;
+  transform: translateY(8px) scale(0.96);
+  opacity: 1;
+  pointer-events: none;
+  /* transition:
+    transform 0.1s ease-out,
+    opacity 0.1s ease-out; */
 }
 
-/* 현재 공부 중인 카드 (모달의 위 레이어) */
 .study-card-container:not(.preview) {
   position: relative;
-  z-index: 10; /* 높은 우선순위로 덮어버림 */
+  z-index: 10;
+  will-change: transform, opacity;
+}
+
+/*-------*
+/* studySession.css 혹은 studyCard.css */
+
+.study-card-area {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 뒤에 대기 중인 카드 (앞 카드와 똑같은 위치/사이즈) */
+.next-card-preview {
+  position: absolute;
+  top: 10px; /* StudyCard의 padding/margin 고려하여 위치 조정 */
+  left: 20px;
+  right: 20px;
+  bottom: 10px;
+  width: auto;
+  height: auto;
+  z-index: 1; /* 앞 카드보다 뒤에 배치 */
+
+  /* 🌟 수정: 애니메이션 효과(scale, translateY)를 모두 제거 */
+  transform: none;
+  opacity: 1; /* 투명도 없이 선명하게 대기 */
+  pointer-events: none;
+  transition: none; /* 상태 전환 시 지연 시간 삭제 */
+}
+
+/* 현재 조작 중인 카드 */
+.study-card-container:not(.preview) {
+  position: relative;
+  z-index: 10; /* 앞 카드가 뒤 카드를 완벽히 덮음 */
 }

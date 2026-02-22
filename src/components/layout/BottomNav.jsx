@@ -4,11 +4,15 @@ import {
   HiOutlineHome,
   HiOutlineBookOpen,
   HiOutlineChatBubbleLeftRight,
-  HiOutlineCog6Tooth,
 } from "react-icons/hi2";
 import { ROUTES } from "@/routes/AppRoutes";
+import "@/styles/layout/bottomNav.css"; // CSS 파일 경로 확인 부탁드려요!
 
-const BottomNav = () => {
+/**
+ * BottomNav: 앱의 메인 네비게이션 바
+ * Stella님의 요청에 따라 마지막 아이콘을 현재 선택된 언어로 변경했습니다.
+ */
+const BottomNav = ({ currentLangIcon, onOpenLangModal }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -26,39 +30,52 @@ const BottomNav = () => {
       icon: HiOutlineChatBubbleLeftRight,
       path: ROUTES.SCENARIO_LIST,
     },
-    // {
-    //   id: "settings",
-    //   label: "설정",
-    //   icon: HiOutlineCog6Tooth,
-    //   path: ROUTES.SETTINGS,
-    // },
+
+    {
+      id: "language",
+      // label: "언어",
+      isCustom: true,
+    },
   ];
 
   const isActive = (path) => {
+    if (!path) return false;
     if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
   };
 
   return (
     <nav className="bottom-nav">
-      {/* 중앙 정렬을 위한 컨테이너 (CSS에서 max-width 제어) */}
       <div className="nav-container">
         {navItems.map((item) => {
           const active = isActive(item.path);
-          const Icon = item.icon;
+
+          // 언어 선택 버튼일 경우와 일반 메뉴일 경우를 분기합니다.
+          const handleClick = () => {
+            if (item.isCustom) {
+              onOpenLangModal();
+            } else {
+              navigate(item.path);
+            }
+          };
 
           return (
             <button
               key={item.id}
-              className={`nav-item ${active ? "active" : ""}`}
-              onClick={() => navigate(item.path)}
+              className={`nav-item ${active ? "active" : ""} ${item.isCustom ? "lang-btn" : ""}`}
+              onClick={handleClick}
               aria-label={item.label}
             >
-              <Icon className="nav-icon" />
+              <div className="icon-wrapper">
+                {item.isCustom ? (
+                  <span className="nav-lang-emoji" style={{ fontSize: "25px" }}>
+                    {currentLangIcon}
+                  </span>
+                ) : (
+                  <item.icon className="nav-icon" />
+                )}
+              </div>
               <span className="nav-label">{item.label}</span>
-
-              {/* 활성화 표시 포인트 */}
-              {/* {active && <div className="active-dot" />} */}
             </button>
           );
         })}

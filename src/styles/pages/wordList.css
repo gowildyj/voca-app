@@ -16,7 +16,7 @@
 .v-word-list-controls {
   padding: 12px 16px;
   background-color: var(--bg);
-  position: sticky;
+  /* position: sticky; */
   top: 60px; /* 헤더 높이에 맞춤 */
   z-index: 10;
 }

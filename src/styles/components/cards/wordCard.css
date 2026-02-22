@@ -109,7 +109,12 @@
   color: transparent !important;
   border-radius: 4px;
   user-select: none;
+  display: inline-block;
+  min-width: 120px;
+  vertical-align: middle;
+  text-align: center;
 }
+
 [data-theme="dark"] .v-masked {
   background-color: #334155;
 }

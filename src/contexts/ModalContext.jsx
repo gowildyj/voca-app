@@ -21,6 +21,7 @@ const ModalComponents = {
   WORD_ADD: lazy(() => import("@/components/modals/WordAddTabsForm")),
   WORD_EDIT: lazy(() => import("@/components/modals/WordEditForm")),
   WORD_EDIT_BULK: lazy(() => import("@/components/modals/WordEditBulkForm")),
+  CONFIRM_DELETE: lazy(() => import("@/components/modals/ConfirmDeleteModal")),
 };
 
 /**

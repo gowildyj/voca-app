@@ -1,15 +1,23 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { Volume2, Edit3, Trash2, Heart, Sparkles } from "lucide-react";
 import "@/styles/components/cards/wordCard.css";
 
 const WordCard = React.memo(
   ({ item, onEdit, onDelete, onPlay, onToggleFavorite, hideMode }) => {
+    const [tempShow, setTempShow] = useState(false);
+
     if (!item) return null;
 
     const isGuide = item.isGuide || false;
     const statusClass = item.status ? `status-${item.status}` : "";
-    const isWordHidden = hideMode === "word";
-    const isMeaningHidden = hideMode === "meaning";
+    const isWordHidden = hideMode === "word" && !tempShow;
+    const isMeaningHidden = hideMode === "meaning" && !tempShow;
+
+    const handleBodyClick = useCallback(() => {
+      if (hideMode) {
+        setTempShow((prev) => !prev);
+      }
+    }, [hideMode]);
 
     // 1. 가이드 모드 (데이터가 없을 때 표시되는 빈 카드)
     if (isGuide) {
@@ -49,12 +57,18 @@ const WordCard = React.memo(
         </div>
 
         {/* [섹션 2] 단어 본문 */}
-        <div className="v-word-body">
+        <div
+          className="v-word-body"
+          onClick={handleBodyClick}
+          style={{ cursor: hideMode ? "pointer" : "default" }}
+        >
           <div className="v-word-main-wrapper">
+            {/* 🌟 수정: v-masked 클래스 바인딩 */}
             <span className={`v-word-main ${isWordHidden ? "v-masked" : ""}`}>
               {item.word}
             </span>
           </div>
+          {/* 🌟 수정: v-masked 클래스 바인딩 */}
           <span className={`v-word-sub ${isMeaningHidden ? "v-masked" : ""}`}>
             {item.meaning}
           </span>

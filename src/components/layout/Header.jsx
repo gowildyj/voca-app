@@ -9,15 +9,19 @@ import {
 import { AppRoutesData } from "@/routes/AppRoutes";
 import "@/styles/layout/header.css";
 
-const Header = ({ onOpenLangModal, onOpenSettings }) => {
+const Header = ({
+  onOpenLangModal,
+  onOpenSettings,
+  currentLangIcon,
+  currentLangLabel,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isHome = location.pathname === "/";
 
-  // 🌟 현재 경로에 맞는 데이터를 찾아 제목(title) 추출
-  // 파라미터가 있는 경로(예: /decks/1)도 매칭될 수 있도록 비교 로직 적용
   const currentRoute = AppRoutesData.find((route) => {
     if (route.path === "/") return location.pathname === "/";
+    // 정규표현식 없이 간단하게 경로 매칭
     return location.pathname.startsWith(route.path.split("/:")[0]);
   });
 
@@ -30,8 +34,9 @@ const Header = ({ onOpenLangModal, onOpenSettings }) => {
         <div className="v-header-side left">
           {isHome ? (
             <div className="v-lang-selector-btn" onClick={onOpenLangModal}>
-              <span className="v-lang-flag">🇪🇸</span>
-              <span className="v-lang-name">Spanish</span>
+              {/* 🌟 고정된 🇪🇸 Spanish 대신 전달받은 데이터를 출력합니다. */}
+              <span className="v-lang-flag">{currentLangIcon}</span>
+              <span className="v-lang-name">{currentLangLabel}</span>
               <HiOutlineChevronDown size={14} className="v-lang-arrow" />
             </div>
           ) : (
@@ -41,7 +46,7 @@ const Header = ({ onOpenLangModal, onOpenSettings }) => {
           )}
         </div>
 
-        {/* [Center] 앱 이름 혹은 페이지 제목 */}
+        {/* [Center] 제목 영역 */}
         <div className="v-header-center">
           <h1 className={`v-header-title ${isHome ? "v-app-logo" : ""}`}>
             {displayTitle}

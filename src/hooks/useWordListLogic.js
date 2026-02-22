@@ -3,61 +3,87 @@ import { useSearchParams } from "react-router-dom";
 import { seededShuffle } from "@/utils/seedShuffle";
 
 /**
- * WordList 페이지의 복잡한 상태와 필터링 로직을 담당하는 훅
- * @param {Array} localWords - WordsContext에서 가져온 원본 단어 배열
+ * WordList 페이지의 비즈니스 로직을 담당하는 커스텀 훅
+ * 프로덕션 레벨: 검색 최적화(Debounce), URL 동기화 강화, 메모리 최적화
  */
 export const useWordListLogic = (localWords = []) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const observerTarget = useRef(null);
 
-  // --- [1] 상태 관리 (URL 쿼리 스트링과 동기화) ---
+  // --- [1] 상태 관리 ---
+  // 실시간 입력값과 실제 필터링에 사용할 쿼리를 분리 (성능 최적화)
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  const [hideMode, setHideMode] = useState(null);
+
   const [shuffleSeed, setShuffleSeed] = useState(() =>
     Math.floor(Math.random() * 1000),
   );
-  const [displayLimit, setDisplayLimit] = useState(30); // 한 번에 보여줄 단어 수 (인피니트 스크롤)
+  const [displayLimit, setDisplayLimit] = useState(30);
 
-  // URL 파라미터에서 초기값 가져오기 (확장성: 공유 가능한 링크)
+  // URL 파라미터 추출
   const filter = searchParams.get("filter") || "all";
   const sortType = searchParams.get("sort") || "default";
 
-  const observerTarget = useRef(null);
+  const onToggleMode = useCallback((mode) => {
+    setHideMode((prev) => (prev === mode ? null : mode));
+  }, []);
 
-  // --- [2] 필터링 및 정렬 로직 (성능: useMemo 필수) ---
+  // --- [2] 검색어 디바운싱 로직 ---
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+      setDisplayLimit(30); // 검색 시 스크롤 위치 리셋 효과
+    }, 300); // 0.3초 대기
+
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // --- [3] 필터링 및 정렬 (핵심 로직) ---
   const filteredWords = useMemo(() => {
-    // 유효성 검사: 단어 텍스트가 있는 것만 필터링
-    const validWords = localWords.filter((w) => w.word?.trim());
+    // 1. 유효성 검사 및 초기 필터링
+    let result = localWords.filter((w) => {
+      const wordText = w.word?.trim() || "";
+      const meaningText = w.meaning?.trim() || "";
 
-    let result = validWords.filter((word) => {
-      // 1. 학습 상태 필터링 (전체 / 미학습 / 모름 / 알음)
+      // 학습 상태 필터링
       const matchesFilter =
         filter === "all"
           ? true
           : filter === "none"
-            ? !word.status || word.status === "none"
-            : word.status === filter;
+            ? !w.status || w.status === "none"
+            : w.status === filter;
 
-      // 2. 검색어 필터링 (영어 단어 또는 한글 뜻)
-      const query = searchQuery.toLowerCase();
+      // 검색어 필터링 (Debounced Query 사용)
+      const query = debouncedQuery.toLowerCase();
       const matchesSearch =
-        word.word.toLowerCase().includes(query) ||
-        word.meaning.toLowerCase().includes(query);
+        wordText.toLowerCase().includes(query) ||
+        meaningText.toLowerCase().includes(query);
 
       return matchesFilter && matchesSearch;
     });
 
-    // 3. 정렬 로직
-    if (sortType === "alpha") {
-      result.sort((a, b) => a.word.localeCompare(b.word));
-    } else if (sortType === "shuffle") {
-      result = seededShuffle(result, shuffleSeed);
-    } else if (sortType === "latest") {
-      result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    // 2. 정렬 로직 적용
+    switch (sortType) {
+      case "alpha":
+        result.sort((a, b) => a.word.localeCompare(b.word));
+        break;
+      case "latest":
+        result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        break;
+      case "shuffle":
+        result = seededShuffle(result, shuffleSeed);
+        break;
+      default:
+        // 기본 정렬: 생성일 순 (오름차순 등)
+        break;
     }
 
     return result;
-  }, [localWords, filter, searchQuery, sortType, shuffleSeed]);
+  }, [localWords, filter, debouncedQuery, sortType, shuffleSeed]);
 
-  // --- [3] 통계 계산 (상단 탭 카운트 표시용) ---
+  // --- [4] 통계 데이터 계산 ---
   const filterCounts = useMemo(() => {
     return {
       all: localWords.length,
@@ -67,43 +93,38 @@ export const useWordListLogic = (localWords = []) => {
     };
   }, [localWords]);
 
-  // --- [4] 이벤트 핸들러 (확장성: URL 업데이트 포함) ---
-  const handleFilterChange = useCallback(
-    (newFilter) => {
+  // --- [5] 핸들러 함수 (useCallback으로 최적화) ---
+  const updateParams = useCallback(
+    (key, value) => {
       setSearchParams((prev) => {
-        prev.set("filter", newFilter);
+        prev.set(key, value);
         return prev;
       });
-      setDisplayLimit(30); // 필터 변경 시 스크롤 한도 리셋
+      setDisplayLimit(30);
     },
     [setSearchParams],
   );
 
-  const handleSortChange = useCallback(
-    (newSort) => {
-      setSearchParams((prev) => {
-        prev.set("sort", newSort);
-        return prev;
-      });
-      if (newSort === "shuffle") {
-        setShuffleSeed(Math.floor(Math.random() * 1000));
-      }
-    },
-    [setSearchParams],
-  );
+  const handleFilterChange = (newFilter) => updateParams("filter", newFilter);
 
-  // --- [5] 인피니트 스크롤 로직 (성능: Intersection Observer) ---
+  const handleSortChange = (newSort) => {
+    updateParams("sort", newSort);
+    if (newSort === "shuffle") {
+      setShuffleSeed(Math.floor(Math.random() * 1000));
+    }
+  };
+
+  // --- [6] 인피니트 스크롤 (Intersection Observer) ---
   useEffect(() => {
-    // 필터링된 결과가 현재 표시 한도보다 적으면 감시할 필요 없음
     if (filteredWords.length <= displayLimit) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          setDisplayLimit((prev) => prev + 30); // 30개씩 추가 로드
+          setDisplayLimit((prev) => prev + 30);
         }
       },
-      { threshold: 0.1, rootMargin: "100px" }, // 하단에 도달하기 전 미리 로드
+      { threshold: 0.1, rootMargin: "150px" },
     );
 
     const target = observerTarget.current;
@@ -115,20 +136,17 @@ export const useWordListLogic = (localWords = []) => {
   }, [filteredWords.length, displayLimit]);
 
   return {
-    // 상태값
     filter,
     sortType,
     searchQuery,
-    displayLimit,
     filterCounts,
-    // 결과값 (실제 화면에 렌더링할 단어들)
     displayWords: filteredWords.slice(0, displayLimit),
-    totalFilteredCount: filteredWords.length,
-    // 제어 함수
+    totalCount: filteredWords.length,
     setSearchQuery,
     handleFilterChange,
     handleSortChange,
-    // Refs
     observerTarget,
+    hideMode,
+    onToggleMode,
   };
 };

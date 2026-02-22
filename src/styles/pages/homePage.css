@@ -88,14 +88,12 @@
   gap: 2px;
   background: none;
   border: none;
-  /* 상하 패딩을 줄이고 수평을 맞춤 */
   padding: 4px 0 4px 8px;
   color: var(--text-sub);
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  line-height: 1; /* 👈 제목과 동일하게 설정 */
-  transition: color 0.2s;
+  transition: all 0.2s;
 }
 
 .v-see-all-btn svg {

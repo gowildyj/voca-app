@@ -1,13 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  Plus,
-  ChevronLeft,
-  ListChecks,
-  PencilLine,
-  FilePenLine,
-  Trash2,
-} from "lucide-react";
+import { Plus, FilePenLine, PencilLine, Trash2 } from "lucide-react";
 import "@/styles/pages/wordList.css";
 
 import HeroCard from "@/components/cards/HeroCard";
@@ -15,58 +8,43 @@ import ComplexFilterBar from "@/components/common/ComplexFilterBar";
 import SearchBar from "@/components/common/SearchBar";
 import WordCard from "@/components/cards/WordCard";
 import Button from "@/components/common/Button";
-import { useModal } from "@/contexts/ModalContext";
+import { useWordListPage } from "@/hooks/pages/useWordListPage";
 
 const WordList = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
-  const { openModal } = useModal();
+  const {
+    currentDeck,
+    displayWords,
+    loading,
+    filter: currentFilter,
+    sortType,
+    searchQuery,
+    hideMode,
+    onToggleMode,
+    filterCounts,
+    observerTarget,
+    setSearchQuery,
+    handleFilterChange,
+    handleSortChange,
+    openModal,
+    handleDeleteDeck,
+  } = useWordListPage(deckId);
 
-  // 필터 및 표시 상태 관리
-  const [currentFilter, setFilter] = useState("all");
-  const [sortType, setSortType] = useState("default");
-  const [hideMode, setHideMode] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  if (loading && !currentDeck) return <div className="v-loader" />;
 
-  const testFilters = [
+  const filterOptions = [
     { id: "all", label: "전체" },
-    { id: "new", label: "미학습" },
-    { id: "review", label: "몰라" },
-    { id: "mastered", label: "알아" },
+    { id: "none", label: "미학습" },
+    { id: "unknown", label: "몰라" },
+    { id: "know", label: "알아" },
   ];
-
-  // 샘플 데이터 (스크린샷 기반)
-  const words = [
-    {
-      id: 1,
-      word: "¡Ayuda! (아유다!)",
-      meaning: "도와주세요!",
-      isFavorite: false,
-    },
-    { id: 2, word: "¡Salud! (쌀루드!)", meaning: "건배!", isFavorite: true },
-    {
-      id: 3,
-      word: "¿Cómo está? (꼬모 에스따?)",
-      meaning: "어떻게 지내세요?",
-      isFavorite: false,
-    },
-    {
-      id: 4,
-      word: "Esta es 한 문장이 아주 길어질 때 테스트를 위한 데이터입니다.",
-      meaning: "이것은 긴 문장 테스트입니다.",
-      isFavorite: false,
-    },
-  ];
-
-  const handleToggleMode = (mode) => {
-    setHideMode((prev) => (prev === mode ? null : mode));
-  };
 
   return (
     <div className="v-word-list-page">
       <header className="v-word-list-intro">
         <div className="v-intro-top">
-          <h1 className="v-deck-title">에스빠뇰</h1>
+          <h1 className="v-deck-title">{currentDeck?.deck_name || "단어장"}</h1>{" "}
           <div className="v-intro-actions">
             <button
               className="v-icon-action-btn"
@@ -76,15 +54,13 @@ const WordList = () => {
             </button>
             <button
               className="v-icon-action-btn"
-              onClick={() => openModal("DECK_EDIT", { id: deckId })}
+              onClick={() => openModal("DECK_EDIT", { deckData: currentDeck })}
             >
               <PencilLine size={16} />
             </button>
             <button
               className="v-icon-action-btn danger"
-              onClick={() =>
-                openModal("CONFIRM_DELETE", { type: "deck", id: deckId })
-              }
+              onClick={handleDeleteDeck}
             >
               <Trash2 size={16} />
             </button>
@@ -92,7 +68,7 @@ const WordList = () => {
         </div>
 
         <div className="v-intro-content">
-          <p className="v-deck-desc">기초 스페인어 여행 회화 정복하기 ✈️</p>
+          <p className="v-deck-desc">{currentDeck?.lang_code} 학습 중 ✈️</p>
         </div>
       </header>
 
@@ -100,7 +76,7 @@ const WordList = () => {
         <HeroCard
           variant="banner"
           title="학습 시작"
-          subTitle={`${words.length}개의 단어 준비됨`}
+          subTitle={`${displayWords.length}개의 단어 준비됨`}
           onClick={() => navigate(`/study/${deckId}`)}
         />
       </section>
@@ -116,21 +92,21 @@ const WordList = () => {
       {/* 2. 복합 필터 바 (고정 영역) */}
       <section className="v-word-list-controls">
         <ComplexFilterBar
-          filters={testFilters}
+          filters={filterOptions}
           currentFilter={currentFilter}
-          setFilter={setFilter}
+          setFilter={handleFilterChange}
           sortType={sortType}
-          setSortType={setSortType}
+          setSortType={handleSortChange}
+          filterCounts={filterCounts}
           hideMode={hideMode}
-          onToggleMode={handleToggleMode}
-          filterCounts={{ all: 104, new: 60, review: 13, mastered: 31 }}
+          onToggleMode={onToggleMode}
           onShuffle={() => alert("순서 셔플!")}
         />
       </section>
 
       {/* 3. 단어 카드 리스트 */}
       <main className="v-word-card-stack">
-        {words.map((item) => (
+        {displayWords.map((item) => (
           <WordCard
             key={item.id}
             item={item}
@@ -140,6 +116,7 @@ const WordList = () => {
             onDelete={() => openModal("CONFIRM_DELETE", { id: item.id })}
           />
         ))}
+        <div ref={observerTarget} style={{ height: "20px" }} />
       </main>
 
       {/* 4. 플로팅 추가 버튼 (FAB) */}

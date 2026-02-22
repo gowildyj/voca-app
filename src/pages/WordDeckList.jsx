@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// src/pages/WordDeckList.jsx
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import "@/styles/pages/wordDeckList.css";
@@ -9,23 +10,25 @@ import Button from "@/components/common/Button";
 import DeckCard from "@/components/cards/DeckCard";
 
 import { ROUTES, generatePath } from "@/routes/AppRoutes";
-import { useModal } from "@/contexts/ModalContext";
+import { useWordDeckList } from "@/hooks/pages/useWordDeckList";
 
-const WordDeckList = () => {
+const WordDeckList = ({ currentLangValue }) => {
   const navigate = useNavigate();
-  const { openModal } = useModal();
 
-  const [activeTab, setActiveTab] = useState("전체");
-  const [searchQuery, setSearchQuery] = useState("");
+  // 🌟 분리한 훅 호출
+  const {
+    decks,
+    loading,
+    searchQuery,
+    setSearchQuery,
+    activeTab,
+    setActiveTab,
+    categories,
+    openModal,
+    handleDeleteClick,
+  } = useWordDeckList(currentLangValue);
 
-  const decks = [
-    { id: 1, title: "필수 스페인어", wordCount: 24, progress: 45, icon: "🇪🇸" },
-    { id: 2, title: "여행 회화", wordCount: 18, progress: 10, icon: "✈️" },
-    { id: 3, title: "비즈니스 영어", wordCount: 104, progress: 30, icon: "💼" },
-    { id: 4, title: "기초 프랑스어", wordCount: 52, progress: 0, icon: "🇫🇷" },
-  ];
-
-  const categories = ["전체", "최근 학습", "중요 ⭐️", "완료"];
+  if (loading) return <div className="v-loader" />;
 
   return (
     <div className="v-deck-list-page">
@@ -46,25 +49,32 @@ const WordDeckList = () => {
       </section>
 
       <main className="v-deck-grid-container">
-        <div className="v-home-grid">
-          {decks.map((deck) => (
-            <DeckCard
-              key={deck.id}
-              title={deck.title}
-              wordCount={deck.wordCount}
-              progress={deck.progress}
-              icon={deck.icon}
-              onClick={() =>
-                navigate(generatePath(ROUTES.DECK_DETAIL, { deckId: deck.id }))
-              }
-              onEdit={() => openModal("DECK_EDIT", { deckData: deck })}
-              onDelete={() => openModal("CONFIRM_DELETE", { id: deck.id })}
-            />
-          ))}
-        </div>
+        {decks.length > 0 ? (
+          <div className="v-home-grid">
+            {decks.map((deck) => (
+              <DeckCard
+                key={deck.id}
+                title={deck.deck_name} // DB 컬럼명에 맞춤
+                wordCount={deck.total || 0}
+                progress={deck.progress || 0}
+                icon={deck.icon || "📁"}
+                onClick={() =>
+                  navigate(
+                    generatePath(ROUTES.DECK_DETAIL, { deckId: deck.id }),
+                  )
+                }
+                onEdit={() => openModal("DECK_EDIT", { deckData: deck })}
+                onDelete={() => handleDeleteClick(deck)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="v-empty-state">
+            <p>해당 언어의 단어장이 아직 없어요! 😅</p>
+          </div>
+        )}
       </main>
 
-      {/* 플로팅 버튼 수정 */}
       <Button
         variant="fab"
         icon={<Plus size={28} />}

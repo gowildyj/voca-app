@@ -74,7 +74,7 @@ const HomePage = ({ currentLangValue }) => {
         </section>
 
         {/* 추천 시나리오 섹션 */}
-        <section className="v-home-section">
+        {/* <section className="v-home-section">
           <div className="v-section-header">
             <h3 className="v-section-title">추천 시나리오</h3>
             <button
@@ -86,11 +86,12 @@ const HomePage = ({ currentLangValue }) => {
           </div>
 
           <div className="v-home-grid">
-            {displayDecks.map((deck) => (
+            {displayDecks.map((scenario) => (
               <ScenarioCard
-                title="커피 주문하기"
-                description="카페에서 점원과 대화해보세요."
-                level="초급"
+                key={scenario.id}
+                title={scenario.title}
+                description={scenario.description}
+                level={scenario.level}
                 icon="☕"
                 onClick={() =>
                   handleNavigate(ROUTES.SCENARIO_DETAIL, { id: 1 })
@@ -98,7 +99,7 @@ const HomePage = ({ currentLangValue }) => {
               />
             ))}
           </div>
-        </section>
+        </section> */}
       </main>
     </div>
   );

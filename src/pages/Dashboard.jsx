@@ -57,7 +57,7 @@ const Dashboard = () => {
           }
         >
           <PlusCircle size={28} color="var(--primary)" />
-          <span className="add-card-text">새 단어장 만들기</span>
+          <span className="add-card-text">새 단어장 만들기???</span>
         </motion.div>
 
         {loading ? (

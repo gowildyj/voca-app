@@ -36,3 +36,38 @@
   color: var(--text-sub);
   opacity: 0.6;
 }
+
+/* 1. 셀렉트 박스를 감싸는 래퍼 (기준점 역할) */
+.select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* 2. 실제 Select 태그 스타일링 */
+.styled-input-pink.custom-select {
+  width: 100%;
+  appearance: none; /* 표준 브라우저 화살표 숨기기 */
+  -webkit-appearance: none; /* 사파리/크롬 화살표 숨기기 */
+  -moz-appearance: none; /* 파이어폭스 화살표 숨기기 */
+
+  padding-right: 2.5rem; /* 오른쪽 화살표 공간 확보 (글자가 겹치지 않게) */
+  cursor: pointer; /* 마우스 올리면 손가락 모양 */
+  background-color: white; /* 배경색 지정 */
+}
+
+/* 3. 커스텀 화살표 아이콘 위치 잡기 */
+.select-arrow-icon {
+  position: absolute;
+  right: 0.75rem; /* 오른쪽에서 약간 띄움 */
+  color: #888; /* 아이콘 색상 (회색) */
+  pointer-events: none; /* 🌟 중요: 아이콘을 클릭해도 뒤에 있는 select가 클릭되도록 통과시킴 */
+}
+
+/* 포커스 되었을 때 아이콘 색상 변경 (선택 사항) */
+.styled-input-pink.custom-select:focus + .select-arrow-icon {
+  color: #ff6b6b; /* 테마 색상에 맞게 변경 */
+  transform: rotate(180deg); /* 열리면 화살표 뒤집기 (애니메이션 효과) */
+  transition: transform 0.2s ease;
+}

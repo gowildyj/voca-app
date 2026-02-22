@@ -3,165 +3,285 @@ import { supabase } from "@/lib/supabase";
 import { toast } from "react-hot-toast";
 
 /**
- * useWords: 단어 및 덱(단어장)의 데이터 레이어를 관리하는 핵심 훅
- * 프로덕션 레벨: DB 레벨 필터링, RPC 인자 전달, 성능 최적화
+ * useWords
+ * Data Layer 전용 훅
+ * - DB 통신
+ * - 상태 정규화
+ * - 낙관적 업데이트
  */
+
 export const useWords = (currentLangValue = "all") => {
   const [words, setWords] = useState([]);
   const [decks, setDecks] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  /**
-   * 🌟 RPC에 매개변수를 전달하여 필요한 언어의 덱만 DB에서 가져옵니다.
-   */
-  const fetchDecks = useCallback(async () => {
-    if (loading) return;
+  // =====================================================
+  // Deck
+  // =====================================================
 
+  const fetchDecks = useCallback(async () => {
     try {
       setLoading(true);
 
-      // SQL 함수에 정의된 p_lang_code 인자로 currentLangValue를 전달합니다.
       const { data, error } = await supabase.rpc("get_deck_stats", {
-        p_lang_code: currentLangValue || "all",
+        p_lang_code: currentLangValue,
       });
 
       if (error) throw error;
 
-      const processedDecks = (data ?? []).map((deck) => ({
-        ...deck,
-        total: parseInt(deck.total_count, 10) || 0,
+      const normalized = (data ?? []).map((d) => ({
+        id: d.id,
+        name: d.deck_name,
+        language: d.lang_code,
+        icon: d.icon,
+        description: d.description,
+        total: Number(d.total_count) || 0,
         progress:
-          deck.total_count > 0
-            ? Math.round(
-                (Number(deck.known_count) / Number(deck.total_count)) * 100,
-              )
+          d.total_count > 0
+            ? Math.round((Number(d.known_count) / Number(d.total_count)) * 100)
             : 0,
+        isFavorite: d.is_favorite,
       }));
 
-      setDecks(processedDecks);
-    } catch (error) {
-      console.error("❌ 덱 로드 실패:", error.message);
-      toast.error("단어장 목록을 불러오지 못했습니다.");
+      setDecks(normalized);
+    } catch (err) {
+      toast.error("단어장 목록 로드 실패");
     } finally {
       setLoading(false);
     }
   }, [currentLangValue]);
 
-  // 언어 설정이 변경될 때마다 DB 조회를 다시 수행합니다.
   useEffect(() => {
     fetchDecks();
-  }, [currentLangValue]);
+  }, [fetchDecks]);
 
-  /**
-   * 새로운 덱 추가 로직
-   */
-  const addDeck = async (deckName, langCode, icon = "📁") => {
+  const addDeck = async ({ name, language, icon = "", description = "" }) => {
     try {
       const { data, error } = await supabase
         .from("decks")
-        .insert([{ deck_name: deckName, lang_code: langCode, icon }])
+        .insert([
+          {
+            deck_name: name,
+            lang_code: language,
+            icon,
+            description,
+          },
+        ])
         .select();
 
       if (error) throw error;
 
-      const newDeck = data?.[0];
-      if (newDeck) {
-        // UI 즉시 반영 (현재 선택된 언어와 일치할 때만 목록 상단에 추가)
-        if (currentLangValue === "all" || currentLangValue === langCode) {
-          setDecks((prev) => [{ ...newDeck, total: 0, progress: 0 }, ...prev]);
-        }
-        toast.success(`"${deckName}" 단어장이 생성되었습니다! 🎉`);
-      }
-      return newDeck;
-    } catch (error) {
-      toast.error("단어장 생성 실패: " + error.message);
+      await fetchDecks();
+      toast.success("단어장이 생성되었습니다.");
+      return data?.[0];
+    } catch (err) {
+      toast.error("단어장 생성 실패");
       return null;
     }
   };
 
-  /**
-   * 덱 삭제 로직
-   */
-  const deleteDeck = async (deckId) => {
+  const updateDeck = async (id, updates) => {
     try {
-      const { error } = await supabase.from("decks").delete().eq("id", deckId);
+      const { error } = await supabase
+        .from("decks")
+        .update({
+          deck_name: updates.name,
+          description: updates.description,
+          icon: updates.icon,
+        })
+        .eq("id", id);
+
       if (error) throw error;
 
-      setDecks((prev) => prev.filter((d) => d.id !== deckId));
-      toast.success("단어장이 삭제되었습니다.");
-    } catch (error) {
-      toast.error("삭제 실패: " + error.message);
+      await fetchDecks();
+      toast.success("단어장 수정 완료");
+    } catch {
+      toast.error("단어장 수정 실패");
     }
   };
 
-  /**
-   * 특정 덱의 단어 리스트 조회 (페이지네이션)
-   */
+  const deleteDeck = async (id) => {
+    try {
+      const { error } = await supabase.from("decks").delete().eq("id", id);
+      if (error) throw error;
+
+      setDecks((prev) => prev.filter((d) => d.id !== id));
+      toast.success("단어장 삭제 완료");
+    } catch {
+      toast.error("삭제 실패");
+    }
+  };
+
+  // =====================================================
+  // Word
+  // =====================================================
+
   const fetchWordsByDeck = useCallback(async (deckId) => {
     if (!deckId) return [];
+
     try {
-      const PAGE_SIZE = 1000;
-      let allData = [];
-      let from = 0;
+      const { data, error } = await supabase
+        .from("words")
+        .select("*")
+        .eq("deck_id", deckId)
+        .order("created_at", { ascending: true });
 
-      while (true) {
-        const { data, error } = await supabase
-          .from("words")
-          .select("*")
-          .eq("deck_id", deckId)
-          .order("created_at", { ascending: true })
-          .range(from, from + PAGE_SIZE - 1);
+      if (error) throw error;
 
-        if (error) throw error;
-        allData = [...allData, ...(data ?? [])];
-        if (data.length < PAGE_SIZE) break;
-        from += PAGE_SIZE;
-      }
+      const normalized = (data ?? []).map((w) => ({
+        id: w.id,
+        word: w.word,
+        meaning: w.meaning,
+        example: w.example,
+        status: w.status,
+      }));
 
-      setWords(allData);
-      return allData;
-    } catch (error) {
+      setWords(normalized);
+      return normalized;
+    } catch {
       toast.error("단어 목록 로드 실패");
       return [];
     }
   }, []);
 
-  /**
-   * 단어 상태 업데이트 (낙관적 업데이트 적용)
-   */
-  const updateWordStatus = useCallback(
-    async (id, newStatus) => {
-      // UI 선반영
+  const addWord = async (deckId, wordData) => {
+    try {
+      const { data, error } = await supabase
+        .from("words")
+        .insert([
+          {
+            deck_id: deckId,
+            word: wordData.word,
+            meaning: wordData.meaning,
+            example: wordData.example || null,
+            status: "none",
+          },
+        ])
+        .select();
+
+      if (error) throw error;
+
+      setWords((prev) => [...prev, ...data]);
+      return data?.[0];
+    } catch (err) {
+      toast.error("단어 추가 실패");
+    }
+  };
+
+  // ✅ Bulk Insert
+  const addWordsBulk = async (deckId, wordsList) => {
+    try {
+      const payload = wordsList.map((w) => ({
+        deck_id: deckId,
+        word: w.word,
+        meaning: w.meaning,
+        example: w.example || null,
+        status: "none",
+      }));
+
+      const { data, error } = await supabase
+        .from("words")
+        .insert(payload)
+        .select();
+
+      if (error) throw error;
+
+      setWords((prev) => [...prev, ...data]);
+      toast.success(`${data.length}개 단어 등록 완료`);
+      return data;
+    } catch {
+      toast.error("일괄 등록 실패");
+    }
+  };
+
+  const updateWord = async (id, updates) => {
+    try {
+      const { error } = await supabase
+        .from("words")
+        .update(updates)
+        .eq("id", id);
+
+      if (error) throw error;
+
       setWords((prev) =>
-        prev.map((w) => (w.id === id ? { ...w, status: newStatus } : w)),
+        prev.map((w) => (w.id === id ? { ...w, ...updates } : w)),
       );
 
-      try {
-        const { error } = await supabase
-          .from("words")
-          .update({ status: newStatus })
-          .eq("id", id);
+      toast.success("단어 수정 완료");
+    } catch {
+      toast.error("단어 수정 실패");
+    }
+  };
 
-        if (error) throw error;
+  // ✅ Bulk Upsert
+  const updateWordsBulk = async (wordsList) => {
+    try {
+      const { data, error } = await supabase
+        .from("words")
+        .upsert(wordsList)
+        .select();
 
-        // 통계 갱신 (선택 사항: 지연 발생 시 백그라운드 갱신)
-        fetchDecks();
-      } catch (error) {
-        console.error("상태 변경 실패:", error.message);
-        toast.error("업데이트 실패");
-      }
-    },
-    [fetchDecks],
-  );
+      if (error) throw error;
+
+      setWords((prev) =>
+        prev.map((w) => {
+          const updated = wordsList.find((nw) => nw.id === w.id);
+          return updated ? { ...w, ...updated } : w;
+        }),
+      );
+
+      toast.success("일괄 수정 완료");
+      return data;
+    } catch {
+      toast.error("일괄 수정 실패");
+    }
+  };
+
+  const deleteWord = async (id) => {
+    try {
+      const { error } = await supabase.from("words").delete().eq("id", id);
+      if (error) throw error;
+
+      setWords((prev) => prev.filter((w) => w.id !== id));
+      toast.success("단어 삭제 완료");
+    } catch {
+      toast.error("단어 삭제 실패");
+    }
+  };
+
+  const updateWordStatus = async (id, newStatus) => {
+    setWords((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, status: newStatus } : w)),
+    );
+
+    try {
+      const { error } = await supabase
+        .from("words")
+        .update({ status: newStatus })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      fetchDecks();
+    } catch {
+      toast.error("상태 변경 실패");
+    }
+  };
 
   return {
     words,
     decks,
     loading,
     fetchDecks,
-    fetchWordsByDeck,
     addDeck,
+    updateDeck,
     deleteDeck,
+    fetchWordsByDeck,
+    addWord,
+    addWordsBulk,
+    updateWord,
+    updateWordsBulk,
+    deleteWord,
     updateWordStatus,
   };
 };

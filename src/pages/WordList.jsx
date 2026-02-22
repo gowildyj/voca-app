@@ -77,7 +77,11 @@ const WordList = () => {
           variant="banner"
           title="학습 시작"
           subTitle={`${displayWords.length}개의 단어 준비됨`}
-          onClick={() => navigate(`/study/${deckId}`)}
+          onClick={() =>
+            navigate(`/study/${deckId}`, {
+              state: { filteredIds: displayWords.map((w) => w.id) },
+            })
+          }
         />
       </section>
 
@@ -120,12 +124,12 @@ const WordList = () => {
       </main>
 
       {/* 4. 플로팅 추가 버튼 (FAB) */}
-      <Button
+      {/* <Button
         variant="fab"
         icon={<Plus size={28} />}
         onClick={() => openModal("WORD_ADD", { deckId })}
         aria-label="새 단어 추가"
-      />
+      /> */}
     </div>
   );
 };

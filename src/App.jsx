@@ -13,7 +13,6 @@ import { Toaster, toast } from "react-hot-toast";
 import MainLayout from "@/components/layout/MainLayout";
 import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
-import FloatingActionBtn from "@/components/common/FloatingActionBtn";
 import StudyCategoryModal from "@/components/modals/StudyCategoryModal";
 import SettingsPage from "@/pages/SettingsPage";
 
@@ -32,9 +31,6 @@ function AppContent() {
       LANG_OPTIONS[0]
     );
   });
-
-  // ❌ [삭제] const { decks, loading } = useWords(selectedLang.value);
-  // 데이터 호출은 이제 각 페이지(WordDeckList 등) 내부에서 수행합니다.
 
   const [isLangModalOpen, setIsLangModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -120,7 +116,6 @@ function AppContent() {
           ))}
         </Routes>
       </Suspense>
-      <FloatingActionBtn />
     </MainLayout>
   );
 }

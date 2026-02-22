@@ -12,7 +12,7 @@ export const ROUTES = {
   SCENARIO_LIST: "/scenarios",
   SCENARIO_SESSION: "/scenario/:id", // 시나리오 인터랙티브 학습 페이지
   SETTINGS: "/settings",
-  DESIGN: "/design",
+  // DESIGN: "/design",
 };
 
 /**
@@ -26,7 +26,7 @@ const StudySession = lazy(() => import("@/pages/StudySession"));
 const ScenarioList = lazy(() => import("@/pages/ScenarioList"));
 const ScenarioPage = lazy(() => import("@/pages/ScenarioPage"));
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
-const DesignGuide = lazy(() => import("@/pages/DesignGuide"));
+// const DesignGuide = lazy(() => import("@/pages/DesignGuide"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
 /**
@@ -69,11 +69,11 @@ export const AppRoutesData = [
     element: <SettingsPage />,
     title: "설정",
   },
-  {
-    path: ROUTES.DESIGN,
-    element: <DesignGuide />,
-    title: "디자인 가이드",
-  },
+  // {
+  //   path: ROUTES.DESIGN,
+  //   element: <DesignGuide />,
+  //   title: "디자인 가이드",
+  // },
   {
     path: "*",
     element: <NotFound />,

@@ -1,36 +1,30 @@
-import React, { useState, useMemo } from "react";
+// src/pages/WordDeckList.jsx
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import "@/styles/pages/wordDeckList.css";
 
-// 공통 컴포넌트
 import SearchBar from "@/components/common/SearchBar";
 import Button from "@/components/common/Button";
 import DeckCard from "@/components/cards/DeckCard";
 
-// 라우트 및 커스텀 훅
 import { ROUTES, generatePath } from "@/routes/AppRoutes";
 import { useWordDeckList } from "@/hooks/pages/useWordDeckList";
-
-import { LANG_OPTIONS } from "@/constants/languages";
 
 const WordDeckList = ({ currentLangValue }) => {
   const navigate = useNavigate();
 
+  // 🌟 분리한 훅 호출
   const {
     decks,
     loading,
     searchQuery,
     setSearchQuery,
+    openModal: openDeckModal,
     onAddDeck,
     onEditDeck,
     handleDeleteClick,
   } = useWordDeckList(currentLangValue);
-
-  const getLangIcon = (langCode) => {
-    const target = LANG_OPTIONS.find((lang) => lang.value === langCode);
-    return target ? target.icon : "";
-  };
 
   if (loading) return <div className="v-loader" />;
 
@@ -40,9 +34,7 @@ const WordDeckList = ({ currentLangValue }) => {
         <p className="v-deck-welcome-msg">오늘도 암기 천재가 되어볼까요? 🚀</p>
         <SearchBar
           value={searchQuery}
-          onChange={(e) =>
-            setSearchQuery(typeof e === "string" ? e : e.target.value)
-          }
+          onChange={setSearchQuery}
           placeholder="단어장 제목을 검색하세요"
         />
       </section>
@@ -53,10 +45,10 @@ const WordDeckList = ({ currentLangValue }) => {
             {decks.map((deck) => (
               <DeckCard
                 key={deck.id}
-                title={deck.name}
+                title={deck.name} // DB 컬럼명에 맞춤
                 wordCount={deck.total || 0}
                 progress={deck.progress || 0}
-                icon={deck.icon?.icon || getLangIcon(deck.language)}
+                icon={deck.icon || "📁"}
                 onClick={() =>
                   navigate(
                     generatePath(ROUTES.DECK_DETAIL, { deckId: deck.id }),
@@ -69,21 +61,17 @@ const WordDeckList = ({ currentLangValue }) => {
           </div>
         ) : (
           <div className="v-empty-state">
-            <p>
-              {searchQuery
-                ? "검색 결과가 없습니다. 🔍"
-                : "해당 언어의 단어장이 아직 없어요! 😅"}
-            </p>
+            <p>해당 언어의 단어장이 아직 없어요! 😅</p>
           </div>
         )}
       </main>
 
-      <Button
+      {/* <Button
         variant="fab"
         icon={<Plus size={28} />}
         onClick={onAddDeck}
         aria-label="새 단어장 추가"
-      />
+      /> */}
     </div>
   );
 };

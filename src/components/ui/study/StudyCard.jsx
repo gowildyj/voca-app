@@ -14,7 +14,7 @@ import { Volume2, Star } from "lucide-react";
 import "@/styles/components/ui/study/studyCard.css";
 
 // forwardRef를 사용하여 부모가 이 컴포넌트의 함수를 부를 수 있게 함
-const StudyCard = forwardRef(({ cardData, onSwipe }, ref) => {
+const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
   // === 1. 애니메이션 값 ===
   const x = useMotionValue(0);
   const controls = useAnimation();
@@ -26,6 +26,24 @@ const StudyCard = forwardRef(({ cardData, onSwipe }, ref) => {
     [-200, 0, 200],
     ["#f97316", "rgba(0,0,0,0)", "#10b981"],
   );
+
+  if (isNextPreview) {
+    return (
+      <div className="study-card-container preview">
+        <div className="card-inner">
+          <div className="card-face card-front">
+            {/* 메인 카드와 동일한 구성 요소 배치 */}
+            <span className="emoji-display">{cardData.emoji || "📝"}</span>
+            <h2 className="word-text">{cardData.word}</h2>
+            <span className="pronunciation-text">
+              [{cardData.pronunciation}]
+            </span>
+            <div className="hint-text"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // === 2. 부모에서 호출할 수 있는 함수 (버튼 클릭 시 스와이프) ===
   useImperativeHandle(ref, () => ({
@@ -82,7 +100,7 @@ const StudyCard = forwardRef(({ cardData, onSwipe }, ref) => {
   return (
     <div className="study-card-container">
       {/* 5. 뒷장 카드 효과 (배경에 깔리는 카드) */}
-      <div className="card-background-effect" />
+      {/* <div className="card-background-effect" /> */}
 
       <motion.div
         className="card-motion-wrapper"
@@ -133,7 +151,7 @@ const StudyCard = forwardRef(({ cardData, onSwipe }, ref) => {
             <span className="pronunciation-text">
               [{cardData.pronunciation}]
             </span>
-            <div className="hint-text">터치하면 뜻, 밀면 넘김??</div>
+            <div className="hint-text"></div>
           </div>
 
           {/* 뒷면 */}

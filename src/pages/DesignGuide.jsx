@@ -292,7 +292,7 @@ const DesignGuide = () => {
         </section>
 
         {/* FAB는 우측 하단에 고정되어 나타납니다 */}
-        <Button variant="fab" icon={<Plus size={28} />} aria-label="추가하기" />
+        {/* <Button variant="fab" icon={<Plus size={28} />} aria-label="추가하기" /> */}
 
         {/* 3. Filter Bar Section */}
         <section className="component-section">

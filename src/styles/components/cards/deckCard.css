@@ -80,7 +80,7 @@
 /* 카드 액션 아이콘 */
 .deck-actions {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
@@ -88,7 +88,7 @@
   color: var(--text-sub);
   width: 20px;
   height: 20px;
-  padding: 4px;
+  padding: 0px;
   border-radius: 6px;
   transition: background-color 0.2s;
 }

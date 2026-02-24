@@ -14,15 +14,56 @@ import "@/styles/pages/settingsPage.css";
 const SettingsPage = ({ isOpen, onClose }) => {
   const { theme, setTheme } = useTheme();
 
-  // 테마 목록 (유효성 검사 목록과 일치)
   const themeOptions = [
-    { id: "system", label: "시스템", color: "#E2E8F0" },
-    { id: "dark", label: "다크", color: "#1E293B" },
-    { id: "modern", label: "모던", color: "#F8FAFC" },
-    { id: "bw", label: "모노톤", color: "#1E293B" },
-    { id: "pastel", label: "파스텔", color: "#FFF1F2" },
-    { id: "pink", label: "진한 핑크", color: "#F43F5E" },
-    { id: "blue", label: "오션 블루", color: "#0EA5E9" },
+    {
+      id: "modern",
+      label: "모던",
+      color: "#475569",
+      desc: "차분한 네이비 그레이",
+    },
+    {
+      id: "dark",
+      label: "다크",
+      color: "#6366F1",
+      desc: "편안한 미드나잇 블루",
+    },
+    {
+      id: "bw",
+      label: "흑백",
+      color: "#000000",
+      desc: "클래식한 블랙 & 화이트",
+    },
+    {
+      id: "pink",
+      label: "핑크",
+      color: "#FB7185",
+      desc: "말린 장미빛 인디핑크",
+    },
+    { id: "blue", label: "블루", color: "#38BDF8", desc: "청량한 스카이 블루" },
+    {
+      id: "green",
+      label: "그린",
+      color: "#84CC16",
+      desc: "안정감을 주는 세이지 그린",
+    },
+    {
+      id: "yellow",
+      label: "옐로우",
+      color: "#F59E0B",
+      desc: "포근한 버터 옐로우",
+    },
+    {
+      id: "purple",
+      label: "퍼플",
+      color: "#A855F7",
+      desc: "우아한 라벤더 퍼플",
+    },
+    {
+      id: "pastel",
+      label: "파스텔",
+      color: "#FFC9D7",
+      desc: "달콤한 솜사탕 믹스",
+    },
   ];
 
   if (!isOpen) return null;
@@ -49,14 +90,18 @@ const SettingsPage = ({ isOpen, onClose }) => {
                 className={`v-theme-card ${theme === t.id ? "active" : ""}`}
                 onClick={() => setTheme(t.id)}
               >
+                {/* 🎨 미니 프리뷰에 해당 테마의 메인 컬러 적용 */}
                 <div
-                  className={`v-theme-mini-preview`}
+                  className="v-theme-mini-preview"
                   style={{ backgroundColor: t.color }}
                 >
                   <div className="v-preview-dot" />
                   <div className="v-preview-line" />
                 </div>
-                <span className="v-theme-name">{t.label}</span>
+                <div className="v-theme-info">
+                  <span className="v-theme-name">{t.label}</span>
+                  <span className="v-theme-desc-mini">{t.desc}</span>
+                </div>
                 {theme === t.id && <div className="v-theme-check">✓</div>}
               </button>
             ))}

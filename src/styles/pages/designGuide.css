@@ -188,3 +188,56 @@
   font-family: monospace;
 }
 /* wordDeckList.css */
+
+.theme-accordion-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.theme-accordion-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--card);
+  overflow: hidden;
+  transition: all var(--transition-base);
+}
+
+.theme-accordion-header {
+  width: 100%;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-main);
+}
+
+.theme-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.theme-desc-mini {
+  font-size: 0.8rem;
+  color: var(--text-sub);
+  margin-left: 8px;
+}
+
+.theme-accordion-content {
+  padding: 0 16px 16px 16px;
+  background-color: var(--bg); /* 테마별 배경색 미리보기 */
+  border-top: 1px solid var(--border);
+}
+
+/* 기존에 썼던 color-palette-grid 스타일은 그대로 유지하거나 조금만 다듬어줘! */

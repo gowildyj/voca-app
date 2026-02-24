@@ -1,7 +1,7 @@
 // src/components/modals/WordAddTabsForm.jsx
 import React, { useState, useEffect, useRef } from "react";
 import BottomSheet from "@/components/modals/BottomSheet";
-import { StyledInput, StyledTextArea } from "@/components/common/StyledInput";
+import { StyledInput, StyledTextArea } from "@/components/common/FormElements";
 import Button from "@/components/common/Button";
 
 const WordAddTabsForm = ({ isOpen, onClose, onSubmit }) => {

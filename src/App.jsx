@@ -120,15 +120,15 @@ function AppContent() {
 }
 
 const App = () => (
-  <Router>
-    <ThemeProvider>
-      <WordsProvider>
-        <ModalProvider>
+  <ModalProvider>
+    <Router>
+      <ThemeProvider>
+        <WordsProvider>
           <AppContent />
-        </ModalProvider>
-      </WordsProvider>
-    </ThemeProvider>
-  </Router>
+        </WordsProvider>
+      </ThemeProvider>
+    </Router>
+  </ModalProvider>
 );
 
 export default App;

@@ -6,8 +6,8 @@ import { useModal } from "@/contexts/ModalContext";
 import { ROUTES } from "@/routes/AppRoutes"; // 라우트 상수 필요
 
 export const useHomePage = (currentLangValue) => {
-  const navigate = useNavigate();
   const { openModal, closeModal } = useModal();
+  const navigate = useNavigate();
 
   // 🌟 1. useWords에서 필요한 함수들 모두 가져오기
   const { decks, loading, addDeck, updateDeck, deleteDeck, fetchDecks } =

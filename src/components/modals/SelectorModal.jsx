@@ -9,7 +9,7 @@ const SelectorModal = ({
   options = [],
   selectedValue,
   onSelect,
-  title = "단어 선택",
+  title = "선택",
 }) => {
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title={title}>

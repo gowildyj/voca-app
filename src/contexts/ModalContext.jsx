@@ -16,7 +16,7 @@ const ModalContext = createContext(null);
 // 모달 컴포넌트 매핑 (지연 로딩 적용)
 // 대규모 서비스에서 초기 로딩 속도를 높이기 위해 lazy 사용
 const ModalComponents = {
-  DECK_ADD: lazy(() => import("@/components/modals/DeckAddForm")),
+  DECK_ADD: lazy(() => import("@/components/modals/DeckEditForm")),
   DECK_EDIT: lazy(() => import("@/components/modals/DeckEditForm")),
   WORD_ADD: lazy(() => import("@/components/modals/WordAddTabsForm")),
   WORD_EDIT: lazy(() => import("@/components/modals/WordEditForm")),

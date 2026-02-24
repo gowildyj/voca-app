@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import BottomSheet from "@/components/modals/BottomSheet";
-import { StyledInput, StyledTextArea } from "@/components/common/StyledInput";
+import { StyledInput, StyledTextArea } from "@/components/common/FormElements";
 import Button from "@/components/common/Button";
 
 // 🌟 Props 이름을 'onSubmit'으로 통일하여 부모 핸들러와 맞춥니다.

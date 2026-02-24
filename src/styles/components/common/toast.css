@@ -4,7 +4,7 @@
   color: var(--text-main) !important;
   border-radius: var(--radius-lg) !important; /* 16px */
   border: 1px solid var(--border) !important;
-  box-shadow: var(--shadow-lg) !important;
+  box-shadow: var(--shadow-md) !important;
   font-weight: 600;
   padding: 12px 20px !important;
   font-family: inherit;

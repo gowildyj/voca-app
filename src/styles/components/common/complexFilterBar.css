@@ -92,6 +92,10 @@
   border-radius: 10px;
 }
 
+[data-theme="dark"] .segment-group {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 .segment-btn {
   border: none;
   background: transparent;
@@ -146,7 +150,6 @@
   appearance: none; /* 브라우저 기본 화살표 제거 */
   -webkit-appearance: none;
   -moz-appearance: none;
-
   border: none;
   background: transparent;
   font-size: 0.85rem;
@@ -167,6 +170,11 @@
   pointer-events: none; /* 클릭은 select가 받도록 통과시킴 */
   color: var(--text);
   opacity: 0.6;
+}
+
+[data-theme="dark"] .sort-select-minimal,
+.sort-chevron {
+  color: var(--accent);
 }
 
 @media (max-width: 480px) {

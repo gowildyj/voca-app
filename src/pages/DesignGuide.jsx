@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   ChevronLeft,
+  ChevronUp,
+  ChevronDown,
   Plus,
   Volume2,
   Star,
@@ -18,7 +20,7 @@ import FilterBar from "@/components/common/FilterBar";
 import ComplexFilterBar from "@/components/common/ComplexFilterBar";
 import Spinner from "@/components/common/Spinner";
 import SearchBar from "@/components/common/SearchBar";
-import { StyledInput, StyledTextArea } from "@/components/common/StyledInput";
+import { StyledInput, StyledTextArea } from "@/components/common/FormElements";
 import BottomSheet from "@/components/modals/BottomSheet";
 import StudyHeader from "@/components/ui/study/StudyHeader";
 import WordEditForm from "@/components/modals/WordEditForm";
@@ -32,7 +34,7 @@ import WordListHeader from "@/components/ui/word/WordListHeader";
 import ChatBubble from "@/components/cards/ChatBubble";
 import SelectorModal from "@/components/modals/SelectorModal";
 import ScenarioCard from "@/components/cards/ScenarioCard";
-import StudyCard from "@/components/cards/StudyCard";
+import StudyCard from "@/components/cards/WordCard";
 
 const DesignGuide = () => {
   const navigate = useNavigate();
@@ -52,12 +54,48 @@ const DesignGuide = () => {
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
   const [isCombinedModalOpen, setIsCombinedModalOpen] = useState(false);
+  const [openThemeId, setOpenThemeId] = useState(null); // 아코디언 상태 추가
 
   const testFilters = [
     { id: "all", label: "전체" },
     { id: "new", label: "미학습" },
     { id: "review", label: "몰라" },
     { id: "mastered", label: "알아" },
+  ];
+
+  const THEME_LIST = [
+    { id: "modern", name: "모던 (Modern)", desc: "차분하고 깔끔한 기본 테마" },
+    { id: "dark", name: "다크 (Dark)", desc: "깊은 밤처럼 눈이 편안한 테마" },
+    { id: "bw", name: "흑백 (B&W)", desc: "강렬한 대비의 클래식 룩" },
+    { id: "pink", name: "분홍 (Pink)", desc: "말린 장미빛 인디핑크" },
+    { id: "blue", name: "파랑 (Blue)", desc: "청량하고 맑은 스카이 블루" },
+    {
+      id: "green",
+      name: "초록 (Green)",
+      desc: "심리적 안정을 주는 세이지 그린",
+    },
+    {
+      id: "yellow",
+      name: "노랑 (Yellow)",
+      desc: "따뜻하고 포근한 버터 옐로우",
+    },
+    { id: "purple", name: "보라 (Purple)", desc: "우아하고 신비로운 라벤더" },
+    { id: "pastel", name: "파스텔 (Pastel)", desc: "달콤한 솜사탕 믹스 테마" },
+  ];
+
+  const colorVars = [
+    { name: "Background", var: "--bg" },
+    { name: "Layer", var: "--bg-layer" },
+    { name: "Card", var: "--card" },
+    { name: "Primary", var: "--primary" },
+    { name: "Accent", var: "--accent" },
+    { name: "Text Main", var: "--text-main" },
+    { name: "Text Sub", var: "--text-sub" },
+    { name: "Text Muted", var: "--text-muted" },
+    { name: "Border", var: "--border" },
+    { name: "Border Active", var: "--border-active" },
+    { name: "Danger", var: "--danger" },
+    { name: "Success", var: "--success" },
   ];
 
   const handleToggleMode = (mode) => {
@@ -106,7 +144,68 @@ const DesignGuide = () => {
           <p>앱 전반에서 사용하는 재사용 가능한 컴포넌트들을 정리합니다.</p>
         </section>
 
-        {/* /* color */}
+        <section className="component-section">
+          <h3 className="section-title">0. 테마 컬러 팔레트 가이드</h3>
+          <p className="section-desc">
+            모든 테마의 색상 규격을 한눈에 확인하고 비교할 수 있습니다.
+          </p>
+
+          <div className="theme-accordion-container">
+            {THEME_LIST.map((theme) => {
+              const isOpen = openThemeId === theme.id;
+
+              return (
+                <div
+                  key={theme.id}
+                  className={`theme-accordion-item ${isOpen ? "is-open" : ""}`}
+                  data-theme={theme.id} // 🌟 해당 테마의 CSS 변수를 강제로 주입
+                >
+                  <button
+                    className="theme-accordion-header"
+                    onClick={() => setOpenThemeId(isOpen ? null : theme.id)}
+                  >
+                    <div className="theme-header-info">
+                      <span
+                        className="theme-dot"
+                        style={{ backgroundColor: "var(--primary)" }}
+                      ></span>
+                      <span className="theme-name">{theme.name}</span>
+                      <span className="theme-desc-mini">{theme.desc}</span>
+                    </div>
+                    {isOpen ? (
+                      <ChevronUp size={18} />
+                    ) : (
+                      <ChevronDown size={18} />
+                    )}
+                  </button>
+
+                  {isOpen && (
+                    <div className="theme-accordion-content">
+                      <div className="color-palette-grid">
+                        {colorVars.map((v) => (
+                          <div className="color-item" key={v.var}>
+                            <div
+                              className="color-swatch"
+                              style={{
+                                backgroundColor: `var(${v.var})`,
+                                border: "1px solid var(--border)",
+                              }}
+                            ></div>
+                            <div className="color-info">
+                              <span className="color-name">{v.name}</span>
+                              <span className="color-var">{v.var}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
         {/* --- Color Palette Section --- */}
         <section className="component-section">
           <h3 className="section-title">0. 테마 컬러 팔레트 (Current Theme)</h3>

@@ -1,166 +1,183 @@
 :root {
   /* =========================================
-     레이아웃 & UI 상수 (테마와 무관한 공통 값)
+     레이아웃 & UI 상수 (불변)
      ========================================= */
-
-  /* 둥근 모서리 (Border Radius) */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-full: 9999px;
 
-  /* 그림자 (Shadows) - 부드러운 느낌 */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-
-  /* 애니메이션 속도 */
-  --transition-fast: 0.15s ease;
   --transition-base: 0.2s ease;
-  --transition-slow: 0.3s ease;
-
-  /* Z-index 계층 */
-  --z-back: -1;
-  --z-base: 1;
-  --z-nav: 100;
   --z-modal: 1000;
   --z-toast: 2000;
 
   /* =========================================
-     기본 테마 (Light Mode / Default)
+     기본값 (Modern - Default Light)
      ========================================= */
-
-  /* 배경색 */
   --bg: #f8fafc;
+  --bg-layer: #f1f5f9;
   --card: #ffffff;
-
-  /* 텍스트 색상 */
-  --text-main: #1e293b; /* 진한 본문 */
-  --text-sub: #64748b; /* 연한 설명글 (Caption 등) */
-  --text-inverse: #ffffff; /* 어두운 배경 위 텍스트 */
-
-  /* 테두리 색상 */
+  --text-main: #334155;
+  --text-sub: #64748b;
+  --text-muted: #94a3b8;
+  --text-inverse: #ffffff;
   --border: #e2e8f0;
+  --border-active: #6366f1;
+  --primary: #475569;
+  --primary-hover: #1e293b;
+  --accent: #818cf8;
 
-  /* 포인트 컬러 (Primary) */
-  --primary: #4f46e5; /* 메인 색상 */
-  --primary-rgb: 79, 70, 229; /* 투명도 조절용 RGB 숫자 */
-  --primary-hover: #4338ca; /* 버튼 호버 시 진해지는 색 */
+  --danger: #ef4444;
+  --success: #10b981;
+  --warning: #f59e0b;
 
-  /* 강조 컬러 (Accent) */
-  --accent: #8b5cf6;
-  --accent-rgb: 139, 92, 246;
-
-  /* 상태 컬러 (Semantic) */
-  --danger: #ef4444; /* 삭제/에러 */
-  --success: #10b981; /* 성공/완료 */
-  --warning: #f59e0b; /* 주의 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* =========================================
-   다크 모드 (시스템 설정 & 테마 선택)
+   1. Dark (차분한 미드나잇)
    ========================================= */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --bg: #0f172a;
-    --card: #1e293b;
-    --text-main: #f1f5f9;
-    --text-sub: #94a3b8;
-    --text-inverse: #0f172a;
-    --border: #334155;
-
-    --primary: #6366f1;
-    --primary-rgb: 99, 102, 241;
-    --primary-hover: #818cf8;
-
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  }
-}
-
 [data-theme="dark"] {
   --bg: #0f172a;
+  --bg-layer: #1e293b;
   --card: #1e293b;
   --text-main: #f1f5f9;
   --text-sub: #94a3b8;
+  --text-muted: #475569;
   --text-inverse: #0f172a;
   --border: #334155;
-
+  --border-active: #818cf8;
   --primary: #6366f1;
-  --primary-rgb: 99, 102, 241;
   --primary-hover: #818cf8;
-
-  /* 다크모드에서는 그림자가 잘 안보이므로 조금 더 진하게 */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --accent: #a5b4fc;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
 
 /* =========================================
-   추가 컬러 테마 (커스텀 테마)
+   2. BW (고대비 흑백)
    ========================================= */
-
-/* 모던 */
-[data-theme="modern"] {
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --text-main: #0f172a;
-  --text-sub: #64748b;
-  --border: #e2e8f0;
-  --primary: #0f172a;
-  --primary-rgb: 15, 23, 42;
-  --primary-hover: #334155;
-}
-
-/* 흑백 */
 [data-theme="bw"] {
   --bg: #ffffff;
-  --card: #f8f8f8;
+  --bg-layer: #f8f9fa;
+  --card: #ffffff;
   --text-main: #000000;
-  --text-sub: #555555;
+  --text-sub: #444444;
+  --text-muted: #888888;
+  --text-inverse: #ffffff;
   --border: #000000;
+  --border-active: #000000;
   --primary: #000000;
-  --primary-rgb: 0, 0, 0;
   --primary-hover: #333333;
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
+  --accent: #555555;
 }
 
-/* 파스텔 */
-[data-theme="pastel"] {
-  --bg: #fffcf2;
-  --card: #ffffff;
-  --text-main: #57534e;
-  --text-sub: #a8a29e;
-  --border: #e7e5e4;
-  --primary: #fb923c;
-  --primary-rgb: 251, 146, 60;
-  --primary-hover: #f97316;
-}
-
-/* 분홍색 */
+/* =========================================
+   3. Pink (말린 장미 인디핑크)
+   ========================================= */
 [data-theme="pink"] {
-  --bg: #fff1f2;
+  --bg: #fffafb;
+  --bg-layer: #fff1f2;
   --card: #ffffff;
-  --text-main: #9f1239;
+  --text-main: #881337;
   --text-sub: #be185d;
-  --border: #fecdd3;
-  --primary: #f43f5e;
-  --primary-rgb: 244, 63, 94;
-  --primary-hover: #e11d48;
+  --text-muted: #fda4af;
+  --text-inverse: #ffffff;
+  --border: #ffe4e6;
+  --border-active: #fb7185;
+  --primary: #fb7185;
+  --primary-hover: #f43f5e;
+  --accent: #fda4af;
 }
 
-/* 파란색 */
+/* =========================================
+   4. Blue (차분한 스카이 블루)
+   ========================================= */
 [data-theme="blue"] {
-  --bg: #eff6ff;
+  --bg: #f0f9ff;
+  --bg-layer: #e0f2fe;
   --card: #ffffff;
-  --text-main: #1e3a8a;
-  --text-sub: #60a5fa;
-  --border: #dbeafe;
-  --primary: #2563eb;
-  --primary-rgb: 37, 99, 235;
-  --primary-hover: #1d4ed8;
+  --text-main: #0c4a6e;
+  --text-sub: #0369a1;
+  --text-muted: #7dd3fc;
+  --text-inverse: #ffffff;
+  --border: #bae6fd;
+  --border-active: #38bdf8;
+  --primary: #38bdf8;
+  --primary-hover: #0ea5e9;
+  --accent: #7dd3fc;
+}
+
+/* =========================================
+   5. Green (편안한 세이지 그린)
+   ========================================= */
+[data-theme="green"] {
+  --bg: #f7fee7;
+  --bg-layer: #ecfccb;
+  --card: #ffffff;
+  --text-main: #14532d;
+  --text-sub: #166534;
+  --text-muted: #a3e635;
+  --text-inverse: #ffffff;
+  --border: #d9f99d;
+  --border-active: #84cc16;
+  --primary: #84cc16;
+  --primary-hover: #65a30d;
+  --accent: #bef264;
+}
+
+/* =========================================
+   6. Yellow (부드러운 버터 옐로우)
+   ========================================= */
+[data-theme="yellow"] {
+  --bg: #fffbeb;
+  --bg-layer: #fef3c7;
+  --card: #ffffff;
+  --text-main: #78350f;
+  --text-sub: #92400e;
+  --text-muted: #fbbf24;
+  --text-inverse: #ffffff;
+  --border: #fde68a;
+  --border-active: #f59e0b;
+  --primary: #f59e0b;
+  --primary-hover: #d97706;
+  --accent: #fcd34d;
+}
+
+/* =========================================
+   7. Purple (우아한 라벤더)
+   ========================================= */
+[data-theme="purple"] {
+  --bg: #faf5ff;
+  --bg-layer: #f3e8ff;
+  --card: #ffffff;
+  --text-main: #581c87;
+  --text-sub: #7e22ce;
+  --text-muted: #c084fc;
+  --text-inverse: #ffffff;
+  --border: #f3e8ff;
+  --border-active: #a855f7;
+  --primary: #a855f7;
+  --primary-hover: #9333ea;
+  --accent: #d8b4fe;
+}
+
+/* =========================================
+   8. Pastel (솜사탕 믹스 - 연분홍, 연하늘, 연노랑, 연보라)
+   ========================================= */
+[data-theme="pastel"] {
+  --bg: #fffdf5; /* 베이스는 연노랑 */
+  --bg-layer: #f0f9ff; /* 레이어는 연하늘 */
+  --card: #ffffff;
+  --text-main: #5b21b6; /* 텍스트는 연보라 */
+  --text-sub: #7c3aed;
+  --text-muted: #c4b5fd;
+  --text-inverse: #ffffff;
+  --border: #ffe4e6; /* 테두리는 연분홍 */
+  --border-active: #bae6fd;
+  --primary: #ffc9d7; /* 솜사탕 핑크 */
+  --primary-hover: #99f6e4; /* 호버하면 민트로! */
+  --accent: #fef08a;
 }

@@ -52,33 +52,35 @@
 /* 🌟 테마 선택 그리드 디자인 */
 .v-theme-selection-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr); /* 3열로 배치해서 한눈에 보이게 */
   gap: 12px;
+  margin-top: 12px;
 }
 
 .v-theme-card {
-  position: relative;
-  background: var(--white);
-  border: 2px solid var(--border-light);
-  border-radius: 16px;
-  padding: 12px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
+  padding: 12px 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  transition: all var(--transition-base);
+  position: relative;
 }
 
 .v-theme-card.active {
   border-color: var(--primary);
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: var(--bg-layer);
 }
 
 .v-theme-mini-preview {
   width: 100%;
-  aspect-ratio: 4/1;
-  border-radius: 8px;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -90,37 +92,46 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: white;
-  opacity: 0.6;
+  background: rgba(255, 255, 255, 0.5);
 }
 .v-preview-line {
-  width: 20px;
+  width: 60%;
   height: 3px;
   border-radius: 2px;
-  background: white;
-  opacity: 0.4;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.v-theme-info {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
 }
 
 .v-theme-name {
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--text-main);
+}
+
+.v-theme-desc-mini {
+  font-size: 0.7rem;
+  color: var(--text-sub);
+  margin-top: 2px;
 }
 
 .v-theme-check {
   position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 18px;
-  height: 18px;
+  top: 4px;
+  right: 4px;
   background: var(--primary);
   color: white;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  font-size: 0.6rem;
+  font-size: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--white);
 }
 
 /* 🌟 리스트 카드 스타일 */

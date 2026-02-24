@@ -16,7 +16,7 @@ const SearchBar = ({
   const inputRef = useRef(null);
 
   const handleClear = () => {
-    onChange(""); // 부모의 상태를 빈 값으로
+    onChange("");
     if (inputRef.current) {
       inputRef.current.focus();
     }

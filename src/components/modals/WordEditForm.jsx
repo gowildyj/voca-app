@@ -1,7 +1,7 @@
 // src/components/modals/WordEditForm.jsx
 import React from "react";
 import BottomSheet from "@/components/modals/BottomSheet";
-import { StyledInput } from "@/components/common/StyledInput";
+import { StyledInput } from "@/components/common/FormElements";
 import Button from "@/components/common/Button";
 
 const WordEditForm = ({ isOpen, onClose, onSubmit, initialData }) => {

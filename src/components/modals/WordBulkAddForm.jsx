@@ -1,7 +1,7 @@
 import React from "react";
 import Button from "@/components/common/Button";
 import BottomSheet from "@/components/modals/BottomSheet";
-import { StyledInput, StyledTextArea } from "@/components/common/StyledInput";
+import { StyledInput, StyledTextArea } from "@/components/common/FormElements";
 import "@/styles/components/modals/bottomSheet.css";
 
 const WordBulkAddForm = ({ isOpen, onClose }) => {

@@ -1,7 +1,7 @@
-/* selectorModal.css */
+/* src/styles/components/modals/selectorModal.css */
 
 .v-selector-container {
-  padding: 0 8px 20px 8px; /* 좌우 여백 살짝 조절 */
+  padding: 0 8px 20px 8px;
 }
 
 .v-selector-list {
@@ -15,7 +15,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 12px;
-  border-bottom: 1px solid var(--border); /* 카드 대신 구분선 사용 */
+  border-bottom: 1px solid var(--border);
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -25,10 +25,6 @@
   border-bottom: none;
 }
 
-.v-selector-item-slim:active {
-  background-color: rgba(0, 0, 0, 0.03);
-}
-
 /* 선택된 상태 스타일 */
 .v-selector-item-slim.active {
   background-color: rgba(251, 146, 60, 0.05);
@@ -36,7 +32,7 @@
 
 .v-item-text {
   display: flex;
-  align-items: baseline; /* 단어와 뜻의 높이 맞춤 */
+  align-items: baseline;
   gap: 12px;
 }
 
@@ -51,7 +47,7 @@
 }
 
 .v-meaning {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--text-sub);
 }
 

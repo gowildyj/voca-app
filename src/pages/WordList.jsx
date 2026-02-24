@@ -15,7 +15,6 @@ const WordList = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
 
-  // 🌟 Hook에서 필요한 데이터와 핸들러를 모두 꺼냅니다.
   const {
     currentDeck,
     displayWords,

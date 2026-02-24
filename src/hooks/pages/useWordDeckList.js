@@ -72,7 +72,7 @@ export const useWordDeckList = (currentLangValue) => {
   const handleDeleteClick = (deck) => {
     openModal("CONFIRM_DELETE", {
       title: `"${deck.name}" 단어장을 삭제할까요?`,
-      message: "삭제된 단어장은 복구할 수 없습니다.",
+      message: "삭제된 내용은 다시 복구할 수 없어요.",
       onConfirm: async () => {
         await deleteDeck(deck.id);
         closeModal();

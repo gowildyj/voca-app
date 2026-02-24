@@ -7,7 +7,7 @@
   box-sizing: border-box;
   background: var(--primary);
   color: white;
-  box-shadow: 0 10px 25px rgba(251, 146, 60, 0.25);
+  /* box-shadow: 0 10px 25px rgba(251, 146, 60, 0.25); */
   overflow: hidden;
   position: relative;
 }

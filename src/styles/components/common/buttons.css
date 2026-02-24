@@ -53,7 +53,7 @@
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
 }
 
 /* Secondary: 보조 행동 (카드색 배경 + 진한 글씨 + 테두리) */
@@ -155,7 +155,7 @@
   background-color: var(--primary);
   color: white;
 
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
   z-index: var(--z-modal);
 
   display: flex;

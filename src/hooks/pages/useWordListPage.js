@@ -121,12 +121,11 @@ export const useWordListPage = (deckId) => {
   };
 
   return {
-    ...logic, // filter, sort 관련 값들
+    ...logic,
+    allFilteredWords: logic.filteredWords,
     currentDeck,
     loading,
     totalCount: words.length,
-
-    // 🌟 완성된 핸들러들을 내보냅니다
     onAddWord,
     onEditWord,
     onDeleteWord,

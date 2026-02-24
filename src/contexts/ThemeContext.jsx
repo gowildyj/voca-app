@@ -14,13 +14,15 @@ const ThemeContext = createContext(undefined);
  * 테마 유효성 검사 (보안: 로컬 스토리지 조작 방지)
  */
 export const VALID_THEMES = [
-  "system",
-  "dark",
   "modern",
+  "dark",
   "bw",
-  "pastel",
   "pink",
   "blue",
+  "green",
+  "yellow",
+  "purple",
+  "pastel",
 ];
 const getSafeTheme = (theme) =>
   VALID_THEMES.includes(theme) ? theme : "system";

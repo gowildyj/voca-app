@@ -1,105 +1,149 @@
 import React from "react";
-import { Volume2, Edit3, Trash2, Heart, Sparkles } from "lucide-react";
-import "@/styles/components/cards/wordCard.css";
+import { useParams, useNavigate } from "react-router-dom";
+import { Plus, FilePenLine, PencilLine, Trash2 } from "lucide-react";
+import "@/styles/pages/wordList.css";
 
-const WordCard = React.memo(
-  ({ item, onEdit, onDelete, onPlay, onToggleFavorite, hideMode }) => {
-    if (!item) return null;
+import HeroCard from "@/components/cards/HeroCard";
+import ComplexFilterBar from "@/components/common/ComplexFilterBar";
+import SearchBar from "@/components/common/SearchBar";
+import WordCard from "@/components/cards/WordCard";
+import Button from "@/components/common/Button";
+import { playText } from "@/utils/ttsUtils";
+import { useWordListPage } from "@/hooks/pages/useWordListPage";
 
-    const isGuide = item.isGuide || false;
-    const statusClass = item.status ? `status-${item.status}` : "";
-    const isWordHidden = hideMode === "word";
-    const isMeaningHidden = hideMode === "meaning";
+const WordList = () => {
+  const { deckId } = useParams();
+  const navigate = useNavigate();
 
-    // 1. 가이드 모드 (데이터가 없을 때 표시되는 빈 카드)
-    if (isGuide) {
-      return (
-        <div className="v-word-card guide-mode">
-          <div className="v-word-icon-section">
-            <Sparkles size={22} className="guide-icon" />
-          </div>
-          <div className="v-word-body">
-            <span className="v-word-main">첫 단어를 추가해보세요!</span>
-            <span className="v-word-sub">우측 하단 + 버튼을 눌러주세요</span>
-          </div>
-          {/* 일반 카드와 크기를 맞추기 위해 보이지 않는 액션 영역 유지 */}
-          <div className="v-word-actions" style={{ visibility: "hidden" }}>
-            <div className="v-action-icon-btn">
-              <Edit3 size={18} />
-            </div>
+  const {
+    currentDeck,
+    displayWords,
+    loading,
+    // 필터 관련
+    filter: currentFilter,
+    sortType,
+    searchQuery,
+    hideMode,
+    onToggleMode,
+    filterCounts,
+    observerTarget,
+    setSearchQuery,
+    handleFilterChange,
+    handleSortChange,
+    // 핸들러들 (openModal 대신 이것들을 씁니다!)
+    onAddWord,
+    onEditWord,
+    onDeleteWord,
+    onEditDeck,
+    onDeleteDeck,
+    onBulkEdit,
+  } = useWordListPage(deckId);
+
+  // console.log("currentDeck", currentDeck);
+  // console.log("displayWords", displayWords);
+
+  if (loading && !currentDeck) return <div className="v-loader" />;
+
+  const filterOptions = [
+    { id: "all", label: "전체" },
+    { id: "none", label: "미학습" },
+    { id: "unknown", label: "몰라" },
+    { id: "know", label: "알아" },
+  ];
+
+  return (
+    <div className="v-word-list-page">
+      <header className="v-word-list-intro">
+        <div className="v-intro-top">
+          {/* 데이터 이름 정규화 (name 우선) */}
+          <h1 className="v-deck-title">
+            {currentDeck?.name || currentDeck?.deck_name || "단어장"}
+          </h1>
+          <div className="v-intro-actions">
+            {/* 🌟 1. 일괄 편집 */}
+            <button className="v-icon-action-btn" onClick={onBulkEdit}>
+              <FilePenLine size={16} />
+            </button>
+            {/* 🌟 2. 덱 정보 수정 */}
+            <button className="v-icon-action-btn" onClick={onEditDeck}>
+              <PencilLine size={16} />
+            </button>
+            {/* 🌟 3. 덱 삭제 */}
+            <button className="v-icon-action-btn danger" onClick={onDeleteDeck}>
+              <Trash2 size={16} />
+            </button>
           </div>
         </div>
-      );
-    }
 
-    return (
-      <div className={`v-word-card ${statusClass} clickable-bounce`}>
-        {/* [섹션 1] 오디오 버튼 */}
-        <div className="v-word-icon-section">
-          <button
-            className="v-word-audio-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onPlay && onPlay(item.word);
-            }}
-            aria-label="발음 듣기"
-          >
-            <Volume2 size={20} />
-          </button>
+        <div className="v-intro-content">
+          <p className="v-deck-desc">
+            {currentDeck?.description ||
+              `${currentDeck?.language || currentDeck?.lang_code || "언어"} 학습 중 ✈️`}
+          </p>
         </div>
+      </header>
 
-        {/* [섹션 2] 단어 본문 */}
-        <div className="v-word-body">
-          <div className="v-word-main-wrapper">
-            <span className={`v-word-main ${isWordHidden ? "v-masked" : ""}`}>
-              {item.word}
-            </span>
-          </div>
-          <span className={`v-word-sub ${isMeaningHidden ? "v-masked" : ""}`}>
-            {item.meaning}
-          </span>
-        </div>
+      <section className="v-word-list-header">
+        <HeroCard
+          variant="banner"
+          title="학습 시작"
+          subTitle={`${displayWords.length}개의 단어 준비됨`}
+          onClick={() =>
+            navigate(`/study/${deckId}`, {
+              state: { filteredIds: displayWords.map((w) => w.id) },
+            })
+          }
+        />
+      </section>
 
-        {/* [섹션 3] 액션 버튼 (세로 배치) */}
-        <div className="v-word-actions">
-          <button
-            className={`v-action-icon-btn favorite ${item.isFavorite ? "active" : ""}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFavorite && onToggleFavorite(item.id);
-            }}
-            aria-label="즐겨찾기"
-          >
-            <Heart size={16} fill={item.isFavorite ? "currentColor" : "none"} />
-          </button>
+      <section className="v-word-list-controls">
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="단어나 뜻을 검색해 보세요"
+        />
+      </section>
 
-          <button
-            className="v-action-icon-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit && onEdit(item);
-            }}
-            aria-label="수정"
-          >
-            <Edit3 size={16} />
-          </button>
+      {/* 복합 필터 바 */}
+      <section className="v-word-list-controls">
+        <ComplexFilterBar
+          filters={filterOptions}
+          currentFilter={currentFilter}
+          setFilter={handleFilterChange}
+          sortType={sortType}
+          setSortType={handleSortChange}
+          filterCounts={filterCounts}
+          hideMode={hideMode}
+          onToggleMode={onToggleMode}
+          onShuffle={() => alert("순서 셔플!")}
+        />
+      </section>
 
-          <button
-            className="v-action-icon-btn delete"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete && onDelete(item.id);
-            }}
-            aria-label="삭제"
-          >
-            <Trash2 size={16} />
-          </button>
-        </div>
-      </div>
-    );
-  },
-);
+      {/* 단어 카드 리스트 */}
+      <main className="v-word-card-stack">
+        {displayWords.map((item) => (
+          <WordCard
+            key={item.id}
+            item={item}
+            hideMode={hideMode}
+            onPlay={(word) => playText(word, currentDeck?.language)}
+            onEdit={() => onEditWord(item)}
+            onDelete={() => onDeleteWord(item)}
+          />
+        ))}
+        {/* 무한 스크롤용 옵저버 */}
+        <div ref={observerTarget} style={{ height: "20px" }} />
+      </main>
 
-WordCard.displayName = "WordCard";
+      {/* 🌟 5. 플로팅 추가 버튼 (FAB) - 단어 추가 */}
+      <Button
+        variant="fab"
+        icon={<Plus size={28} />}
+        onClick={onAddWord}
+        aria-label="새 단어 추가"
+      />
+    </div>
+  );
+};
 
-export default WordCard;
+export default WordList;

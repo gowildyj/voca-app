@@ -1,0 +1,68 @@
+/* src/styles/components/common/sortSelector.css */
+
+.v-sort-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.v-sort-select-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  /* background-color: var(--card);
+  border: 1px solid var(--border); */
+  border-radius: 8px;
+  padding: 4px 10px;
+  min-width: 90px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+/* 호버 시 살짝 강조 */
+.v-sort-select-box:hover {
+  border-color: var(--text-sub);
+}
+
+.v-select-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  pointer-events: none;
+}
+
+.v-sort-icon {
+  color: var(--text-sub);
+  opacity: 0.8;
+}
+
+.v-selected-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  flex: 1;
+  white-space: nowrap;
+}
+
+.v-chevron {
+  color: var(--text-sub);
+  opacity: 0.6;
+}
+
+.v-real-select {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* 다크모드 대응 */
+[data-theme="dark"] .v-sort-select-box {
+  background-color: var(--bg-layer);
+}

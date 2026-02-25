@@ -9,16 +9,25 @@
 
 /* 상단 배너 섹션 */
 .v-word-list-header {
-  padding: 1px 16px 0 16px;
+  padding: 1px 16px 6px 16px;
 }
 
-/* 필터 및 조작 섹션 (Sticky 설정 가능) */
+/* 필터 및 조작 섹션 */
 .v-word-list-controls {
-  padding: 12px 16px;
+  padding: 6px 16px;
   background-color: var(--bg);
-  /* position: sticky; */
-  top: 60px; /* 헤더 높이에 맞춤 */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  top: 0;
   z-index: 10;
+}
+
+.bottom-control-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 /* 단어 카드 리스트 스택 */
@@ -26,11 +35,9 @@
   display: flex;
   flex-direction: column;
   gap: 0px;
-  padding: 0 16px;
+  padding: 6px 16px;
 }
 
-/* 🌟 단어 텍스트 줄바꿈 및 레이아웃 보정 */
-/* WordCard 내부의 단어 텍스트 클래스 타겟팅 */
 .v-word-card-stack .word-title,
 .v-word-card-stack .v-word-main {
   font-size: 1.1rem;
@@ -39,15 +46,15 @@
 
   /* 긴 단어 처리 핵심 속성 */
   inline-size: 100%;
-  overflow-wrap: break-word; /* 너비 초과 시 줄바꿈 */
-  word-break: keep-all; /* 한글 단위 유지하며 줄바꿈 */
+  overflow-wrap: break-word;
+  word-break: keep-all;
   line-height: 1.4;
 }
 
 /* 카드 내부 텍스트 영역이 버튼 영역을 밀어내지 않도록 설정 */
 .word-card-content-area {
   flex: 1;
-  min-width: 0; /* flex 자식의 최소 너비를 0으로 해야 말줄임/줄바꿈이 작동함 */
+  min-width: 0;
 }
 
 /* 빈 상태 안내 */

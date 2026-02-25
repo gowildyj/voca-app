@@ -3,11 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Plus, FilePenLine, PencilLine, Trash2 } from "lucide-react";
 import "@/styles/pages/wordList.css";
 
+import Button from "@/components/common/Button";
 import HeroCard from "@/components/cards/HeroCard";
 import ComplexFilterBar from "@/components/common/ComplexFilterBar";
 import SearchBar from "@/components/common/SearchBar";
+import FilterTabs from "@/components/common/FilterTabs";
+import VisibilityToggle from "@/components/common/VisibilityToggle";
+import SortSelector from "@/components/common/SortSelector";
 import WordCard from "@/components/cards/WordCard";
-import Button from "@/components/common/Button";
 import { playText } from "@/utils/ttsUtils";
 import { useWordListPage } from "@/hooks/pages/useWordListPage";
 
@@ -19,7 +22,6 @@ const WordList = () => {
     currentDeck,
     displayWords,
     loading,
-    // 필터 관련
     filter: currentFilter,
     sortType,
     searchQuery,
@@ -30,7 +32,6 @@ const WordList = () => {
     setSearchQuery,
     handleFilterChange,
     handleSortChange,
-    // 핸들러들 (openModal 대신 이것들을 씁니다!)
     onAddWord,
     onEditWord,
     onDeleteWord,
@@ -55,20 +56,16 @@ const WordList = () => {
     <div className="v-word-list-page">
       <header className="v-word-list-intro">
         <div className="v-intro-top">
-          {/* 데이터 이름 정규화 (name 우선) */}
           <h1 className="v-deck-title">
             {currentDeck?.name || currentDeck?.deck_name || "단어장"}
           </h1>
           <div className="v-intro-actions">
-            {/* 🌟 1. 일괄 편집 */}
             <button className="v-icon-action-btn" onClick={onBulkEdit}>
               <FilePenLine size={16} />
             </button>
-            {/* 🌟 2. 덱 정보 수정 */}
             <button className="v-icon-action-btn" onClick={onEditDeck}>
               <PencilLine size={16} />
             </button>
-            {/* 🌟 3. 덱 삭제 */}
             <button className="v-icon-action-btn danger" onClick={onDeleteDeck}>
               <Trash2 size={16} />
             </button>
@@ -104,19 +101,24 @@ const WordList = () => {
         />
       </section>
 
-      {/* 복합 필터 바 */}
       <section className="v-word-list-controls">
-        <ComplexFilterBar
+        <FilterTabs
           filters={filterOptions}
           currentFilter={currentFilter}
           setFilter={handleFilterChange}
-          sortType={sortType}
-          setSortType={handleSortChange}
           filterCounts={filterCounts}
-          hideMode={hideMode}
-          onToggleMode={onToggleMode}
-          onShuffle={() => alert("순서 셔플!")}
         />
+      </section>
+
+      <section className="v-word-list-controls">
+        <div className="bottom-control-bar">
+          <VisibilityToggle hideMode={hideMode} onToggleMode={onToggleMode} />
+          <SortSelector
+            sortType={sortType}
+            setSortType={handleSortChange}
+            onShuffle={() => handleSortChange("shuffle")}
+          />
+        </div>
       </section>
 
       {/* 단어 카드 리스트 */}
@@ -135,7 +137,6 @@ const WordList = () => {
         <div ref={observerTarget} style={{ height: "20px" }} />
       </main>
 
-      {/* 🌟 5. 플로팅 추가 버튼 (FAB) - 단어 추가 */}
       <Button
         variant="fab"
         icon={<Plus size={28} />}

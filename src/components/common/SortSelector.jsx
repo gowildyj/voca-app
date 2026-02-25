@@ -1,6 +1,6 @@
 import React from "react";
 import { RotateCcw, ChevronDown, ArrowUpDown } from "lucide-react";
-import "@/styles/components/common/SortSelector.css";
+import "@/styles/components/common/sortSelector.css";
 
 const SortSelector = ({ sortType, setSortType, onShuffle }) => {
   const getSortLabel = () => {

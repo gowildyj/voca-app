@@ -1,23 +1,22 @@
 /* 글로벌 헤더 컨테이너 */
 .v-global-header {
-  /* position: fixed;
-  top: 0;
-  left: 0;
-  right: 0; */
   height: 50px;
-  background-color: var(--bg-main);
+  background-color: var(--bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--border);
   z-index: 1000;
   display: flex;
   justify-content: center;
   flex-shrink: 0;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .v-header-inner {
   width: 100%;
-  max-width: 800px; /* 메인 레이아웃과 통일 */
+  max-width: 800px;
   height: 100%;
   display: flex;
   align-items: center;
@@ -57,7 +56,7 @@
 
 .v-header-title.v-app-logo {
   font-size: 1.15rem;
-  color: var(--primary); /* 👈 메인 컬러로 포인트 */
+  /* color: var(--primary); */
   letter-spacing: -0.5px;
 }
 
@@ -67,15 +66,14 @@
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  background-color: var(--card);
-  /* border: 1px solid var(--border); */
   border-radius: 12px;
   cursor: pointer;
-  transition: transform 0.1s;
+  transition: all 0.2s;
 }
 
 .v-lang-selector-btn:active {
   transform: scale(0.96);
+  opacity: 0.8;
 }
 
 .v-lang-flag {
@@ -88,6 +86,9 @@
 }
 .v-lang-arrow {
   opacity: 0.4;
+  color: var(--text-main);
+  stroke-width: 3.5;
+  transform: scale(1.1);
 }
 
 /* 공통 아이콘 버튼 */
@@ -105,5 +106,5 @@
 }
 
 .v-header-icon-btn:active {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--bg-layer);
 }

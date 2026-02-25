@@ -125,17 +125,10 @@
 
 /* 쫀득한 터치 피드백 유틸리티 */
 .clickable-bounce {
-  transition:
-    transform 0.2s cubic-bezier(0.2, 0, 0.2, 1),
-    box-shadow 0.2s ease,
-    opacity 0.1s ease;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-
 .clickable-bounce:active {
-  transform: scale(0.97);
-  /* 카드의 경우 그림자를 줄여 바닥에 붙는 느낌을 줌 */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-  opacity: 0.9;
+  transform: scale(0.96) !important;
 }

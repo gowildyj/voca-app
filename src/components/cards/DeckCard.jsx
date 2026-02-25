@@ -15,6 +15,7 @@ const DeckCard = ({
 }) => {
   const handleAction = (e, callback) => {
     e.stopPropagation();
+    e.stopPropagation();
     callback?.();
   };
 

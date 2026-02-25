@@ -1,13 +1,13 @@
 /* deckCard.css */
 
 /* 공통: 클릭 시 튕기는 효과 */
-.clickable-bounce {
+/* .clickable-bounce {
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
 }
 .clickable-bounce:active {
   transform: scale(0.95);
-}
+} */
 
 /* 1. 일반 단어장 카드 */
 .deck-card {
@@ -80,30 +80,40 @@
 /* 카드 액션 아이콘 */
 .deck-actions {
   display: flex;
-  gap: 6px;
+  gap: 1px;
   flex-shrink: 0;
+  margin-right: -8px;
 }
 
 .action-icon {
   color: var(--text-sub);
   width: 20px;
   height: 20px;
-  padding: 0px;
-  border-radius: 6px;
-  transition: background-color 0.2s;
+  padding: 6px;
+  box-sizing: content-box;
+  border-radius: 10px;
+  transition: all 0.2s;
+  cursor: pointer;
 }
+
 .action-icon:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--bg-layer);
   color: var(--text-main);
 }
+
+.action-icon.active {
+  color: #fbbf24;
+  fill: #fbbf24;
+  opacity: 1;
+}
+
 .action-icon.danger:hover {
   background-color: #fff1f2;
   color: var(--danger);
 }
 
-.action-icon.active {
-  color: #fbbf24;
-  opacity: 1;
+[data-theme="dark"] .action-icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* 푸터: 진행바 */

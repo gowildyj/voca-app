@@ -29,16 +29,10 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
 
   if (isNextPreview) {
     return (
-      <div className="study-card-container preview">
-        <div className="card-inner">
+      <div className="study-card-container preview next-card-preview">
+        <div className="card-inner preview-mode">
           <div className="card-face card-front">
-            {/* 메인 카드와 동일한 구성 요소 배치 */}
-            {/* <span className="emoji-display">{cardData.emoji || "📝"}</span> */}
             <h2 className="word-text">{cardData.word}</h2>
-            {/* <span className="pronunciation-text">
-              [{cardData.pronunciation}]
-            </span> */}
-            {/* <div className="hint-text"></div> */}
           </div>
         </div>
       </div>
@@ -48,18 +42,18 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
   // === 2. 부모에서 호출할 수 있는 함수 (버튼 클릭 시 스와이프) ===
   useImperativeHandle(ref, () => ({
     swipeRight: async () => {
-      await controls.start({
+      controls.start({
         x: 500,
         opacity: 0,
-        transition: { duration: 0.15, ease: "easeOut" },
+        transition: { duration: 0.1, ease: "easeOut" },
       });
       onSwipe("right");
     },
     swipeLeft: async () => {
-      await controls.start({
+      controls.start({
         x: -500,
         opacity: 0,
-        transition: { duration: 0.15, ease: "easeOut" },
+        transition: { duration: 0.1, ease: "easeOut" },
       });
       onSwipe("left");
     },
@@ -80,11 +74,11 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
     const offset = info.offset.x;
     const velocity = info.velocity.x;
 
-    if (offset > 100 || velocity > 500) {
-      await controls.start({ x: 500, opacity: 0 });
+    if (offset > 50 || velocity > 400) {
+      controls.start({ x: 500, opacity: 0, transition: { duration: 0.1 } });
       onSwipe("right");
-    } else if (offset < -100 || velocity < -500) {
-      await controls.start({ x: -500, opacity: 0 });
+    } else if (offset < -50 || velocity < -400) {
+      controls.start({ x: -500, opacity: 0, transition: { duration: 0.1 } });
       onSwipe("left");
     } else {
       controls.start({ x: 0, opacity: 1 });

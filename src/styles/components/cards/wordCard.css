@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   background-color: var(--card);
-  padding: 10px;
+  padding: 5px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   border: 1px solid rgba(0, 0, 0, 0.03);
@@ -73,22 +73,23 @@
 .v-word-actions {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding-left: 5px;
+  gap: 1px;
+  padding-left: 1px;
   /* border-left: 1px solid var(--border); */
 }
 
 .v-action-icon-btn {
   background: none;
   border: none;
-  padding: 4px;
-  border-radius: 6px;
-  color: #94a3b8;
+  padding: 5px;
+  color: var(--text-sub);
   cursor: pointer;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  box-sizing: content-box;
 }
 
 .v-action-icon-btn:hover {

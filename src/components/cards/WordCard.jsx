@@ -47,7 +47,7 @@ const WordCard = React.memo(
 
     return (
       <div className={`v-word-card ${statusClass} clickable-bounce`}>
-        {/* [섹션 1] 오디오 버튼 */}
+        {/* 오디오 버튼 */}
         <div className="v-word-icon-section">
           <button
             className="v-word-audio-btn"
@@ -61,27 +61,25 @@ const WordCard = React.memo(
           </button>
         </div>
 
-        {/* [섹션 2] 단어 본문 */}
+        {/* 단어 본문 */}
         <div
           className="v-word-body"
           onClick={handleBodyClick}
           style={{ cursor: hideMode ? "pointer" : "default" }}
         >
           <div className="v-word-main-wrapper">
-            {/* 🌟 수정: v-masked 클래스 바인딩 */}
             <span className={`v-word-main ${isWordHidden ? "v-masked" : ""}`}>
               {item.word}
             </span>
           </div>
-          {/* 🌟 수정: v-masked 클래스 바인딩 */}
           <span className={`v-word-sub ${isMeaningHidden ? "v-masked" : ""}`}>
             {item.meaning}
           </span>
         </div>
 
-        {/* [섹션 3] 액션 버튼 (세로 배치) */}
+        {/* 액션 버튼 (세로 배치) */}
         <div className="v-word-actions">
-          {/* <button
+          <button
             className={`v-action-icon-btn favorite ${item.isFavorite ? "active" : ""}`}
             onClick={(e) => {
               e.stopPropagation();
@@ -90,7 +88,7 @@ const WordCard = React.memo(
             aria-label="즐겨찾기"
           >
             <Heart size={16} fill={item.isFavorite ? "currentColor" : "none"} />
-          </button> */}
+          </button>
 
           <button
             className="v-action-icon-btn"

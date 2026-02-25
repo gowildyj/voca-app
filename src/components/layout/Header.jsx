@@ -21,7 +21,6 @@ const Header = ({
 
   const currentRoute = AppRoutesData.find((route) => {
     if (route.path === "/") return location.pathname === "/";
-    // 정규표현식 없이 간단하게 경로 매칭
     return location.pathname.startsWith(route.path.split("/:")[0]);
   });
 
@@ -34,7 +33,6 @@ const Header = ({
         <div className="v-header-side left">
           {isHome ? (
             <div className="v-lang-selector-btn" onClick={onOpenLangModal}>
-              {/* 🌟 고정된 🇪🇸 Spanish 대신 전달받은 데이터를 출력합니다. */}
               <span className="v-lang-flag">{currentLangIcon}</span>
               <span className="v-lang-name">{currentLangLabel}</span>
               <HiOutlineChevronDown size={14} className="v-lang-arrow" />

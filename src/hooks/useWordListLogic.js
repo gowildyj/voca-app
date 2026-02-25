@@ -20,7 +20,7 @@ export const useWordListLogic = (localWords = []) => {
   const [shuffleSeed, setShuffleSeed] = useState(() =>
     Math.floor(Math.random() * 1000),
   );
-  const [displayLimit, setDisplayLimit] = useState(30);
+  const [displayLimit, setDisplayLimit] = useState(20);
 
   // URL 파라미터 추출
   const filter = searchParams.get("filter") || "all";
@@ -34,7 +34,7 @@ export const useWordListLogic = (localWords = []) => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(searchQuery);
-      setDisplayLimit(30); // 검색 시 스크롤 위치 리셋 효과
+      setDisplayLimit(20); // 검색 시 스크롤 위치 리셋 효과
     }, 300); // 0.3초 대기
 
     return () => clearTimeout(handler);
@@ -42,6 +42,8 @@ export const useWordListLogic = (localWords = []) => {
 
   // --- [3] 필터링 및 정렬 (핵심 로직) ---
   const filteredWords = useMemo(() => {
+    // console.log("입력받은 localWords:", localWords?.length);
+
     // 1. 유효성 검사 및 초기 필터링
     let result = localWords.filter((w) => {
       const wordText = w.word?.trim() || "";
@@ -80,6 +82,7 @@ export const useWordListLogic = (localWords = []) => {
         break;
     }
 
+    // console.log("필터링 후 결과 개수:", result.length);
     return result;
   }, [localWords, filter, debouncedQuery, sortType, shuffleSeed]);
 
@@ -100,7 +103,7 @@ export const useWordListLogic = (localWords = []) => {
         prev.set(key, value);
         return prev;
       });
-      setDisplayLimit(30);
+      setDisplayLimit(20);
     },
     [setSearchParams],
   );
@@ -121,7 +124,7 @@ export const useWordListLogic = (localWords = []) => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          setDisplayLimit((prev) => prev + 30);
+          setDisplayLimit((prev) => prev + 20);
         }
       },
       { threshold: 0.1, rootMargin: "150px" },
@@ -140,6 +143,7 @@ export const useWordListLogic = (localWords = []) => {
     sortType,
     searchQuery,
     filterCounts,
+    filteredWords,
     displayWords: filteredWords.slice(0, displayLimit),
     totalCount: filteredWords.length,
     setSearchQuery,

@@ -80,8 +80,6 @@
   }
 }
 
-/* wordList.css 추가분 */
-
 .v-word-list-intro {
   padding: 12px 16px 0px;
   background-color: var(--bg);
@@ -96,26 +94,45 @@
 
 .v-intro-actions {
   display: flex;
-  gap: 3px;
+  gap: 2px;
+  align-items: center;
+  margin-right: -4px;
 }
 
 .v-icon-action-btn {
+  width: auto;
+  height: auto;
+  padding: 8px;
+
   background: none;
   border: none;
-  padding: 5px;
   color: var(--text-sub);
-  border-radius: 8px;
-  transition: background-color 0.2s;
   cursor: pointer;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
 
-.v-icon-action-btn:hover {
-  background-color: #fff1f2;
+.v-icon-action-btn svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.v-icon-action-btn:active {
+  background-color: var(--bg-layer);
+  transform: scale(0.92);
 }
 
 .v-icon-action-btn.danger:hover {
-  background-color: #fef2f2;
+  background-color: #fff1f2;
   color: var(--danger);
+}
+
+[data-theme="dark"] .v-icon-action-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .v-intro-content {

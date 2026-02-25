@@ -61,8 +61,3 @@
   appearance: none;
   -webkit-appearance: none;
 }
-
-/* 다크모드 대응 */
-[data-theme="dark"] .v-sort-select-box {
-  background-color: var(--bg-layer);
-}

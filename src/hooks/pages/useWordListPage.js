@@ -38,6 +38,9 @@ export const useWordListPage = (deckId) => {
   // 4. 필터/정렬 로직 (기존 유지)
   const logic = useWordListLogic(words);
 
+  // console.log("원본 words 데이터 개수:", words?.length);
+  // console.log("logic에서 계산된 filteredWords:", logic.filteredWords?.length);
+
   // ============================================================
   // 🌟 5. 핵심: onSubmit이 주입된 핸들러들 만들기
   // ============================================================
@@ -122,7 +125,6 @@ export const useWordListPage = (deckId) => {
 
   return {
     ...logic,
-    allFilteredWords: logic.filteredWords,
     currentDeck,
     loading,
     totalCount: words.length,

@@ -21,6 +21,7 @@ const WordList = () => {
   const {
     currentDeck,
     displayWords,
+    filteredWords,
     loading,
     filter: currentFilter,
     sortType,
@@ -42,6 +43,7 @@ const WordList = () => {
 
   // console.log("currentDeck", currentDeck);
   // console.log("displayWords", displayWords);
+  // console.log("filteredWords:", filteredWords);
 
   if (loading && !currentDeck) return <div className="v-loader" />;
 
@@ -84,10 +86,10 @@ const WordList = () => {
         <HeroCard
           variant="banner"
           title="학습 시작"
-          subTitle={`${displayWords.length}개의 단어 준비됨`}
+          subTitle={`${filteredWords?.length || 0}개의 단어 준비됨`}
           onClick={() =>
             navigate(`/study/${deckId}`, {
-              state: { filteredIds: displayWords.map((w) => w.id) },
+              state: { filteredIds: filteredWords.map((w) => w.id) },
             })
           }
         />

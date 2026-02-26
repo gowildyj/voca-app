@@ -1,336 +1,150 @@
-/* studyCard.css */
-
+/* 전체 컨테이너: 카드의 위치와 원근감(perspective) 설정 */
 .study-card-container {
-  width: 100%;
-  height: 100%;
-  perspective: 1000px;
-  position: relative;
-  background-color: transparent;
-}
-
-/* --- 뒷장 카드 효과 --- */
-
-/* .next-card-preview {
   position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
-  z-index: 5;
-  transform: translateY(12px) scale(0.94);
-  opacity: 0.5;
-  pointer-events: none;
-  transition: all 0.3s ease;
-} */
-
-.card-motion-wrapper {
-  width: 100%;
-  height: 100%;
-  position: relative;
+  max-width: 340px;
+  height: 480px;
+  perspective: 1000px; /* 3D 효과를 위한 필수 속성 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  touch-action: none; /* 드래그 시 브라우저 스크롤 방지 */
   cursor: grab;
-  z-index: 10;
-  background-color: red;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.card-motion-wrapper:active {
+.study-card-container:active {
   cursor: grabbing;
 }
 
-.card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  transform-style: preserve-3d;
-  border-radius: 24px;
-  /* background-color: var(--border); */
-  background-color: orange;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-  z-index: 20;
-  overflow: hidden;
-}
-
-.card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  transform-style: preserve-3d;
-  border-radius: 24px;
-  /* 🌟 테스트용 orange 대신 테두리 컬러가 잘 보이도록 배경 설정 */
-  background-color: var(--border);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-  z-index: 20;
-  /* overflow: hidden;  <-- 이 줄이 있으면 3D 회전 시 뒷면이 잘릴 수 있으니 주의! */
-}
-
-.card-inner.preview-mode {
-  background-color: var(--border);
-}
-
-.card-face.card-front {
-  margin: 2px;
-  width: calc(100% - 4px);
-  height: calc(100% - 4px);
-
-  background-color: var(--card);
-  z-index: 2;
-}
-
-/* 다크모드일 때 테두리 색상 강조 */
-[data-theme="dark"] .card-inner {
-  background-color: var(--bg-layer);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* --- 아이콘 레이어 (스코핑 적용) --- */
-.card-icons-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 50;
-  transform: translateZ(1px);
-}
-
-/* .card-icons-layer 아래의 .icon-btn 만 적용 */
-.card-icons-layer .icon-btn {
-  position: absolute;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #9ca3af;
-  padding: 12px;
-  pointer-events: auto;
-  transition:
-    color 0.2s,
-    transform 0.1s;
-  width: auto; /* 헤더 스타일 오버라이드 방지 */
-  height: auto;
-}
-
-.card-icons-layer .icon-btn:active {
-  transform: scale(0.9);
-}
-
-.card-icons-layer .icon-btn.volume {
-  top: 12px;
-  left: 12px;
-}
-
-.card-icons-layer .icon-btn.star {
-  top: 12px;
-  right: 12px;
-}
-
-/* --- 앞/뒤 공통 --- */
-.card-face {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  border-radius: 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
-  box-sizing: border-box;
-}
-
-.card-front {
-  background: var(--bg-layer);
-}
-
-.card-back {
-  background-color: var(--bg-layer);
-  transform: rotateY(180deg);
-  justify-content: flex-start;
-  padding-top: 80px;
-}
-
-/* 텍스트 스타일 */
-.emoji-display {
-  font-size: 5rem;
-  margin-bottom: 24px;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-}
-
-.word-text {
-  font-size: 2.4rem;
-  font-weight: 800;
-  color: #1f2937;
-  margin-bottom: 8px;
-}
-
-[data-theme="dark"] .word-text {
-  color: var(--text-main);
-}
-
-[data-theme="dark"] .meaning-text {
-  color: var(--text-main);
-}
-
-.pronunciation-text {
-  font-size: 1.1rem;
-  color: #6b7280;
-  font-family: monospace;
-  background-color: #f3f4f6;
-  padding: 4px 12px;
-  border-radius: 8px;
-}
-
-.hint-text {
-  position: absolute;
-  bottom: 40px;
-  opacity: 0.4;
-  font-size: 0.9rem;
-}
-
-/* 뒷면 내용 */
-.part-of-speech {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #d97706;
-  background-color: #fef3c7;
-  padding: 4px 12px;
-  border-radius: 20px;
-  margin-bottom: 20px;
-}
-
-.meaning-text {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 32px;
-  line-height: 1.3;
-}
-
-.example-box {
-  background-color: rgba(255, 255, 255, 0.7);
-  width: 100%;
-  padding: 20px;
-  border-radius: 16px;
-  text-align: left;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-/* --- 다음에 나올 카드 프리뷰 스타일 --- */
-
-/* studyCard.css */
-
-.card-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  transform-style: preserve-3d;
-  border-radius: 24px;
-  background: var(--bg-layer);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-  z-index: 20;
-}
-
-.card-face {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  /* 🌟 수정: 뒷면이 보이지 않도록 설정 */
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  border-radius: 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
-  box-sizing: border-box;
-  background: var(--bg-layer);
-}
-
-/* 앞면 배경은 그라데이션을 쓰더라도 투명도가 없어야 함 */
-.card-front {
-  background: var(--border);
-  z-index: 2;
-}
-
-/* 뒷면 배경 */
-.card-back {
-  background-color: var(--border);
-  transform: rotateY(180deg);
-  z-index: 1;
-}
-
-[data-theme="dark"] .card-front,
-.card-back {
-  background-color: var(--text-sub);
-}
-
-/* studySession.css 혹은 studyCard.css */
-
-/* .study-card-area {
-  position: relative;
-  width: 100%;
-  height: 480px;
-} */
-
-/* 뒤에 깔린 카드 (모달의 아래 레이어) */
+/* 다음 카드 미리보기 스타일 */
 .next-card-preview {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  transform: translateY(8px) scale(0.96);
+  z-index: 1 !important;
   opacity: 1;
   pointer-events: none;
-  /* transition:
-    transform 0.1s ease-out,
-    opacity 0.1s ease-out; */
 }
 
-.study-card-container:not(.preview) {
-  position: relative;
-  z-index: 10;
-  will-change: transform, opacity;
-}
-
-/*-------*
-/* studySession.css 혹은 studyCard.css */
-
-.study-card-area {
-  position: relative;
-  width: 100%;
-  height: 480px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* 뒤에 대기 중인 카드 (앞 카드와 똑같은 위치/사이즈) */
-.next-card-preview {
-  position: absolute;
-  top: 10px; /* StudyCard의 padding/margin 고려하여 위치 조정 */
-  left: 20px;
-  right: 20px;
-  bottom: 10px;
-  width: auto;
-  height: auto;
-  z-index: 1; /* 앞 카드보다 뒤에 배치 */
-
-  /* 🌟 수정: 애니메이션 효과(scale, translateY)를 모두 제거 */
-  transform: none;
-  opacity: 1; /* 투명도 없이 선명하게 대기 */
-  pointer-events: none;
-  transition: none; /* 상태 전환 시 지연 시간 삭제 */
+.next-card-preview .card-face {
+  background-color: var(--card);
+  box-shadow: none;
+  /* border: 1px solid #e2e8f0;  */
 }
 
 /* 현재 조작 중인 카드 */
 .study-card-container:not(.preview) {
+  z-index: 10;
+}
+
+/* Framer Motion Wrapper */
+.card-motion-wrapper {
+  width: 100%;
+  height: 100%;
   position: relative;
-  z-index: 10; /* 앞 카드가 뒤 카드를 완벽히 덮음 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 카드 본체: 앞면과 뒷면을 감싸는 부모 */
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d; /* 자식 요소들의 3D 위치 보존 */
+  border-radius: 24px;
+  background-color: var(--card);
+  /* box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); */
+}
+
+/* 카드 면(앞/뒤) 공통 스타일 */
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden; /* 뒤집혔을 때 뒷면이 안 보이게 설정 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  border-radius: 24px;
+  text-align: center;
+}
+
+/* 앞면 스타일 */
+.card-front {
+  background-color: var(--card);
+  z-index: 2;
+}
+
+/* 뒷면 스타일 (처음부터 180도 회전되어 있음) */
+.card-back {
+  background-color: var(--card);
+  transform: rotateY(180deg);
+}
+
+/* 텍스트 스타일링 */
+.word-text,
+.next-card-preview {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+  word-break: keep-all;
+}
+
+.meaning-text {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text-main);
+  word-break: keep-all;
+}
+
+.hint-text {
+  position: absolute;
+  bottom: 2rem;
+  font-size: 0.9rem;
+  color: var(--text-sub);
+}
+
+/* 상단 아이콘 레이어 (스피커, 즐겨찾기) */
+.card-icons-layer {
+  position: absolute;
+  top: 1.5rem;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  z-index: 10;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  color: #64748b;
+}
+
+.icon-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.icon-btn.volume:active {
+  color: #3b82f6;
+}
+
+.icon-btn.star:active {
+  color: #eab308;
+}
+
+/* 프리뷰 모드일 때 */
+.preview-mode {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  pointer-events: none;
 }

@@ -96,6 +96,21 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
     if (Math.abs(x.get()) < 5) setIsFlipped(!isFlipped);
   };
 
+  // Space, Enter 피드백
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.code === "Space" || e.key === " ") {
+        if (e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA") {
+          e.preventDefault();
+          handleFlip();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleFlip]);
+
   const getBorderStyle = () => {
     if (swipeDirection === "right") return "#10b981";
     if (swipeDirection === "left") return "#ef4444";
@@ -104,12 +119,26 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
 
   if (!cardData) return null;
 
+  // 다음 카드 프리뷰 모드
   if (isNextPreview) {
     return (
       <div className="study-card-container preview next-card-preview">
-        <div className="card-inner preview-mode">
-          <div className="card-face card-front">
-            <h2 className="word-text">{cardData.word}</h2>
+        <div className="card-motion-wrapper">
+          <div
+            className="card-inner preview-mode"
+            style={{ border: "2px solid transparent" }}
+          >
+            <div className="card-icons-layer">
+              <button className="icon-btn volume">
+                <Volume2 size={24} />
+              </button>
+              <button className="icon-btn star">
+                <Star size={24} />
+              </button>
+            </div>
+            <div className="card-face card-front">
+              <span className="word-text">{cardData.word}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -120,6 +149,13 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
     <div className="study-card-container">
       <motion.div
         className="card-motion-wrapper"
+        tabIndex="0"
+        onKeyDown={(e) => {
+          if (e.key === " " || e.code === "Space") {
+            e.preventDefault();
+            handleFlip();
+          }
+        }}
         drag={true}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
         dragElastic={1}
@@ -133,7 +169,7 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
           animate={{ rotateY: isFlipped ? 180 : 0 }}
           transition={{ duration: 0.3 }}
           style={{
-            border: "3px solid",
+            border: "2px solid",
             borderColor: getBorderStyle(),
             transition: "border-color 0.1s ease",
           }}
@@ -160,12 +196,12 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
           </div>
 
           <div className="card-face card-front">
-            <h2 className="word-text">{cardData.word}</h2>
-            <div className="hint-text">클릭해서 뜻 보기</div>
+            <span className="word-text">{cardData.word}</span>
+            {/* <div className="hint-text">클릭해서 뜻 보기</div> */}
           </div>
 
           <div className="card-face card-back">
-            <h3 className="meaning-text">{cardData.meaning}</h3>
+            <span className="meaning-text">{cardData.meaning}</span>
           </div>
         </motion.div>
       </motion.div>

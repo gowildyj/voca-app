@@ -71,7 +71,7 @@
 .word-text {
   font-weight: 700;
   font-size: 1.05rem;
-  color: var(--text);
+  color: var(--text--main);
   line-height: 1.4;
 
   /* 문장 줄바꿈 처리 */

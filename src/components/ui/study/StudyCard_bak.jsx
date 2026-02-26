@@ -14,22 +14,22 @@ import { Volume2, Star } from "lucide-react";
 import "@/styles/components/ui/study/studyCard.css";
 
 const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
+  // === 1. 상태 및 애니메이션 값 선언 (순서 중요!) ===
   const [isFlipped, setIsFlipped] = useState(false);
-  const [swipeDirection, setSwipeDirection] = useState(null);
+  const [swipeDirection, setSwipeDirection] = useState(null); // 'left', 'right', null
 
   const x = useMotionValue(0);
-  const y = useMotionValue(0);
   const controls = useAnimation();
-
-  // 회전은 x축 이동에만 반응
   const rotate = useTransform(x, [-200, 200], [-25, 25]);
 
-  // 테두리 피드백
+  // === 2. 실시간 드래그 감지 (테두리 색상 피드백용) ===
+  // === 2. 실시간 드래그 감지 (테두리 색상 피드백용) ===
   useEffect(() => {
     const unsubscribe = x.on("change", (latestX) => {
-      if (latestX > 50) {
+      // 🌟 오직 거리(100px)만 기준으로 테두리 불을 켭니다.
+      if (latestX > 100) {
         setSwipeDirection("right");
-      } else if (latestX < -50) {
+      } else if (latestX < -100) {
         setSwipeDirection("left");
       } else {
         setSwipeDirection(null);
@@ -41,13 +41,12 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
   // 데이터 변경 시 초기화
   useEffect(() => {
     x.set(0);
-    y.set(0);
-    controls.set({ x: 0, y: 0, opacity: 1 });
+    controls.set({ x: 0, opacity: 1 });
     setIsFlipped(false);
     setSwipeDirection(null);
-  }, [cardData, x, y, controls]);
+  }, [cardData, x, controls]);
 
-  // 버튼 클릭 스와이프 (부모 호출용)
+  // === 3. 외부 호출 함수 (하단 버튼 클릭용) ===
   useImperativeHandle(ref, () => ({
     swipeRight: async () => {
       setSwipeDirection("right");
@@ -69,26 +68,40 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
     },
   }));
 
-  // 드래그 종료 핸들러
+  // === 4. 드래그 종료 핸들러 (판정 로직) ===
+  // === 4. 드래그 종료 핸들러 (판정 로직) ===
   const handleDragEnd = async (event, info) => {
-    const offset = info.offset.x;
+    // 🌟 핵심: info.offset 대신 실제 카드의 위치(x.get())와
+    // 이미 계산된 swipeDirection을 활용합니다.
 
-    if (offset > 50) {
+    const velocity = info.velocity.x;
+
+    // 1. 오른쪽 판정: 테두리 불이 켜져 있거나, (중앙보다 오른쪽에 있으면서 휙 던졌을 때)
+    if (swipeDirection === "right" || (x.get() > 20 && velocity > 400)) {
       await controls.start({
         x: 500,
         opacity: 0,
         transition: { duration: 0.1 },
       });
       onSwipe("right");
-    } else if (offset < -50) {
+    }
+    // 2. 왼쪽 판정: 테두리 불이 켜져 있거나, (중앙보다 왼쪽에 있으면서 휙 던졌을 때)
+    else if (swipeDirection === "left" || (x.get() < -20 && velocity < -400)) {
       await controls.start({
         x: -500,
         opacity: 0,
         transition: { duration: 0.1 },
       });
       onSwipe("left");
-    } else {
-      controls.start({ x: 0, y: 0, opacity: 1 });
+    }
+    // 3. 그 외: 테두리 불도 안 켜졌고 툭 던지지도 않았다면 복귀!
+    else {
+      controls.start({
+        x: 0,
+        opacity: 1,
+        transition: { type: "spring", stiffness: 300, damping: 20 },
+      });
+      setSwipeDirection(null);
     }
   };
 
@@ -104,6 +117,7 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
 
   if (!cardData) return null;
 
+  // 다음 카드 프리뷰 모드
   if (isNextPreview) {
     return (
       <div className="study-card-container preview next-card-preview">
@@ -120,12 +134,11 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
     <div className="study-card-container">
       <motion.div
         className="card-motion-wrapper"
-        drag={true}
-        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={1}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
         onDragEnd={handleDragEnd}
         animate={controls}
-        style={{ x, y, rotate }}
+        style={{ x, rotate, transformOrigin: "center 800px" }}
         onClick={handleFlip}
       >
         <motion.div
@@ -138,6 +151,7 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
             transition: "border-color 0.1s ease",
           }}
         >
+          {/* 아이콘 레이어 */}
           <div className="card-icons-layer">
             <button
               className="icon-btn volume"

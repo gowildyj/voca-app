@@ -889,7 +889,7 @@ const DesignGuide = () => {
         </section>
 
         {/* 17. Study Session Section */}
-        {/* <section className="component-section">
+        <section className="component-section">
           <h3 className="section-title">17. Study Session</h3>
           <div className="component-display">
             <div className="component-item">
@@ -897,7 +897,7 @@ const DesignGuide = () => {
               <StudySession />
             </div>
           </div>
-        </section> */}
+        </section>
 
         {/* 신규 컴포넌트를 추가할 때 아래 구조를 복사해서 쓰세요 */}
         {/* <section className="component-section">

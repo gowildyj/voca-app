@@ -71,18 +71,22 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
 
   // === 4. 드래그 종료 핸들러 ===
   const handleDragEnd = async (event, info) => {
-    const offset = info.offset.x;
-    const velocity = info.velocity.x;
+    const offset = info.offset.x; // 이동거리
+    const velocity = info.velocity.x; // 속도
 
-    if (offset > 50 || velocity > 400) {
+    if (offset > 100 || velocity > 500) {
       controls.start({ x: 500, opacity: 0, transition: { duration: 0.1 } });
       onSwipe("right");
-    } else if (offset < -50 || velocity < -400) {
+    } else if (offset < -100 || velocity < -500) {
       controls.start({ x: -500, opacity: 0, transition: { duration: 0.1 } });
       onSwipe("left");
-    } else {
-      controls.start({ x: 0, opacity: 1 });
     }
+    controls.start({
+      x: 0,
+      y: 0,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 300, damping: 20 },
+    });
   };
 
   const handleFlip = () => {
@@ -98,8 +102,10 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
 
       <motion.div
         className="card-motion-wrapper"
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
+        // drag="x"
+        // dragConstraints={{ left: 0, right: 0 }}
+        drag={true}
+        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
         onDragEnd={handleDragEnd}
         animate={controls}
         style={{ x, rotate }}
@@ -109,9 +115,9 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
         <motion.div
           className="card-inner"
           animate={{ rotateY: isFlipped ? 180 : 0 }}
-          transition={{ duration: 0.3 }} // 회전 속도 0.6 -> 0.3s로 단축
+          transition={{ duration: 0.3 }}
           style={{
-            border: "3px solid transparent", // 테두리 두께 살짝 키움
+            border: "3px solid transparent",
             borderColor: borderColor,
           }}
         >

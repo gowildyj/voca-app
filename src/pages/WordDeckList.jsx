@@ -7,6 +7,7 @@ import "@/styles/pages/wordDeckList.css";
 import SearchBar from "@/components/common/SearchBar";
 import Button from "@/components/common/Button";
 import DeckCard from "@/components/cards/DeckCard";
+import AddDeckCard from "@/components/cards/AddDeckCard";
 
 // 라우트 및 커스텀 훅
 import { ROUTES, generatePath } from "@/routes/AppRoutes";
@@ -76,12 +77,8 @@ const WordDeckList = ({ currentLangValue }) => {
               ))}
             </div>
           ) : (
-            <div className="v-empty-state">
-              <p>
-                {searchQuery
-                  ? "검색 결과가 없습니다. 🔍"
-                  : "해당 언어의 단어장이 아직 없어요! 😅"}
-              </p>
+            <div className="v-empty-container">
+              <AddDeckCard searchQuery={searchQuery} onClick={onAddDeck} />
             </div>
           )}
         </main>

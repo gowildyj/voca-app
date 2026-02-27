@@ -18,6 +18,7 @@
   /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); */
   border: 1px solid var(--border);
   transition: all 0.2s ease;
+  overflow: hidden;
 }
 
 .v-search-bar:focus-within {
@@ -27,6 +28,7 @@
 
 .v-search-input {
   flex: 1;
+  min-width: 0;
   border: none;
   background: transparent;
   color: var(--text-main);
@@ -52,6 +54,7 @@
 
 /* 검색어 지우기 버튼 */
 .v-search-clear-btn {
+  flex-shrink: 0;
   background: none;
   border: none;
   padding: 4px;

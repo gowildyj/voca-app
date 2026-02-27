@@ -5,19 +5,20 @@ import "@/styles/pages/wordList.css";
 
 import Button from "@/components/common/Button";
 import HeroCard from "@/components/cards/HeroCard";
-import ComplexFilterBar from "@/components/common/ComplexFilterBar";
 import SearchBar from "@/components/common/SearchBar";
 import FilterTabs from "@/components/common/FilterTabs";
 import VisibilityToggle from "@/components/common/VisibilityToggle";
 import SortSelector from "@/components/common/SortSelector";
 import WordCard from "@/components/cards/WordCard";
+import AddWordCard from "@/components/cards/AddWordCard";
 import { playText } from "@/utils/ttsUtils";
-import { useWordListPage } from "@/hooks/pages/useWordListPage";
+import { useWordList } from "@/hooks/pages/useWordList";
 
 const WordList = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
 
+  // 🌟 useWordList 사용 (모든 로직이 이 안에 들어있습니다)
   const {
     currentDeck,
     displayWords,
@@ -39,12 +40,9 @@ const WordList = () => {
     onEditDeck,
     onDeleteDeck,
     onBulkEdit,
-  } = useWordListPage(deckId);
+  } = useWordList(deckId);
 
-  // console.log("currentDeck", currentDeck);
-  // console.log("displayWords", displayWords);
-  // console.log("filteredWords:", filteredWords);
-
+  // 로딩 중이면서 아직 덱 정보가 없을 때만 로더 표시
   if (loading && !currentDeck) return <div className="v-loader" />;
 
   const filterOptions = [
@@ -56,19 +54,32 @@ const WordList = () => {
 
   return (
     <div className="v-word-list-page">
+      {/* 1. 헤더 영역 (단어장 정보 및 관리 버튼) */}
       <header className="v-word-list-intro">
         <div className="v-intro-top">
           <h1 className="v-deck-title">
             {currentDeck?.name || currentDeck?.deck_name || "단어장"}
           </h1>
           <div className="v-intro-actions">
-            <button className="v-icon-action-btn" onClick={onBulkEdit}>
+            <button
+              className="v-icon-action-btn"
+              onClick={onBulkEdit}
+              title="일괄 편집"
+            >
               <FilePenLine size={16} />
             </button>
-            <button className="v-icon-action-btn" onClick={onEditDeck}>
+            <button
+              className="v-icon-action-btn"
+              onClick={onEditDeck}
+              title="단어장 수정"
+            >
               <PencilLine size={16} />
             </button>
-            <button className="v-icon-action-btn danger" onClick={onDeleteDeck}>
+            <button
+              className="v-icon-action-btn danger"
+              onClick={onDeleteDeck}
+              title="단어장 삭제"
+            >
               <Trash2 size={16} />
             </button>
           </div>
@@ -82,6 +93,7 @@ const WordList = () => {
         </div>
       </header>
 
+      {/* 2. 학습 시작 배너 */}
       <section className="v-word-list-header">
         <HeroCard
           variant="banner"
@@ -95,6 +107,7 @@ const WordList = () => {
         />
       </section>
 
+      {/* 3. 검색바 */}
       <section className="v-word-list-controls">
         <SearchBar
           value={searchQuery}
@@ -103,6 +116,7 @@ const WordList = () => {
         />
       </section>
 
+      {/* 4. 필터 탭 (전체/미학습/몰라/알아) */}
       <section className="v-word-list-controls">
         <FilterTabs
           filters={filterOptions}
@@ -112,6 +126,7 @@ const WordList = () => {
         />
       </section>
 
+      {/* 5. 하단 컨트롤러 (가리기 모드, 정렬) */}
       <section className="v-word-list-controls">
         <div className="bottom-control-bar">
           <VisibilityToggle hideMode={hideMode} onToggleMode={onToggleMode} />
@@ -123,22 +138,29 @@ const WordList = () => {
         </div>
       </section>
 
-      {/* 단어 카드 리스트 */}
+      {/* 6. 단어 카드 목록 (무한 스크롤 적용) */}
       <main className="v-word-card-stack">
-        {displayWords.map((item) => (
-          <WordCard
-            key={item.id}
-            item={item}
-            hideMode={hideMode}
-            onPlay={(word) => playText(word, currentDeck?.language)}
-            onEdit={() => onEditWord(item)}
-            onDelete={() => onDeleteWord(item)}
-          />
-        ))}
-        {/* 무한 스크롤용 옵저버 */}
-        <div ref={observerTarget} style={{ height: "20px" }} />
+        {displayWords.length > 0 ? (
+          displayWords.map((item) => (
+            <WordCard
+              key={item.id}
+              item={item}
+              hideMode={hideMode}
+              // 단어장의 언어 설정에 맞춰 TTS 실행
+              onPlay={(word) => playText(word, currentDeck?.language)}
+              onEdit={() => onEditWord(item)}
+              onDelete={() => onDeleteWord(item.id)} // id를 넘기도록 일치화
+            />
+          ))
+        ) : (
+          <AddWordCard searchQuery={searchQuery} onClick={onAddWord} />
+        )}
+
+        {/* 무한 스크롤용 관찰 대상 */}
+        <div ref={observerTarget} style={{ height: "40px" }} />
       </main>
 
+      {/* 7. 플로팅 액션 버튼 (단어 추가) */}
       <Button
         variant="fab"
         icon={<Plus size={28} />}

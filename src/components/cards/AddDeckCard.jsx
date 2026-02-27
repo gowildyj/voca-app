@@ -2,18 +2,30 @@ import React from "react";
 import { HiOutlinePlus } from "react-icons/hi2";
 
 /**
- * [AddDeckCard]
- * 리스트의 마지막에 위치하여 새로운 항목을 추가하는 트리거 역할을 합니다.
- * @param {string} label - 표시할 문구 (기본값: 새 단어장)
- * @param {function} onClick - 클릭 시 실행할 함수 (예: 모달 오픈)
+ * [AddDeckCard] 가로형 레이아웃 + 메인/서브 텍스트 분리
  */
-const AddDeckCard = ({ label = "새 단어장", onClick }) => {
+const AddDeckCard = ({ searchQuery, onClick }) => {
+  // 검색어 유무에 따른 동적 문구 설정
+  const mainText = searchQuery
+    ? `'${searchQuery}' 결과가 없습니다.`
+    : "새 단어장 만들기";
+
+  const subText = searchQuery
+    ? "이 이름으로 새 단어장을 만들까요?"
+    : "나만의 단어장을 추가해 보세요. 🚀";
+
   return (
     <div className="deck-card-add-trigger clickable-bounce" onClick={onClick}>
-      <div className="add-card-icon-wrapper">
-        <HiOutlinePlus size={24} />
+      <div className="add-card-icon-section">
+        <div className="add-card-icon-wrapper">
+          <HiOutlinePlus size={24} />
+        </div>
       </div>
-      <span className="add-card-text">{label}</span>
+
+      <div className="add-card-body-section">
+        <span className="add-card-text-main">{mainText}</span>
+        <span className="add-card-text-sub">{subText}</span>
+      </div>
     </div>
   );
 };

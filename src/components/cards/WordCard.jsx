@@ -4,7 +4,15 @@ import { playText } from "@/utils/ttsUtils";
 import "@/styles/components/cards/wordCard.css";
 
 const WordCard = React.memo(
-  ({ item, onEdit, onDelete, onPlay, onToggleFavorite, hideMode }) => {
+  ({
+    item,
+    onAddWord,
+    onEdit,
+    onDelete,
+    onPlay,
+    onToggleFavorite,
+    hideMode,
+  }) => {
     const [tempShow, setTempShow] = useState(false);
 
     useEffect(() => {
@@ -13,7 +21,6 @@ const WordCard = React.memo(
 
     if (!item) return null;
 
-    const isGuide = item.isGuide || false;
     const statusClass = item.status ? `status-${item.status}` : "";
     const isWordHidden = hideMode === "word" && !tempShow;
     const isMeaningHidden = hideMode === "meaning" && !tempShow;
@@ -23,27 +30,6 @@ const WordCard = React.memo(
         setTempShow((prev) => !prev);
       }
     }, [hideMode]);
-
-    // 1. 가이드 모드 (데이터가 없을 때 표시되는 빈 카드)
-    if (isGuide) {
-      return (
-        <div className="v-word-card guide-mode">
-          <div className="v-word-icon-section">
-            <Sparkles size={22} className="guide-icon" />
-          </div>
-          <div className="v-word-body">
-            <span className="v-word-main">첫 단어를 추가해보세요!</span>
-            <span className="v-word-sub">우측 하단 + 버튼을 눌러주세요</span>
-          </div>
-          {/* 일반 카드와 크기를 맞추기 위해 보이지 않는 액션 영역 유지 */}
-          <div className="v-word-actions" style={{ visibility: "hidden" }}>
-            <div className="v-action-icon-btn">
-              <Edit3 size={18} />
-            </div>
-          </div>
-        </div>
-      );
-    }
 
     return (
       <div className={`v-word-card ${statusClass} clickable-bounce`}>

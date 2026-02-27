@@ -1,3 +1,4 @@
+// src/componenets/layout/MainLayout.jsx
 import React from "react";
 
 /**
@@ -8,7 +9,7 @@ const MainLayout = ({ children, header, bottomNav, modals }) => {
   return (
     <div className="v-app-layout">
       {/* 고정 헤더 영역 */}
-      {header && <div className="v-layout-header">{header}</div>}
+      {header}
 
       {/* 메인 컨텐츠 영역 (스크롤 발생 구역) */}
       <main className="v-page-container">{children}</main>

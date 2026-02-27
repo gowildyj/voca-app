@@ -8,6 +8,7 @@ import {
 } from "react-icons/hi2";
 import { AppRoutesData } from "@/routes/AppRoutes";
 import "@/styles/layout/header.css";
+import { useScrollDirection } from "@/hooks/useScrollDirection";
 
 const Header = ({
   onOpenLangModal,
@@ -18,6 +19,7 @@ const Header = ({
   const navigate = useNavigate();
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const isVisible = useScrollDirection();
 
   const currentRoute = AppRoutesData.find((route) => {
     if (route.path === "/") return location.pathname === "/";
@@ -27,7 +29,7 @@ const Header = ({
   const displayTitle = isHome ? "동동구리" : currentRoute?.title || "동동구리";
 
   return (
-    <header className="v-global-header">
+    <header className={`v-layout-header ${isVisible ? "" : "header-hidden"}`}>
       <div className="v-header-inner">
         {/* [Left] 언어 선택기 또는 뒤로가기 */}
         <div className="v-header-side left">

@@ -19,7 +19,7 @@ body {
 /* 모바일 브라우저 주소창 높이 변화에 대응하기 위해 100dvh 사용 */
 .app-layout {
   min-height: 100vh;
-  min-height: 100dvh; /* Dynamic Viewport Height */
+  min-height: 100dvh;
   background-color: var(--bg);
   color: var(--text-main);
   position: relative;
@@ -173,22 +173,32 @@ body {
   height: 100vh;
   height: 100dvh;
   width: 100%;
-  overflow: hidden; /* 레이아웃 자체의 스크롤 방지 */
+  min-height: 100dvh;
+  background-color: var(--bg);
+  /* overflow: hidden;  */
 }
 
 /* 헤더 영역 */
 .v-layout-header {
   flex-shrink: 0;
   z-index: 100;
+  position: fixed;
+  width: 100%;
+  transition: transform 0.3s ease-in-out;
+}
+
+.header-hidden {
+  transform: translateY(-100%);
 }
 
 /* 컨텐츠 영역 */
 .v-page-container {
-  flex: 1; /* 남은 모든 공간을 차지함 */
-  overflow-y: auto; /* 내용이 많아지면 여기서만 스크롤 발생 */
+  /* flex: 1;  */
+  /* overflow-y: auto; */
   -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
   background-color: var(--bg);
-  padding-top: 10px;
+  min-height: calc(100dvh - 50px);
+  padding-top: 50px;
 }
 
 /* 푸터 영역 */

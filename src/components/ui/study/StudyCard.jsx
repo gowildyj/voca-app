@@ -124,18 +124,18 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
     return (
       <div className="study-card-container preview next-card-preview">
         <div className="card-motion-wrapper">
+          <div className="card-icons-layer">
+            <button className="icon-btn volume">
+              <Volume2 size={24} />
+            </button>
+            <button className="icon-btn star">
+              <Star size={24} />
+            </button>
+          </div>
           <div
             className="card-inner preview-mode"
             style={{ border: "2px solid transparent" }}
           >
-            <div className="card-icons-layer">
-              <button className="icon-btn volume">
-                <Volume2 size={24} />
-              </button>
-              <button className="icon-btn star">
-                <Star size={24} />
-              </button>
-            </div>
             <div className="card-face card-front">
               <span className="word-text">{cardData.word}</span>
             </div>
@@ -164,6 +164,26 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
         style={{ x, y, rotate }}
         onClick={handleFlip}
       >
+        <div className="card-icons-layer">
+          <button
+            className="icon-btn volume"
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log("Speak");
+            }}
+          >
+            <Volume2 size={24} />
+          </button>
+          <button
+            className="icon-btn star"
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log("Bookmark");
+            }}
+          >
+            <Star size={24} />
+          </button>
+        </div>
         <motion.div
           className="card-inner"
           animate={{ rotateY: isFlipped ? 180 : 0 }}
@@ -174,27 +194,6 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
             transition: "border-color 0.1s ease",
           }}
         >
-          <div className="card-icons-layer">
-            <button
-              className="icon-btn volume"
-              onClick={(e) => {
-                e.stopPropagation();
-                console.log("Speak");
-              }}
-            >
-              <Volume2 size={24} />
-            </button>
-            <button
-              className="icon-btn star"
-              onClick={(e) => {
-                e.stopPropagation();
-                console.log("Bookmark");
-              }}
-            >
-              <Star size={24} />
-            </button>
-          </div>
-
           <div className="card-face card-front">
             <span className="word-text">{cardData.word}</span>
             {/* <div className="hint-text">클릭해서 뜻 보기</div> */}

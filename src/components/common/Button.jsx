@@ -23,17 +23,20 @@ const Button = ({
   ...props
 }) => {
   // 변형 및 크기에 따른 클래스 조합
-  const baseClass =
-    variant === "fab" || variant === "icon" ? `btn-${variant}` : "btn";
-  const variantClass =
-    variant !== "fab" && variant !== "icon" ? `btn-${variant}` : "";
-  const sizeClass = size !== "base" ? `btn-${size}` : "";
-  const fullClass = fullWidth ? "btn-full" : "";
-  const activeClass = active ? "active" : "";
+  const classes = [
+    variant === "fab" || variant === "icon" ? `btn-${variant}` : "btn",
+    variant !== "fab" && variant !== "icon" ? `btn-${variant}` : null,
+    size !== "base" ? `btn-${size}` : null,
+    fullWidth ? "btn-full" : null,
+    active ? "active" : null,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <button
-      className={`${baseClass} ${variantClass} ${sizeClass} ${fullClass} ${activeClass} ${className}`}
+      className={classes}
       disabled={disabled}
       onClick={onClick}
       {...props}

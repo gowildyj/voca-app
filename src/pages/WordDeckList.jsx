@@ -40,56 +40,59 @@ const WordDeckList = ({ currentLangValue }) => {
   if (loading) return <div className="v-loader" />;
 
   return (
-    <div className="v-deck-list-page">
-      <section className="v-deck-list-header">
-        <p className="v-deck-welcome-msg">오늘도 암기 천재가 되어볼까요? 🚀</p>
-        <SearchBar
-          value={searchQuery}
-          onChange={(e) =>
-            setSearchQuery(typeof e === "string" ? e : e.target.value)
-          }
-          placeholder="단어장 제목을 검색하세요"
-        />
-      </section>
+    <>
+      <div className="v-deck-list-page">
+        <section className="v-deck-list-header">
+          <p className="v-deck-welcome-msg">
+            오늘도 암기 천재가 되어볼까요? 🚀
+          </p>
+          <SearchBar
+            value={searchQuery}
+            onChange={(e) =>
+              setSearchQuery(typeof e === "string" ? e : e.target.value)
+            }
+            placeholder="단어장 제목을 검색하세요"
+          />
+        </section>
 
-      <main className="v-deck-grid-container">
-        {decks.length > 0 ? (
-          <div className="v-home-grid">
-            {decks.map((deck) => (
-              <DeckCard
-                key={deck.id}
-                title={deck.name}
-                wordCount={deck.total || 0}
-                progress={deck.progress || 0}
-                icon={deck.icon?.icon || getLangIcon(deck.language)}
-                onClick={() =>
-                  navigate(
-                    generatePath(ROUTES.DECK_DETAIL, { deckId: deck.id }),
-                  )
-                }
-                onEdit={() => onEditDeck(deck)}
-                onDelete={() => handleDeleteClick(deck)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="v-empty-state">
-            <p>
-              {searchQuery
-                ? "검색 결과가 없습니다. 🔍"
-                : "해당 언어의 단어장이 아직 없어요! 😅"}
-            </p>
-          </div>
-        )}
-      </main>
-
+        <main className="v-deck-grid-container">
+          {decks.length > 0 ? (
+            <div className="v-home-grid">
+              {decks.map((deck) => (
+                <DeckCard
+                  key={deck.id}
+                  title={deck.name}
+                  wordCount={deck.total || 0}
+                  progress={deck.progress || 0}
+                  icon={deck.icon?.icon || getLangIcon(deck.language)}
+                  onClick={() =>
+                    navigate(
+                      generatePath(ROUTES.DECK_DETAIL, { deckId: deck.id }),
+                    )
+                  }
+                  onEdit={() => onEditDeck(deck)}
+                  onDelete={() => handleDeleteClick(deck)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="v-empty-state">
+              <p>
+                {searchQuery
+                  ? "검색 결과가 없습니다. 🔍"
+                  : "해당 언어의 단어장이 아직 없어요! 😅"}
+              </p>
+            </div>
+          )}
+        </main>
+      </div>
       <Button
         variant="fab"
         icon={<Plus size={28} />}
         onClick={onAddDeck}
         aria-label="새 단어장 추가"
       />
-    </div>
+    </>
   );
 };
 

@@ -21,7 +21,7 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
   const y = useMotionValue(0);
   const controls = useAnimation();
 
-  // 회전은 x축 이동에만 반응
+  // 회전은 x축
   const rotate = useTransform(x, [-200, 200], [-25, 25]);
 
   // 테두리 피드백
@@ -47,7 +47,7 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
     setSwipeDirection(null);
   }, [cardData, x, y, controls]);
 
-  // 버튼 클릭 스와이프 (부모 호출용)
+  // 버튼 클릭 스와이프
   useImperativeHandle(ref, () => ({
     swipeRight: async () => {
       setSwipeDirection("right");
@@ -96,7 +96,7 @@ const StudyCard = forwardRef(({ cardData, onSwipe, isNextPreview }, ref) => {
     if (Math.abs(x.get()) < 5) setIsFlipped(!isFlipped);
   };
 
-  // Space, Enter 피드백
+  // Space 카드뒤집기
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.code === "Space" || e.key === " ") {

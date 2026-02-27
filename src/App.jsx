@@ -15,6 +15,7 @@ import Header from "@/components/layout/Header";
 import BottomNav from "@/components/layout/BottomNav";
 import StudyCategoryModal from "@/components/modals/StudyCategoryModal";
 import SettingsPage from "@/pages/SettingsPage";
+import { toastConfig, showToast } from "@/utils/toast";
 
 import { AppRoutesData, ROUTES } from "@/routes/AppRoutes";
 import { LANG_OPTIONS, DEFAULT_LANG } from "@/constants/languages";
@@ -91,7 +92,7 @@ function AppContent() {
               if (target) {
                 setSelectedLang(target);
                 localStorage.setItem("selected_language", langId);
-                toast.success(`${target.label} 모드로 변경되었습니다!`, {
+                showToast.success(`${target.label} 모드로 변경되었습니다!`, {
                   icon: target.icon,
                 });
               }
@@ -101,7 +102,7 @@ function AppContent() {
         </>
       }
     >
-      <Toaster position="top-center" />
+      <Toaster {...toastConfig} />
       <Suspense fallback={<div className="v-loader" />}>
         <Routes>
           {routes.map(({ path, element }) => (

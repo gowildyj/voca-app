@@ -15,7 +15,7 @@
 /* @import "./components/cards/deckCard.css"; */
 /* @import "./components/common/forms.css"; */
 /* @import "./components/common/modals.css"; */
-/* @import "./components/common/toast.css"; */
+@import "./components/common/toast.css";
 
 /* Pages (페이지별 전용 스타일) */
 /* @import "./pages/homePage.css"; */

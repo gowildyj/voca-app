@@ -1,23 +1,22 @@
 /* src/styles/layout/bottomNav.css */
+
 .bottom-nav {
   position: fixed;
   bottom: 0;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 100%;
-  z-index: var(--z-nav);
-  display: flex;
-  justify-content: center; /* PC에서 중앙 정렬 */
-  padding-bottom: env(safe-area-inset-bottom);
+  max-width: 1000px;
+  z-index: 1000;
   background-color: var(--bg-main-transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid var(--border);
+  /* border-top: 1px solid var(--border); */
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .nav-container {
-  width: 100%;
-  max-width: 800px; /* 레이아웃 통일 */
-  height: 50px;
+  height: 55px;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -30,46 +29,42 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 4px;
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--text-sub);
+  color: var(--text-muted);
   transition: all 0.2s ease;
-  position: relative;
 }
 
+/* 활성화 상태 */
 .nav-item.active {
-  color: var(--primary); /* 핑크 포인트 */
+  color: var(--primary);
 }
 
 .nav-icon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .nav-item.active .nav-icon {
-  transform: translateY(-2px) scale(1.1);
+  transform: scale(1.1);
 }
 
 .nav-label {
-  font-size: 0.65rem;
-  font-weight: 600;
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
-/* 활성화 포인트 (디자인 가이드 반영) */
-.active-dot {
-  position: absolute;
-  top: 8px;
-  width: 4px;
-  height: 4px;
-  background-color: var(--primary);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--primary);
+/* 커스텀 언어 버튼 (이모지) */
+.nav-lang-emoji {
+  line-height: 1;
+  display: inline-block;
+  transition: transform 0.2s;
 }
 
-/* 터치 피드백 */
-.nav-item:active .nav-icon {
+.nav-item:active .nav-icon,
+.nav-item:active .nav-lang-emoji {
   transform: scale(0.9);
 }

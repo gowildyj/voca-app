@@ -37,7 +37,7 @@ const HomePage = ({ currentLangValue }) => {
     <div className="v-home-page">
       <main className="v-home-content">
         {/* Hero Section */}
-        <section className="v-home-section">
+        <section className="v-page-section">
           {lastDeck ? (
             <HeroCard
               title={lastDeck.name}
@@ -58,7 +58,7 @@ const HomePage = ({ currentLangValue }) => {
         </section>
 
         {/* My Decks Section */}
-        <section className="v-home-section">
+        <section className="v-page-section">
           <div className="v-section-header">
             <h3 className="v-section-title">나의 단어장</h3>
             <button

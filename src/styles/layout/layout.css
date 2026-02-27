@@ -1,139 +1,82 @@
 /* src/styles/layout/layout.css */
-/* =========================================
-   Global Layout System
-   ========================================= */
 
 html {
-  background-color: var(--bg-) !important;
+  background-color: var(--bg) !important;
   overscroll-behavior-y: none;
 }
 
 body {
-  background-color: var(--bg) !important;
+  background-color: var(--bg);
   margin: 0;
   padding: 0;
-  min-height: 100%;
+  min-height: 100vh;
 }
 
-/* 앱 전체 래퍼 (App Wrapper) */
-/* 모바일 브라우저 주소창 높이 변화에 대응하기 위해 100dvh 사용 */
-.app-layout {
-  min-height: 100vh;
+/* 앱 전체 래퍼 (중앙 고정) */
+.v-app-layout {
+  max-width: 1000px;
+  margin: 0 auto;
   min-height: 100dvh;
   background-color: var(--bg);
   color: var(--text-main);
   position: relative;
-  overflow-x: hidden; /* 가로 스크롤 방지 */
-  transition: background-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
 }
 
-/* 페이지 컨테이너 (Page Container) */
-/* 모든 페이지의 기본 여백 및 헤더/하단바 공간 확보 */
-.page-container {
+/* 페이지 컨텐츠 영역 */
+.v-page-container {
+  flex: 1;
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  padding-top: 80px;
-  padding-bottom: 90px;
-
-  /* 페이드인 애니메이션 (페이지 전환 시 부드럽게) */
-  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding-top: 50px;
+  padding-bottom: 80px;
   box-sizing: border-box;
 }
 
-/* 꽉 찬 페이지 (여백 없는 레이아웃이 필요할 때) */
-.page-container.full-width {
-  padding-left: 0;
-  padding-right: 0;
-  max-width: 100%;
+/* 페이지 섹션 단위 */
+.v-page-section {
+  padding: 16px 16px 24px 16px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* =========================================
-   Grid System (그리드 레이아웃)
-   ========================================= */
-
-/* 2열 그리드 (단어장 리스트 등) */
-.grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-/* 반응형 자동 그리드 (화면 크기에 따라 자동 줄바꿈) */
-/* 최소 140px 너비를 유지하며 꽉 채움 */
-.grid-auto {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 16px;
-}
-
-/* 1열 스택 (세로 쌓기) */
-.stack {
+/* 섹션 헤더 (제목 + 버튼) */
+.v-section-header {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* =========================================
-   Flex Utilities (자주 쓰는 배치)
-   ========================================= */
-
-/* 중앙 정렬 (가로/세로 모두) */
-.flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* 양끝 정렬 (좌우 배분) */
-.flex-between {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
-  width: 100%;
-}
-
-/* 가로 정렬 (왼쪽 기준) */
-.flex-row {
-  display: flex;
   align-items: center;
-  gap: 8px;
+  margin-bottom: 12px;
+  padding: 0 4px;
+  min-height: 32px;
 }
 
-/* 세로 정렬 */
-.flex-col {
-  display: flex;
-  flex-direction: column;
+/* 섹션 타이틀 */
+.v-section-title {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--text-main);
+  letter-spacing: -0.5px;
+  line-height: 1;
+  margin: 0;
 }
 
-/* 하단 고정 (컨텐츠가 적어도 푸터를 바닥으로 밀 때) */
-.spacer-grow {
-  flex-grow: 1;
-}
-
-/* =========================================
-   Divider (구분선)
-   ========================================= */
-.divider {
+/* 그리드 시스템 */
+.v-home-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
   width: 100%;
-  height: 1px;
-  background-color: var(--border);
-  border: none;
-  margin: 24px 0;
 }
 
-.divider-vertical {
-  width: 1px;
-  height: 100%; /* 부모 높이 기준 */
-  min-height: 20px;
-  background-color: var(--border);
-  margin: 0 12px;
+@media (min-width: 600px) {
+  .v-home-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
 }
 
-/* =========================================
-   Animations
-   ========================================= */
-
+/* 애니메이션 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -145,64 +88,6 @@ body {
   }
 }
 
-/* 스켈레톤 로딩 (로딩 중일 때 회색 박스 깜빡임) */
-.skeleton {
-  background-color: var(--border); /* 회색 */
-  border-radius: var(--radius-sm);
-  animation: pulse 1.5s infinite ease-in-out;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 0.3;
-  }
-  100% {
-    opacity: 0.6;
-  }
-}
-
-/* layout */
-/* src/styles/layout/layout.css */
-
-.v-app-layout {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
-  width: 100%;
-  min-height: 100dvh;
-  background-color: var(--bg);
-  /* overflow: hidden;  */
-}
-
-/* 헤더 영역 */
-.v-layout-header {
-  flex-shrink: 0;
-  z-index: 100;
-  position: fixed;
-  width: 100%;
-  transition: transform 0.3s ease-in-out;
-}
-
-.header-hidden {
-  transform: translateY(-100%);
-}
-
-/* 컨텐츠 영역 */
-.v-page-container {
-  /* flex: 1;  */
-  /* overflow-y: auto; */
-  -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
-  background-color: var(--bg);
-  min-height: calc(100dvh - 50px);
-  padding-top: 50px;
-}
-
-/* 푸터 영역 */
-.v-layout-bottom {
-  flex-shrink: 0; /* 높이 고정 */
-  z-index: 100;
+.v-fade-in {
+  animation: fadeIn 0.4s ease-out;
 }

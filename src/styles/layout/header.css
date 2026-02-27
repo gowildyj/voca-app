@@ -1,38 +1,36 @@
 /* src/styles/layout/header.css */
-/* 글로벌 헤더 컨테이너 */
+
 .v-layout-header {
   position: fixed;
   top: 0;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 100%;
+  max-width: 1000px;
   height: 50px;
   z-index: 1000;
-  background-color: var(--bg-main-transparent) !important;
+  background-color: var(--bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  /* border-bottom: 1px solid var(--border); */
+  /* border-bottom: 1px solid rgba(0, 0, 0, 0.05); */
   transition: transform 0.3s ease-in-out;
 }
 
-/* 내릴 때 숨기기 */
+/* 스크롤 시 숨김 처리 */
 .header-hidden {
-  transform: translateY(-100%);
+  transform: translate(-50%, -100%);
 }
 
 .v-header-inner {
-  width: 100%;
-  max-width: 800px;
   height: 100%;
-  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
   position: relative;
-  background: transparent;
 }
 
-/* 좌/우 사이드 영역 */
+/* 좌/우 사이드 버튼 영역 */
 .v-header-side {
   flex: 1;
   display: flex;
@@ -43,75 +41,60 @@
   justify-content: flex-end;
 }
 
-/* 중앙 제목 영역 */
+/* 중앙 제목 */
 .v-header-center {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  text-align: center;
-  pointer-events: none;
   white-space: nowrap;
+  pointer-events: none;
 }
 
 .v-header-title {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: var(--text-main);
   margin: 0;
-  transition: all 0.2s ease;
 }
 
 .v-header-title.v-app-logo {
   font-size: 1.15rem;
-  /* color: var(--primary); */
   letter-spacing: -0.5px;
 }
 
-/* 언어 선택기 (홈 전용) */
+/* 언어 선택 버튼 (홈 전용) */
 .v-lang-selector-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border-radius: 12px;
+  gap: 6px;
+  padding: 4px 10px;
+  /* background-color: var(--bg-layer); */
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.2s;
 }
 
 .v-lang-selector-btn:active {
-  transform: scale(0.96);
-  opacity: 0.8;
+  transform: scale(0.95);
 }
 
 .v-lang-flag {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 .v-lang-name {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: var(--text-main);
-}
-.v-lang-arrow {
-  opacity: 0.4;
-  color: var(--text-main);
-  stroke-width: 3.5;
-  transform: scale(1.1);
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
-/* 공통 아이콘 버튼 */
+/* 공통 헤더 아이콘 버튼 */
 .v-header-icon-btn {
   background: none;
   border: none;
-  padding: 8px;
+  padding: 6px;
   color: var(--text-main);
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  transition: background-color 0.2s;
-}
-
-.v-header-icon-btn:active {
-  background-color: var(--bg-layer);
+  cursor: pointer;
+  border-radius: 50%;
 }

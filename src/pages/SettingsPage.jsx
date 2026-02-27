@@ -18,50 +18,55 @@ const SettingsPage = ({ isOpen, onClose }) => {
     {
       id: "modern",
       label: "모던",
-      color: "#475569",
+      color: "var(--color-modern)",
       desc: "차분한 네이비 그레이",
     },
     {
       id: "dark",
       label: "다크",
-      color: "#6366F1",
+      color: "var(--color-dark)",
       desc: "편안한 미드나잇 블루",
     },
     {
       id: "bw",
       label: "흑백",
-      color: "#000000",
+      color: "var(--color-bw)",
       desc: "클래식한 블랙 & 화이트",
     },
     {
       id: "pink",
       label: "핑크",
-      color: "#FB7185",
+      color: "var(--color-pink)",
       desc: "말린 장미빛 인디핑크",
     },
-    { id: "blue", label: "블루", color: "#38BDF8", desc: "청량한 스카이 블루" },
+    {
+      id: "blue",
+      label: "블루",
+      color: "var(--color-blue)",
+      desc: "청량한 스카이 블루",
+    },
     {
       id: "green",
       label: "그린",
-      color: "#84CC16",
+      color: "var(--color-green)",
       desc: "안정감을 주는 세이지 그린",
     },
     {
       id: "yellow",
       label: "옐로우",
-      color: "#F59E0B",
+      color: "var(--color-yellow)",
       desc: "포근한 버터 옐로우",
     },
     {
       id: "purple",
       label: "퍼플",
-      color: "#A855F7",
+      color: "var(--color-purple)",
       desc: "우아한 라벤더 퍼플",
     },
     {
       id: "pastel",
       label: "파스텔",
-      color: "#FFC9D7",
+      color: "var(--color-pastel)",
       desc: "달콤한 솜사탕 믹스",
     },
   ];
@@ -90,7 +95,6 @@ const SettingsPage = ({ isOpen, onClose }) => {
                 className={`v-theme-card ${theme === t.id ? "active" : ""}`}
                 onClick={() => setTheme(t.id)}
               >
-                {/* 🎨 미니 프리뷰에 해당 테마의 메인 컬러 적용 */}
                 <div
                   className="v-theme-mini-preview"
                   style={{ backgroundColor: t.color }}

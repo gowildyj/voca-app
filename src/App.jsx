@@ -22,7 +22,7 @@ import { LANG_OPTIONS, DEFAULT_LANG } from "@/constants/languages";
 function AppContent() {
   const location = useLocation();
 
-  // 🌟 [상태 관리] 사용자 선택 언어 보존 (LocalStorage)
+  // [상태 관리] 사용자 선택 언어 보존 (LocalStorage)
   const [selectedLang, setSelectedLang] = useState(() => {
     const savedLangValue = localStorage.getItem("selected_language");
     return (

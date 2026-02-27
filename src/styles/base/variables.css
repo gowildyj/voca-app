@@ -13,6 +13,19 @@
   --z-toast: 2000;
 
   /* =========================================
+     테마별 대표 고정 색상 (Theme Palette)
+     ========================================= */
+  --color-modern: #475569;
+  --color-dark: #6366f1;
+  --color-bw: #000000;
+  --color-pink: #fb7185;
+  --color-blue: #38bdf8;
+  --color-green: #84cc16;
+  --color-yellow: #f59e0b;
+  --color-purple: #a855f7;
+  --color-pastel: #ffc9d7;
+
+  /* =========================================
      기본값 (Modern - Default Light)
      ========================================= */
   --bg: #f8fafc;

@@ -1,6 +1,12 @@
 .v-settings-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1000px;
+  height: 100vh;
+  height: 100dvh;
   background-color: var(--bg);
   z-index: 2000;
   display: flex;
@@ -210,10 +216,10 @@
 
 @keyframes settingsSlideUp {
   from {
-    transform: translateY(100%);
+    transform: translate(-50%, 100%);
   }
   to {
-    transform: translateY(0);
+    transform: translate(-50%, 0);
   }
 }
 

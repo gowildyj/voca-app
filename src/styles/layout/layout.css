@@ -1,6 +1,19 @@
+/* src/styles/layout/layout.css */
 /* =========================================
    Global Layout System
    ========================================= */
+
+html {
+  background-color: var(--bg-) !important;
+  overscroll-behavior-y: none;
+}
+
+body {
+  background-color: var(--bg) !important;
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
 
 /* 앱 전체 래퍼 (App Wrapper) */
 /* 모바일 브라우저 주소창 높이 변화에 대응하기 위해 100dvh 사용 */
@@ -163,13 +176,13 @@
   overflow: hidden; /* 레이아웃 자체의 스크롤 방지 */
 }
 
-/* 🌟 핵심: 헤더 영역 */
+/* 헤더 영역 */
 .v-layout-header {
-  flex-shrink: 0; /* 높이 고정 */
+  flex-shrink: 0;
   z-index: 100;
 }
 
-/* 🌟 핵심: 컨텐츠 영역 */
+/* 컨텐츠 영역 */
 .v-page-container {
   flex: 1; /* 남은 모든 공간을 차지함 */
   overflow-y: auto; /* 내용이 많아지면 여기서만 스크롤 발생 */
@@ -178,7 +191,7 @@
   padding-top: 10px;
 }
 
-/* 🌟 핵심: 푸터 영역 */
+/* 푸터 영역 */
 .v-layout-bottom {
   flex-shrink: 0; /* 높이 고정 */
   z-index: 100;

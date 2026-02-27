@@ -6,7 +6,7 @@ import {
   HiOutlineChatBubbleLeftRight,
 } from "react-icons/hi2";
 import { ROUTES } from "@/routes/AppRoutes";
-import "@/styles/layout/bottomNav.css"; // CSS 파일 경로 확인 부탁드려요!
+import "@/styles/layout/bottomNav.css";
 
 /**
  * BottomNav: 앱의 메인 네비게이션 바

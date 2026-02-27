@@ -45,19 +45,32 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     const root = document.documentElement;
 
-    // 시스템 테마 감지 로직 (확장성: 사용자가 'system' 선택 시 실제 다크/라이트 모드 대응)
     const applyTheme = (targetTheme) => {
-      if (targetTheme === "system" || targetTheme === "light") {
+      // 1. data-theme 속성 적용 (CSS 변수 변경 트리거)
+      if (targetTheme === "system" || targetTheme === "modern") {
         root.removeAttribute("data-theme");
       } else {
         root.setAttribute("data-theme", targetTheme);
       }
       localStorage.setItem("app-theme", targetTheme);
+
+      // 🌟 2. 모바일 상단바 색상 동적 변경 (Safe Area 대응)
+      const themeMeta = document.getElementById("theme-meta");
+      if (themeMeta) {
+        // 브라우저가 스타일을 계산한 뒤 실행되도록 requestAnimationFrame 사용
+        requestAnimationFrame(() => {
+          const computedBgColor = getComputedStyle(root)
+            .getPropertyValue("--bg")
+            .trim();
+
+          if (computedBgColor) {
+            themeMeta.setAttribute("content", computedBgColor);
+          }
+        });
+      }
     };
 
     applyTheme(theme);
-
-    // 보안: data-theme 속성에 잘못된 값이 들어가지 않도록 감시하거나 초기화 가능
   }, [theme]);
 
   /**

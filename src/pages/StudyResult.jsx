@@ -53,10 +53,6 @@ const StudyResult = ({ total, counts, onRetryUnknown, deckId }) => {
           <List size={18} />
           단어 목록으로 돌아가기
         </button>
-        {/* <button className="v-result-btn ghost" onClick={() => navigate("/")}>
-          홈으로 가기
-          <ChevronRight size={18} />
-        </button> */}
       </div>
     </div>
   );

@@ -15,10 +15,9 @@ export const useWordList = (deckId) => {
   // --- [1] 데이터 호출 (useWords) ---
   const {
     words,
-    decks,
     loading,
     fetchWordsByDeck,
-    fetchDecks,
+    fetchDeckById,
     addWord,
     addWordsBulk,
     updateWordsBulk,
@@ -29,6 +28,7 @@ export const useWordList = (deckId) => {
   } = useWords();
 
   // --- [2] 로컬 상태 관리 (필터, 정렬, 검색) ---
+  const [currentDeck, setCurrentDeck] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [hideMode, setHideMode] = useState(null);
@@ -45,13 +45,11 @@ export const useWordList = (deckId) => {
   useEffect(() => {
     if (deckId) {
       fetchWordsByDeck(deckId);
-      fetchDecks();
+      fetchDeckById(deckId).then((data) => {
+        if (data) setCurrentDeck(data);
+      });
     }
-  }, [deckId, fetchWordsByDeck, fetchDecks]);
-
-  const currentDeck = useMemo(() => {
-    return decks.find((d) => d.id === deckId);
-  }, [decks, deckId]);
+  }, [deckId, fetchWordsByDeck, fetchDeckById]);
 
   // --- [4] 검색어 디바운싱 ---
   useEffect(() => {

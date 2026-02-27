@@ -51,12 +51,10 @@ export const speak = (voices, langCode, preferredGender) => {
   return match || filteredVoices[0];
 };
 
-// src/utils/ttsUtils.js
-
 /**
  * 실제로 텍스트를 읽어주는 함수
  */
-export const playText = (text, langCode = "ko-KR") => {
+export const playText = (text, langCode = "en-US") => {
   if (!window.speechSynthesis) {
     console.error("이 브라우저는 TTS를 지원하지 않습니다.");
     return;

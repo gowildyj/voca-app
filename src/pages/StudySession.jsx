@@ -17,6 +17,7 @@ const StudySession = () => {
   const {
     words,
     currentCard,
+    currentDeck,
     total,
     currentIndex,
     counts,
@@ -84,6 +85,7 @@ const StudySession = () => {
             ref={cardRef}
             key={currentCard.id}
             cardData={currentCard}
+            language={currentDeck?.language}
             onSwipe={handleNextCard}
             viewMode={studySettings.viewMode}
           />

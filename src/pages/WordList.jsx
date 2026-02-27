@@ -18,7 +18,7 @@ const WordList = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
 
-  // 🌟 useWordList 사용 (모든 로직이 이 안에 들어있습니다)
+  // useWordList 사용
   const {
     currentDeck,
     displayWords,

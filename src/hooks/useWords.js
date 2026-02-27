@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "react-hot-toast";
+import { showToast } from "@/utils/toast";
+import { getFormData } from "@/utils/commonUtils";
 
 /**
  * useWords
@@ -20,6 +22,7 @@ export const useWords = (currentLangValue = "all") => {
   // =====================================================
 
   const fetchDecks = useCallback(async () => {
+    console.log("✅ fetchDecks", currentLangValue);
     if (!currentLangValue) return;
 
     try {
@@ -32,6 +35,7 @@ export const useWords = (currentLangValue = "all") => {
 
       if (error) throw error;
       // console.log("data", data);
+      console.log("✅ fetchDecks.total", data.length);
 
       const normalized = (data ?? []).map((d) => ({
         id: d.id,
@@ -39,23 +43,55 @@ export const useWords = (currentLangValue = "all") => {
         language: d.lang_code,
         icon: d.icon,
         description: d.description,
+        isFavorite: d.is_favorite,
         total: Number(d.total_count) || 0,
         progress:
           d.total_count > 0
             ? Math.round((Number(d.known_count) / Number(d.total_count)) * 100)
             : 0,
-        isFavorite: d.is_favorite,
       }));
 
       setDecks(normalized);
-    } catch (err) {
+    } catch (error) {
       toast.error("단어장 목록 로드 실패");
     } finally {
       setLoading(false);
     }
   }, [currentLangValue]);
 
+  const fetchDeckById = useCallback(async (deckId) => {
+    console.log("✅ fetchDeckById");
+    if (!deckId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("decks")
+        .select("*")
+        .eq("id", deckId)
+        .single();
+
+      if (error) throw error;
+
+      const normalized = {
+        id: data.id,
+        name: data.deck_name,
+        language: data.lang_code,
+        icon: data.icon,
+        description: data.description,
+        isFavorite: data.is_favorite,
+      };
+
+      console.log("✅ [fetchDeckById]normalized", normalized);
+      return normalized;
+    } catch (error) {
+      console.error("❌ 덱 정보 로드 실패:", error);
+      showToast.error("단어장 정보 로드 실패");
+      return null;
+    }
+  }, []);
+
   const addDeck = async ({ name, language, icon = "", description = "" }) => {
+    console.log("✅ addDeck");
     try {
       const { data, error } = await supabase
         .from("decks")
@@ -74,13 +110,14 @@ export const useWords = (currentLangValue = "all") => {
       await fetchDecks();
       toast.success("단어장이 생성되었습니다.");
       return data?.[0];
-    } catch (err) {
+    } catch (error) {
       toast.error("단어장 생성 실패");
       return null;
     }
   };
 
   const updateDeck = async (id, updates) => {
+    console.log("✅ updateDeck");
     try {
       const { error } = await supabase
         .from("decks")
@@ -101,6 +138,7 @@ export const useWords = (currentLangValue = "all") => {
   };
 
   const deleteDeck = async (id) => {
+    console.log("✅ deleteDeck");
     try {
       const { error } = await supabase.from("decks").delete().eq("id", id);
       if (error) throw error;
@@ -112,11 +150,27 @@ export const useWords = (currentLangValue = "all") => {
     }
   };
 
+  const updateDeckFavorite = async (id, isFavorite) => {
+    console.log("✅ updateDeckFavorite");
+    try {
+      const { error } = await supabase
+        .from("decks")
+        .update({ is_favorite: isFavorite })
+        .eq("id", id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error(error);
+      toast.error("단어장 좋아요 실패");
+    }
+  };
+
   // =====================================================
   // Word
   // =====================================================
 
   const fetchWordsByDeck = useCallback(async (deckId) => {
+    console.log("✅ fetchWordsByDeck");
     if (!deckId) return [];
 
     try {
@@ -146,6 +200,7 @@ export const useWords = (currentLangValue = "all") => {
   }, []);
 
   const addWord = async (deckId, wordData) => {
+    console.log("✅ addWord");
     try {
       const { data, error } = await supabase
         .from("words")
@@ -164,13 +219,14 @@ export const useWords = (currentLangValue = "all") => {
 
       setWords((prev) => [...prev, ...data]);
       return data?.[0];
-    } catch (err) {
+    } catch (error) {
       toast.error("단어 추가 실패");
     }
   };
 
   // ✅ Bulk Insert
   const addWordsBulk = async (deckId, wordsList) => {
+    console.log("✅ addWordsBulk");
     try {
       const payload = wordsList.map((w) => ({
         deck_id: deckId,
@@ -196,6 +252,7 @@ export const useWords = (currentLangValue = "all") => {
   };
 
   const updateWord = async (id, updates) => {
+    console.log("✅ updateWord");
     try {
       const { error } = await supabase
         .from("words")
@@ -214,21 +271,22 @@ export const useWords = (currentLangValue = "all") => {
     }
   };
 
-  // ✅ Bulk Upsert
+  // Bulk Upsert
   const updateWordsBulk = async (wordsList) => {
     try {
+      console.log("✅ updateWordsBulk");
       // 🌟 전처리: deck_id가 유효하지 않거나 빈 객체가 들어가는 것을 방지
       const payload = wordsList.map((w) => ({
         id: w.id,
         word: w.word,
         meaning: w.meaning,
-        deck_id: w.deck_id, // 🌟 필수! deck_id가 포함되어야 안전합니다.
+        deck_id: w.deck_id,
       }));
 
       const { data, error } = await supabase
         .from("words")
         .upsert(payload, {
-          onConflict: "id", // 🌟 id가 겹치면 업데이트하라고 명시
+          onConflict: "id",
         })
         .select();
 
@@ -244,13 +302,14 @@ export const useWords = (currentLangValue = "all") => {
 
       toast.success("일괄 수정이 완료되었습니다.");
       return data;
-    } catch (err) {
-      console.error("❌ Bulk Update Error:", err);
+    } catch (error) {
+      console.error("❌ Bulk Update Error:", error);
       toast.error("일괄 수정에 실패했습니다.");
     }
   };
 
   const deleteWord = async (id) => {
+    console.log("✅ deleteWord");
     try {
       const { error } = await supabase.from("words").delete().eq("id", id);
       if (error) throw error;
@@ -263,6 +322,7 @@ export const useWords = (currentLangValue = "all") => {
   };
 
   const updateWordStatus = async (id, newStatus) => {
+    console.log("✅ updateWordStatus");
     setWords((prev) =>
       prev.map((w) => (w.id === id ? { ...w, status: newStatus } : w)),
     );
@@ -281,14 +341,29 @@ export const useWords = (currentLangValue = "all") => {
     }
   };
 
+  const updateWordFavorite = async (id, isFavorite) => {
+    console.log("✅ updateWordFavorite");
+    try {
+      const { error } = await supabase
+        .from("words")
+        .update({ is_favorite: isFavorite })
+        .eq("id", id);
+    } catch (error) {
+      console.error(error);
+      toast.error("상태 변경 실패");
+    }
+  };
+
   return {
     words,
     decks,
     loading,
     fetchDecks,
+    fetchDeckById,
     addDeck,
     updateDeck,
     deleteDeck,
+    updateDeckFavorite,
     fetchWordsByDeck,
     addWord,
     addWordsBulk,
@@ -296,5 +371,6 @@ export const useWords = (currentLangValue = "all") => {
     updateWordsBulk,
     deleteWord,
     updateWordStatus,
+    updateWordFavorite,
   };
 };

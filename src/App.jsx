@@ -4,10 +4,11 @@ import {
   Routes,
   Route,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ModalProvider } from "@/contexts/ModalContext";
-import { Toaster, toast } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 import MainLayout from "@/components/layout/MainLayout";
 import Header from "@/components/layout/Header";
@@ -21,6 +22,7 @@ import { LANG_OPTIONS, DEFAULT_LANG } from "@/constants/languages";
 
 function AppContent() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   // [상태 관리] 사용자 선택 언어 보존 (LocalStorage)
   const [selectedLang, setSelectedLang] = useState(() => {
@@ -56,6 +58,37 @@ function AppContent() {
     [],
   );
 
+  // 언어 변경 및 페이지 리다이렉트 처리
+  const handleLanguageChange = (langId) => {
+    const target = LANG_OPTIONS.find((l) => l.value === langId);
+    if (!target) return;
+
+    setSelectedLang(target);
+    localStorage.setItem("selected_language", langId);
+    showToast.success(`${target.label} 모드로 변경되었습니다!`, {
+      icon: target.icon,
+    });
+    setIsLangModalOpen(false);
+
+    const currentPath = location.pathname;
+
+    // 상세 페이지 경로 패턴 확인
+    const isDeckDetail =
+      currentPath.startsWith("/decks/") && currentPath !== ROUTES.DECK_LIST;
+    const isStudySession = currentPath.startsWith("/study/");
+    const isScenarioDetail =
+      currentPath.startsWith("/scenarios/") &&
+      currentPath !== ROUTES.SCENARIO_LIST;
+    const isScenarioSession = currentPath.startsWith("/scenario-session/");
+
+    // 상세 페이지나 학습 화면에 있다면 해당 목록으로 이동
+    if (isDeckDetail || isStudySession) {
+      navigate(ROUTES.DECK_LIST); // 덱 목록으로 이동
+    } else if (isScenarioDetail || isScenarioSession) {
+      navigate(ROUTES.SCENARIO_LIST); // 시나리오 목록으로 이동
+    }
+  };
+
   return (
     <MainLayout
       header={
@@ -86,17 +119,7 @@ function AppContent() {
             isOpen={isLangModalOpen}
             onClose={() => setIsLangModalOpen(false)}
             currentCategory={selectedLang.value}
-            onSelect={(langId) => {
-              const target = LANG_OPTIONS.find((l) => l.value === langId);
-              if (target) {
-                setSelectedLang(target);
-                localStorage.setItem("selected_language", langId);
-                showToast.success(`${target.label} 모드로 변경되었습니다!`, {
-                  icon: target.icon,
-                });
-              }
-              setIsLangModalOpen(false);
-            }}
+            onSelect={handleLanguageChange}
           />
         </>
       }
@@ -110,6 +133,8 @@ function AppContent() {
               path={path}
               element={React.cloneElement(element, {
                 currentLangValue: selectedLang.value,
+                // 언어가 바뀌면 컴포넌트 강제 리마운트 (데이터 갱신)
+                key: selectedLang.value,
               })}
             />
           ))}

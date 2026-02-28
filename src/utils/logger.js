@@ -16,6 +16,8 @@ export const logger = {
 
   // ✅ 성공 및 결과 로그
   success: (funcName, result = null) => {
+    if (!isDev) return;
+
     console.group(`✅ [SUCCESS] ${funcName}`);
     if (result) {
       if (Array.isArray(result)) {
@@ -29,6 +31,8 @@ export const logger = {
 
   // ❌ 에러 로그
   error: (funcName, error) => {
+    if (!isDev) return;
+
     console.group(`❌ [ERROR] ${funcName}`);
     console.error("❌ Error Data:", error);
     console.groupEnd();

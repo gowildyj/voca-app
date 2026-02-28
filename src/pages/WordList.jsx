@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Plus, FilePenLine, PencilLine, Trash2 } from "lucide-react";
+import React from "react";
+import { useParams } from "react-router-dom";
+import { Plus, FilePenLine, PencilLine, Trash2, Star } from "lucide-react";
 import "@/styles/pages/wordList.css";
 
 import { toast } from "react-hot-toast";
@@ -27,40 +27,35 @@ const filterOptions = [
 
 const WordList = () => {
   const { deckId } = useParams();
-  const navigate = useNavigate();
-
   const [isStudyOpen, setIsStudyOpen] = React.useState(false);
 
   const {
-    currentDeck, // 현재 단어장 정보
-    displayWords, // 화면에 보여줄 단어들 (무한 스크롤 적용됨)
-    filteredWords, // 학습하기 버튼에 넘겨줄 전체 필터링 목록
+    currentDeck,
+    displayWords,
+    filteredWords,
     loading,
 
-    // 상태 및 필터
-    filter, // 현재 필터 상태
-    sortType, // 현재 정렬 상태
-    searchQuery, // 검색어
-    hideMode, // 가리기 모드 (단어/뜻)
-    filterCounts, // 각 필터별 개수 통계
+    filter,
+    sortType,
+    searchQuery,
+    hideMode,
+    filterCounts,
 
-    // 핸들러 함수들
     setSearchQuery,
     handleFilterChange,
     handleSortChange,
     onToggleMode,
 
-    // CRUD 액션
     onAddWord,
     onEditWord,
     onDeleteWord,
     onEditDeck,
     onDeleteDeck,
     onBulkEdit,
-    onToggleFavorite,
+    onToggleWordFavorite,
+    onToggleDeckFavorite,
 
-    // UI 요소
-    observerTarget, // 무한 스크롤 감지용 ref
+    observerTarget,
   } = useWordList(deckId);
 
   return (
@@ -69,10 +64,25 @@ const WordList = () => {
       <header className="v-word-list-intro">
         <div className="v-intro-top">
           <h1 className="v-deck-title">
-            {/* 데이터가 없으면 로딩 중 표시가 아니라, 스켈레톤이나 빈 문자열 처리 */}
             {currentDeck?.name || currentDeck?.deck_name || ""}
           </h1>
           <div className="v-intro-actions">
+            <button
+              className={`v-icon-action-btn favorite ${
+                currentDeck?.isFavorite ? "active" : ""
+              }`}
+              onClick={() =>
+                currentDeck &&
+                onToggleDeckFavorite(currentDeck.id, currentDeck.isFavorite)
+              }
+              title="즐겨찾기 등록"
+            >
+              <Star
+                size={16}
+                fill={currentDeck?.isFavorite ? "currentColor" : "none"}
+              />
+            </button>
+
             <button
               className="v-icon-action-btn"
               onClick={onBulkEdit}
@@ -80,6 +90,7 @@ const WordList = () => {
             >
               <FilePenLine size={16} />
             </button>
+
             <button
               className="v-icon-action-btn"
               onClick={onEditDeck}
@@ -87,6 +98,7 @@ const WordList = () => {
             >
               <PencilLine size={16} />
             </button>
+
             <button
               className="v-icon-action-btn danger"
               onClick={onDeleteDeck}
@@ -112,7 +124,7 @@ const WordList = () => {
           title="학습 시작"
           subTitle={`${filteredWords?.length || 0}개의 단어 준비됨`}
           onClick={() => {
-            if (filteredWords.length === 0) {
+            if (!filteredWords || filteredWords.length === 0) {
               toast.error("학습할 단어가 없어요! 😅");
               return;
             }
@@ -134,7 +146,7 @@ const WordList = () => {
       <section className="v-word-list-controls">
         <FilterTabs
           filters={filterOptions}
-          currentFilter={filter} // 훅에서 받은 'filter' 변수 사용
+          currentFilter={filter}
           setFilter={handleFilterChange}
           filterCounts={filterCounts}
         />
@@ -154,27 +166,24 @@ const WordList = () => {
 
       {/* 6. 단어 카드 목록 */}
       <main className="v-word-card-stack">
-        {displayWords.length > 0 ? (
+        {displayWords && displayWords.length > 0 ? (
           displayWords.map((item) => (
             <WordCard
               key={item.id}
               item={item}
               hideMode={hideMode}
-              // 단어장의 언어 설정에 맞춰 TTS 실행 (currentDeck 정보 활용)
               onPlay={(word) => playText(word, currentDeck?.language)}
-              onToggleFavorite={() =>
-                onToggleFavorite(item.id, item.isFavorite)
+              onToggleWordFavorite={() =>
+                onToggleWordFavorite(item.id, item.isFavorite)
               }
               onEdit={() => onEditWord(item)}
               onDelete={() => onDeleteWord(item.id)}
             />
           ))
         ) : (
-          // 단어가 없을 때 보여줄 카드 (검색 결과 없음 or 초기 상태)
           <AddWordCard searchQuery={searchQuery} onClick={onAddWord} />
         )}
 
-        {/* 무한 스크롤 트리거 요소 */}
         <div ref={observerTarget} style={{ height: "40px", width: "100%" }} />
       </main>
 

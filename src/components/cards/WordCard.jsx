@@ -10,7 +10,7 @@ const WordCard = React.memo(
     onEdit,
     onDelete,
     onPlay,
-    onToggleFavorite,
+    onToggleWordFavorite,
     hideMode,
   }) => {
     const [tempShow, setTempShow] = useState(false);
@@ -70,7 +70,7 @@ const WordCard = React.memo(
             className={`v-action-icon-btn favorite ${item.isFavorite ? "active" : ""}`}
             onClick={(e) => {
               e.stopPropagation();
-              onToggleFavorite && onToggleFavorite(item.id);
+              onToggleWordFavorite && onToggleWordFavorite(item.id);
             }}
             aria-label="즐겨찾기"
           >

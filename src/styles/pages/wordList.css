@@ -137,6 +137,28 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+.v-icon-action-btn.favorite {
+  transition: all 0.2s ease;
+  color: var(--text-sub);
+}
+
+/* 즐겨찾기 호버 시 (노란색) */
+.v-icon-action-btn.favorite:hover {
+  color: #facc15;
+  transform: scale(1.1);
+}
+
+/* 활성화된 상태 (노란색) */
+.v-icon-action-btn.favorite.active {
+  color: #facc15 !important;
+  transform: scale(1.2);
+}
+
+/* SVG 내부 색상도 강제로 맞춤 */
+.v-icon-action-btn.favorite.active svg {
+  fill: #facc15;
+}
+
 .v-intro-content {
   padding-left: 4px;
 }

@@ -29,7 +29,7 @@ const WordDeckList = ({ currentLangValue }) => {
     onEditDeck,
     handleDeleteClick,
     fetchDecks,
-    onToggleFavorite,
+    onToggleDeckFavorite,
   } = useWordDeckList(currentLangValue);
 
   useEffect(() => {
@@ -82,8 +82,8 @@ const WordDeckList = ({ currentLangValue }) => {
                   }
                   onEdit={() => onEditDeck(deck)}
                   onDelete={() => handleDeleteClick(deck)}
-                  onToggleFavorite={() =>
-                    onToggleFavorite(deck.id, deck.isFavorite)
+                  onToggleDeckFavorite={() =>
+                    onToggleDeckFavorite(deck.id, deck.isFavorite)
                   }
                 />
               ))}

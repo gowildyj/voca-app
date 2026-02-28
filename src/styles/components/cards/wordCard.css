@@ -100,10 +100,10 @@
   color: var(--danger);
 }
 
-/* --- 🌟 즐겨찾기(별) 스타일 핵심 --- */
+/* --- 🌟 즐겨찾기(별) 스타일--- */
 .v-action-icon-btn.favorite {
   transition: all 0.2s ease;
-  color: #ccc; /* 기본 비활성 색상 */
+  color: var(--text-sub);
 }
 
 /* 즐겨찾기 호버 시 (노란색) */
@@ -112,13 +112,13 @@
   transform: scale(1.1);
 }
 
-/* 🌟 [강제 적용] 활성화된 상태 (노란색) */
+/* 활성화된 상태 (노란색) */
 .v-action-icon-btn.favorite.active {
-  color: #facc15 !important; /* 다른 스타일에 밀리지 않게 강제 */
+  color: #facc15 !important;
   transform: scale(1.2);
 }
 
-/* SVG 내부 색상도 강제로 맞춤 (필수) */
+/* SVG 내부 색상도 강제로 맞춤 */
 .v-action-icon-btn.favorite.active svg {
   fill: #facc15;
 }

@@ -15,6 +15,7 @@ export const useWordList = (deckId) => {
 
   // --- [1] Zustand Store에서 상태와 액션 추출 ---
   const words = useWordStore((state) => state.words);
+  const decks = useWordStore((state) => state.decks);
   const loading = useWordStore((state) => state.loading);
   const fetchWordsByDeck = useWordStore((state) => state.fetchWordsByDeck);
   const fetchDeckById = useWordStore((state) => state.fetchDeckById);
@@ -26,10 +27,11 @@ export const useWordList = (deckId) => {
   const updateDeck = useWordStore((state) => state.updateDeck);
   const deleteDeck = useWordStore((state) => state.deleteDeck);
   const updateWordFavorite = useWordStore((state) => state.updateWordFavorite);
+  const updateDeckFavorite = useWordStore((state) => state.updateDeckFavorite);
 
   // --- [2] 로컬 상태 관리 ---
   // 초기값을 state?.initialDeck으로 설정하여 로딩 없이 즉시 렌더링
-  const [currentDeck, setCurrentDeck] = useState(state?.initialDeck || null);
+  // const [currentDeck, setCurrentDeck] = useState(state?.initialDeck || null);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [hideMode, setHideMode] = useState(null);
@@ -37,6 +39,10 @@ export const useWordList = (deckId) => {
   const [shuffleSeed, setShuffleSeed] = useState(() =>
     Math.floor(Math.random() * 1000),
   );
+
+  const currentDeck = useMemo(() => {
+    return decks.find((d) => d.id === deckId) || state?.initialDeck || null;
+  }, [decks, deckId, state?.initialDeck]);
 
   // URL 파라미터 기반 상태
   const filter = searchParams.get("filter") || "all";
@@ -48,18 +54,7 @@ export const useWordList = (deckId) => {
     if (deckId) {
       // 단어 목록 가져오기
       fetchWordsByDeck(deckId);
-
-      // 덱 정보 동기화
-      fetchDeckById(deckId).then((data) => {
-        if (
-          data &&
-          (!currentDeck ||
-            currentDeck.name !== data.name ||
-            currentDeck.description !== data.description)
-        ) {
-          setCurrentDeck(data);
-        }
-      });
+      fetchDeckById(deckId);
     }
   }, [deckId, fetchWordsByDeck, fetchDeckById]);
 
@@ -79,16 +74,16 @@ export const useWordList = (deckId) => {
       const matchesFilter =
         filter === "all"
           ? true
-          : filter === "none"
-            ? !w.status || w.status === "none"
-            : w.status === filter;
+          : filter === "favorite"
+            ? w.isFavorite
+            : filter === "none"
+              ? !w.status || w.status === "none"
+              : w.status === filter;
 
       const query = debouncedQuery.toLowerCase();
       const matchesSearch =
         w.word?.toLowerCase().includes(query) ||
-        false ||
-        w.meaning?.toLowerCase().includes(query) ||
-        false;
+        w.meaning?.toLowerCase().includes(query);
 
       return matchesFilter && matchesSearch;
     });
@@ -113,6 +108,7 @@ export const useWordList = (deckId) => {
   const filterCounts = useMemo(
     () => ({
       all: words.length,
+      favorite: words.filter((w) => w.isFavorite).length,
       none: words.filter((w) => !w.status || w.status === "none").length,
       unknown: words.filter((w) => w.status === "unknown").length,
       know: words.filter((w) => w.status === "know").length,
@@ -242,11 +238,19 @@ export const useWordList = (deckId) => {
     });
   }, [words, openModal, closeModal, updateWordsBulk]);
 
-  const onToggleFavorite = useCallback(
+  const onToggleWordFavorite = useCallback(
     async (wordId, currentStatus) => {
       await updateWordFavorite(wordId, !currentStatus);
     },
     [updateWordFavorite],
+  );
+
+  const onToggleDeckFavorite = useCallback(
+    async (deckId, currentStatus) => {
+      if (!deckId) return;
+      await updateDeckFavorite(deckId, !currentStatus);
+    },
+    [updateDeckFavorite],
   );
 
   return {
@@ -271,6 +275,7 @@ export const useWordList = (deckId) => {
     onEditDeck,
     onDeleteDeck,
     onBulkEdit,
-    onToggleFavorite,
+    onToggleWordFavorite,
+    onToggleDeckFavorite,
   };
 };

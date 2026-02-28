@@ -43,9 +43,8 @@ export const useWordDeckList = (currentLangValue) => {
   // --- [4] 핸들러 함수들 ---
 
   // 즐겨찾기 토글
-  const onToggleFavorite = useCallback(
+  const onToggleDeckFavorite = useCallback(
     async (deckId, currentStatus) => {
-      // 스토어의 낙관적 업데이트 액션 호출
       await updateDeckFavorite(deckId, !currentStatus);
     },
     [updateDeckFavorite],
@@ -122,6 +121,6 @@ export const useWordDeckList = (currentLangValue) => {
     handleDeleteClick,
     fetchDecks,
     clearDecks,
-    onToggleFavorite,
+    onToggleDeckFavorite,
   };
 };

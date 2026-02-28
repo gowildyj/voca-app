@@ -225,7 +225,7 @@ export const useWordStore = create(
 
           set({ words: normalized });
           logger.success("fetchWordsByDeck", normalized);
-          return data;
+          return normalized;
         } catch (error) {
           logger.error("fetchWordsByDeck", error);
           return [];

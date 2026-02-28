@@ -16,6 +16,7 @@ const WordListHeader = ({
   onBulkEdit,
   onEditDeck,
   onDeleteDeck,
+  onToggleDeckFavorite,
 }) => {
   return (
     <div className="v-word-list-header">

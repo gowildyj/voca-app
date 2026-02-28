@@ -7,7 +7,7 @@
   padding: 40px 24px;
   min-height: 100vh;
   background-color: var(--bg);
-  animation: slideUp 0.5s ease-out;
+  animation: slideUp 0.2s ease-out;
 }
 
 .v-result-header {

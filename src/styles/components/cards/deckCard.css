@@ -1,13 +1,4 @@
-/* deckCard.css */
-
-/* 공통: 클릭 시 튕기는 효과 */
-/* .clickable-bounce {
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  cursor: pointer;
-}
-.clickable-bounce:active {
-  transform: scale(0.95);
-} */
+/* src/styles/components/cards/deckCard.css */
 
 /* 1. 일반 단어장 카드 */
 .deck-card {
@@ -101,10 +92,18 @@
   color: var(--text-main);
 }
 
-.action-icon.active {
-  color: #fbbf24;
-  fill: #fbbf24;
-  opacity: 1;
+.star-btn {
+  transition: all 0.2s ease;
+  color: #ccc;
+}
+
+.star-btn.active {
+  color: #facc15;
+  transform: scale(1.2);
+}
+
+.star-btn:hover {
+  transform: scale(1.1);
 }
 
 .action-icon.danger:hover {

@@ -130,5 +130,5 @@
   -webkit-tap-highlight-color: transparent;
 }
 .clickable-bounce:active {
-  transform: scale(0.96) !important;
+  transform: scale(0.98) !important;
 }

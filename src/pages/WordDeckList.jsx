@@ -28,6 +28,7 @@ const WordDeckList = ({ currentLangValue }) => {
     onEditDeck,
     handleDeleteClick,
     fetchDecks,
+    onToggleFavorite,
   } = useWordDeckList(currentLangValue);
 
   useEffect(() => {
@@ -46,7 +47,7 @@ const WordDeckList = ({ currentLangValue }) => {
       <div className="v-deck-list-page">
         <section className="v-deck-list-header">
           <p className="v-deck-welcome-msg">
-            오늘도 암기 천재가 되어볼까요? 🚀
+            오늘도 언어 천재가 되어볼까요? 🚀
           </p>
           <SearchBar
             value={searchQuery}
@@ -66,6 +67,7 @@ const WordDeckList = ({ currentLangValue }) => {
                   title={deck.name}
                   wordCount={deck.total || 0}
                   progress={deck.progress || 0}
+                  isFavorite={deck.isFavorite}
                   icon={deck.icon?.icon || getLangIcon(deck.language)}
                   onClick={() =>
                     navigate(
@@ -74,6 +76,9 @@ const WordDeckList = ({ currentLangValue }) => {
                   }
                   onEdit={() => onEditDeck(deck)}
                   onDelete={() => handleDeleteClick(deck)}
+                  onToggleFavorite={() =>
+                    onToggleFavorite(deck.id, deck.isFavorite)
+                  }
                 />
               ))}
             </div>

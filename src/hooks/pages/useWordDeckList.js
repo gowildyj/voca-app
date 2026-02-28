@@ -9,8 +9,15 @@ import { useModal } from "@/contexts/ModalContext";
  */
 export const useWordDeckList = (currentLangValue) => {
   // 1. Core Hooks
-  const { decks, loading, addDeck, updateDeck, deleteDeck, fetchDecks } =
-    useWords(currentLangValue);
+  const {
+    decks,
+    loading,
+    addDeck,
+    updateDeck,
+    deleteDeck,
+    fetchDecks,
+    updateDeckFavorite,
+  } = useWords(currentLangValue);
   const { openModal, closeModal } = useModal();
 
   // 2. Local State
@@ -30,6 +37,10 @@ export const useWordDeckList = (currentLangValue) => {
       return matchesSearch;
     });
   }, [decks, searchQuery, activeTab]);
+
+  const onToggleFavorite = async (deckId, currentStatus) => {
+    await updateDeckFavorite(deckId, !currentStatus);
+  };
 
   // 4. Handlers (Modal Controls)
 
@@ -97,5 +108,6 @@ export const useWordDeckList = (currentLangValue) => {
     onEditDeck,
     handleDeleteClick,
     fetchDecks,
+    onToggleFavorite,
   };
 };

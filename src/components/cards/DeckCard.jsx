@@ -15,7 +15,6 @@ const DeckCard = ({
 }) => {
   const handleAction = (e, callback) => {
     e.stopPropagation();
-    e.stopPropagation();
     callback?.();
   };
 
@@ -39,6 +38,7 @@ const DeckCard = ({
           <Star
             className={`action-icon star-btn ${isFavorite ? "active" : ""}`}
             onClick={(e) => handleAction(e, onToggleFavorite)}
+            fill={isFavorite ? "currentColor" : "none"}
           />
           <PencilLine
             className="action-icon"

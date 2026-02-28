@@ -47,6 +47,7 @@ const WordList = () => {
 
   const filterOptions = [
     { id: "all", label: "전체" },
+    { id: "favorite", label: "중요" },
     { id: "none", label: "미학습" },
     { id: "unknown", label: "몰라" },
     { id: "know", label: "알아" },

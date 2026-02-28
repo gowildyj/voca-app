@@ -54,7 +54,7 @@
 
 /* 페이지 진입 애니메이션 */
 .v-scenario-list-page {
-  animation: fadeIn 0.4s ease-out;
+  animation: fadeIn 0.2s ease-out;
 }
 
 @keyframes fadeIn {

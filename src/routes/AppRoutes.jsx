@@ -19,7 +19,7 @@ export const ROUTES = {
  * [Lazy Loading] 컴포넌트 동적 로딩
  * 초기 로딩 속도를 높이기 위해 필요한 시점에 페이지를 불러옵니다.
  */
-const HomePage = lazy(() => import("@/pages/HomePage"));
+const HomePage = lazy(() => import("@/pages/WordDeckList"));
 const WordDeckList = lazy(() => import("@/pages/WordDeckList"));
 const WordList = lazy(() => import("@/pages/WordList"));
 const StudySession = lazy(() => import("@/pages/StudySession"));
@@ -36,7 +36,7 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 export const AppRoutesData = [
   {
     path: ROUTES.HOME,
-    element: <HomePage />,
+    element: <WordDeckList />,
     title: "동동구리",
   },
   {

@@ -1,17 +1,5 @@
 /* src/styles/layout/layout.css */
 
-html {
-  background-color: var(--bg) !important;
-  overscroll-behavior-y: none;
-}
-
-body {
-  background-color: var(--bg);
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-}
-
 /* 앱 전체 래퍼 (중앙 고정) */
 .v-app-layout {
   max-width: 1000px;

@@ -58,7 +58,7 @@
   font-weight: 800;
   color: var(--text-main);
   margin: 0;
-  white-space: nowrap;
+  white-space: pre-wrap;
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
@@ -96,7 +96,7 @@
 
 .favorite {
   transition: all 0.2s ease;
-  color: #ccc;
+  color: var(--text-sub);
 }
 
 .favorite.active {

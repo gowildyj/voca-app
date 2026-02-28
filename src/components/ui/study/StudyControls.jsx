@@ -2,12 +2,7 @@ import React from "react";
 import { RotateCcw, Play, Pause, Shuffle } from "lucide-react";
 import "@/styles/components/ui/study/studyControls.css";
 
-const StudyControls = ({
-  onUndo,
-  isAutoPlay,
-  toggleAutoPlay,
-  onShuffle, // 셔플 기능도 props로 받아서 연결하면 좋습니다
-}) => {
+const StudyControls = ({ onUndo, isAutoPlay, toggleAutoPlay, onShuffle }) => {
   return (
     <div className="controls-container top-controls">
       {/* 1열: 보조 도구 (되돌리기, 자동재생, 셔플) */}

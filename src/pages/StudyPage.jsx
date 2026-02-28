@@ -1,8 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import StudySession from "@/pages/StudySession";
 import "@/styles/pages/studyPage.css";
 
 const StudyPage = ({ isOpen, onClose, deckId, initialWords, initialDeck }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -10,8 +22,8 @@ const StudyPage = ({ isOpen, onClose, deckId, initialWords, initialDeck }) => {
       <main className="v-study-content-full">
         <StudySession
           deckId={deckId}
-          initialWords={initialWords} // 배달 1
-          initialDeck={initialDeck} // 배달 2
+          initialWords={initialWords}
+          initialDeck={initialDeck}
           onClose={onClose}
         />
       </main>

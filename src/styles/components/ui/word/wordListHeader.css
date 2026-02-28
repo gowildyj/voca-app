@@ -51,7 +51,7 @@
 }
 
 .v-deck-action-btn.delete:hover {
-  background-color: #fff1f2;
+  background-color: rgba(239, 68, 68, 0.1);
   color: var(--danger);
 }
 

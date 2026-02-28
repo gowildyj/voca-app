@@ -36,7 +36,7 @@ const DeckCard = ({
         </div>
         <div className="deck-actions">
           <Star
-            className={`action-icon star-btn ${isFavorite ? "active" : ""}`}
+            className={`action-icon favorite ${isFavorite ? "active" : ""}`}
             onClick={(e) => handleAction(e, onToggleFavorite)}
             fill={isFavorite ? "currentColor" : "none"}
           />

@@ -57,6 +57,7 @@ const WordList = () => {
     onEditDeck,
     onDeleteDeck,
     onBulkEdit,
+    onToggleFavorite,
 
     // UI 요소
     observerTarget, // 무한 스크롤 감지용 ref
@@ -161,6 +162,9 @@ const WordList = () => {
               hideMode={hideMode}
               // 단어장의 언어 설정에 맞춰 TTS 실행 (currentDeck 정보 활용)
               onPlay={(word) => playText(word, currentDeck?.language)}
+              onToggleFavorite={() =>
+                onToggleFavorite(item.id, item.isFavorite)
+              }
               onEdit={() => onEditWord(item)}
               onDelete={() => onDeleteWord(item.id)}
             />

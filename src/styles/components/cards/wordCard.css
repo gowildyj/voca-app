@@ -1,5 +1,3 @@
-/* wordCard.css */
-
 .v-word-card {
   display: flex;
   align-items: center;
@@ -75,7 +73,6 @@
   flex-direction: column;
   gap: 1px;
   padding-left: 1px;
-  /* border-left: 1px solid var(--border); */
 }
 
 .v-action-icon-btn {
@@ -96,13 +93,36 @@
   background-color: rgba(0, 0, 0, 0.05);
   color: var(--text-main);
 }
-.v-action-icon-btn.active {
-  color: #f43f5e;
-}
+
+/* 삭제 버튼 별도 처리 */
 .v-action-icon-btn.delete:hover {
-  background-color: #fff1f2;
+  background-color: rgba(239, 68, 68, 0.1);
   color: var(--danger);
 }
+
+/* --- 🌟 즐겨찾기(별) 스타일 핵심 --- */
+.v-action-icon-btn.favorite {
+  transition: all 0.2s ease;
+  color: #ccc; /* 기본 비활성 색상 */
+}
+
+/* 즐겨찾기 호버 시 (노란색) */
+.v-action-icon-btn.favorite:hover {
+  color: #facc15;
+  transform: scale(1.1);
+}
+
+/* 🌟 [강제 적용] 활성화된 상태 (노란색) */
+.v-action-icon-btn.favorite.active {
+  color: #facc15 !important; /* 다른 스타일에 밀리지 않게 강제 */
+  transform: scale(1.2);
+}
+
+/* SVG 내부 색상도 강제로 맞춤 (필수) */
+.v-action-icon-btn.favorite.active svg {
+  fill: #facc15;
+}
+/* ---------------------------------- */
 
 /* 가리기(마스킹) 효과 */
 .v-masked {
@@ -120,7 +140,7 @@
   background-color: #334155;
 }
 
-/* 가이드 모드 (일반 카드와 크기/구조 동일화) */
+/* 가이드 모드 */
 .v-word-card.guide-mode {
   border: 2px dashed var(--border);
   background-color: transparent;

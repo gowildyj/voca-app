@@ -94,18 +94,19 @@
   color: var(--text-main);
 }
 
-.star-btn {
+.favorite {
   transition: all 0.2s ease;
   color: #ccc;
 }
 
-.star-btn.active {
+.favorite.active {
   color: #facc15;
   transform: scale(1.2);
 }
 
-.star-btn:hover {
+.favorite:hover {
   transform: scale(1.1);
+  color: #facc15;
 }
 
 .action-icon.danger:hover {

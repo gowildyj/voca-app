@@ -25,6 +25,7 @@ export const useWordList = (deckId) => {
   const deleteWord = useWordStore((state) => state.deleteWord);
   const updateDeck = useWordStore((state) => state.updateDeck);
   const deleteDeck = useWordStore((state) => state.deleteDeck);
+  const updateWordFavorite = useWordStore((state) => state.updateWordFavorite);
 
   // --- [2] 로컬 상태 관리 ---
   // 초기값을 state?.initialDeck으로 설정하여 로딩 없이 즉시 렌더링
@@ -241,6 +242,13 @@ export const useWordList = (deckId) => {
     });
   }, [words, openModal, closeModal, updateWordsBulk]);
 
+  const onToggleFavorite = useCallback(
+    async (wordId, currentStatus) => {
+      await updateWordFavorite(wordId, !currentStatus);
+    },
+    [updateWordFavorite],
+  );
+
   return {
     filter,
     sortType,
@@ -263,5 +271,6 @@ export const useWordList = (deckId) => {
     onEditDeck,
     onDeleteDeck,
     onBulkEdit,
+    onToggleFavorite,
   };
 };

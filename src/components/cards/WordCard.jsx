@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Volume2, Edit3, Trash2, Heart, Sparkles } from "lucide-react";
+import { Volume2, Edit3, Trash2, Star } from "lucide-react";
 import { playText } from "@/utils/ttsUtils";
 import "@/styles/components/cards/wordCard.css";
 
@@ -32,7 +32,8 @@ const WordCard = React.memo(
     }, [hideMode]);
 
     return (
-      <div className={`v-word-card ${statusClass} clickable-bounce`}>
+      // <div className={`v-word-card ${statusClass} clickable-bounce`}>
+      <div className={`v-word-card ${statusClass}`}>
         {/* 오디오 버튼 */}
         <div className="v-word-icon-section">
           <button
@@ -73,7 +74,7 @@ const WordCard = React.memo(
             }}
             aria-label="즐겨찾기"
           >
-            <Heart size={16} fill={item.isFavorite ? "currentColor" : "none"} />
+            <Star size={16} fill={item.isFavorite ? "currentColor" : "none"} />
           </button>
 
           <button

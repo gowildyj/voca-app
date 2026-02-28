@@ -9,6 +9,7 @@ import SearchBar from "@/components/common/SearchBar";
 import Button from "@/components/common/Button";
 import DeckCard from "@/components/cards/DeckCard";
 import AddDeckCard from "@/components/cards/AddDeckCard";
+import DeckSkeleton from "@/components/skeletons/DeckSkeleton";
 
 // 라우트 및 커스텀 훅
 import { ROUTES, generatePath } from "@/routes/AppRoutes";
@@ -32,15 +33,13 @@ const WordDeckList = ({ currentLangValue }) => {
   } = useWordDeckList(currentLangValue);
 
   useEffect(() => {
-    fetchDecks();
-  }, [currentLangValue]);
+    fetchDecks(currentLangValue);
+  }, [currentLangValue, fetchDecks]);
 
   const getLangIcon = (langCode) => {
     const target = LANG_OPTIONS.find((lang) => lang.value === langCode);
     return target ? target.icon : "";
   };
-
-  if (loading) return <div className="v-loader" />;
 
   return (
     <>
@@ -59,7 +58,13 @@ const WordDeckList = ({ currentLangValue }) => {
         </section>
 
         <main className="v-deck-grid-container">
-          {decks.length > 0 ? (
+          {loading ? (
+            <div className="v-home-grid">
+              {Array.from({ length: 1 }).map((_, i) => (
+                <DeckSkeleton key={i} />
+              ))}
+            </div>
+          ) : decks.length > 0 ? (
             <div className="v-home-grid">
               {decks.map((deck) => (
                 <DeckCard
@@ -72,6 +77,7 @@ const WordDeckList = ({ currentLangValue }) => {
                   onClick={() =>
                     navigate(
                       generatePath(ROUTES.DECK_DETAIL, { deckId: deck.id }),
+                      { state: { initialDeck: deck } },
                     )
                   }
                   onEdit={() => onEditDeck(deck)}

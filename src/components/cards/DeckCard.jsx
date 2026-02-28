@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { PencilLine, Trash2, BookOpen, Star } from "lucide-react";
 import "@/styles/components/cards/deckCard.css";
 
@@ -60,4 +60,12 @@ const DeckCard = ({
   );
 };
 
-export default DeckCard;
+export default memo(DeckCard, (prev, next) => {
+  return (
+    prev.title === next.title &&
+    prev.wordCount === next.wordCount &&
+    prev.progress === next.progress &&
+    prev.isFavorite === next.isFavorite &&
+    prev.icon === next.icon
+  );
+});

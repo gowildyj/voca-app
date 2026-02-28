@@ -33,8 +33,6 @@ const StudySession = () => {
     handleRetryUnknown,
   } = useStudyPage(deckId);
 
-  if (loading && total === 0) return <div className="v-loader" />;
-
   if (isFinished) {
     return (
       <StudyResult

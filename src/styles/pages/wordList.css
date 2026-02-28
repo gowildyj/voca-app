@@ -36,6 +36,8 @@
   flex-direction: column;
   gap: 0px;
   padding: 6px 16px;
+  contain: content;
+  min-height: 500px;
 }
 
 .v-word-card-stack .word-title,
@@ -65,14 +67,14 @@
 }
 
 /* 진입 애니메이션 */
-.v-word-card-stack > div {
-  animation: fadeInSlide 0.2s ease-out forwards;
-}
+/* .v-word-card-stack > div {
+  animation: fadeIn 0.2s ease-out forwards;
+} */
 
-@keyframes fadeInSlide {
+@keyframes fadeIn {
   from {
-    opacity: 0;
-    transform: translateY(8px);
+    opacity: 0.8;
+    transform: translateY(4px);
   }
   to {
     opacity: 1;

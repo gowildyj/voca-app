@@ -10,6 +10,8 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  will-change: transform, opacity;
+  contain: content;
 }
 
 .deck-card-header {
@@ -133,7 +135,7 @@
 .progress-bar {
   height: 100%;
   background-color: var(--accent);
-  transition: width 0.4s ease;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .progress-percent {

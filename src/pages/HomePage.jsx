@@ -31,8 +31,6 @@ const HomePage = ({ currentLangValue }) => {
     fetchDecks();
   }, [currentLangValue]);
 
-  if (loading) return <div className="v-loader" />;
-
   return (
     <div className="v-home-page">
       <main className="v-home-content">

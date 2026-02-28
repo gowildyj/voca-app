@@ -172,9 +172,8 @@ const StudyCard = forwardRef(
               className="icon-btn volume"
               onClick={(e) => {
                 e.stopPropagation();
-                console.log("🔊 넘겨받은 Props language:", language); // 여기서 fr-FR이 안 뜨면 부모 문제!
                 if (cardData?.word) {
-                  playText(cardData.word, language || "en-US"); // 👈 테스트로 fr-FR을 직접 넣어보세요.
+                  playText(cardData.word, language || "en-US");
                 }
               }}
             >

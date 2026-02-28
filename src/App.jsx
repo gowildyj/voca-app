@@ -7,7 +7,6 @@ import {
 } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ModalProvider } from "@/contexts/ModalContext";
-import { WordsProvider } from "@/contexts/WordsContext";
 import { Toaster, toast } from "react-hot-toast";
 
 import MainLayout from "@/components/layout/MainLayout";
@@ -103,7 +102,7 @@ function AppContent() {
       }
     >
       <Toaster {...toastConfig} />
-      <Suspense fallback={<div className="v-loader" />}>
+      <Suspense fallback={<div className="v-page-transition-loader" />}>
         <Routes>
           {routes.map(({ path, element }) => (
             <Route
@@ -124,9 +123,7 @@ const App = () => (
   <ModalProvider>
     <Router>
       <ThemeProvider>
-        <WordsProvider>
-          <AppContent />
-        </WordsProvider>
+        <AppContent />
       </ThemeProvider>
     </Router>
   </ModalProvider>

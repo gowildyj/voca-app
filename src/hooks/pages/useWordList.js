@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useWords } from "@/hooks/useWords";
+import { useSearchParams, useLocation } from "react-router-dom"; // useLocation 추가
+import { useWordStore } from "@/store/useWordStore"; // Zustand Store
 import { useModal } from "@/contexts/ModalContext";
 import { seededShuffle } from "@/utils/seedShuffle";
 
@@ -8,27 +8,27 @@ import { seededShuffle } from "@/utils/seedShuffle";
  * useWordList: 단어 목록 페이지의 데이터 로드, 필터링, 액션을 통합 관리하는 훅
  */
 export const useWordList = (deckId) => {
+  const { state } = useLocation(); // 이전 페이지에서 넘겨준 state 받기
   const { openModal, closeModal } = useModal();
   const [searchParams, setSearchParams] = useSearchParams();
   const observerTarget = useRef(null);
 
-  // --- [1] 데이터 호출 (useWords) ---
-  const {
-    words,
-    loading,
-    fetchWordsByDeck,
-    fetchDeckById,
-    addWord,
-    addWordsBulk,
-    updateWordsBulk,
-    updateWord,
-    deleteWord,
-    updateDeck,
-    deleteDeck,
-  } = useWords();
+  // --- [1] Zustand Store에서 상태와 액션 추출 ---
+  const words = useWordStore((state) => state.words);
+  const loading = useWordStore((state) => state.loading);
+  const fetchWordsByDeck = useWordStore((state) => state.fetchWordsByDeck);
+  const fetchDeckById = useWordStore((state) => state.fetchDeckById);
+  const addWord = useWordStore((state) => state.addWord);
+  const addWordsBulk = useWordStore((state) => state.addWordsBulk);
+  const updateWordsBulk = useWordStore((state) => state.updateWordsBulk);
+  const updateWord = useWordStore((state) => state.updateWord);
+  const deleteWord = useWordStore((state) => state.deleteWord);
+  const updateDeck = useWordStore((state) => state.updateDeck);
+  const deleteDeck = useWordStore((state) => state.deleteDeck);
 
-  // --- [2] 로컬 상태 관리 (필터, 정렬, 검색) ---
-  const [currentDeck, setCurrentDeck] = useState(null);
+  // --- [2] 로컬 상태 관리 ---
+  // 초기값을 state?.initialDeck으로 설정하여 로딩 없이 즉시 렌더링
+  const [currentDeck, setCurrentDeck] = useState(state?.initialDeck || null);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [hideMode, setHideMode] = useState(null);
@@ -42,11 +42,22 @@ export const useWordList = (deckId) => {
   const sortType = searchParams.get("sort") || "default";
 
   // --- [3] 초기 데이터 로드 및 정보 매칭 ---
+
   useEffect(() => {
     if (deckId) {
+      // 단어 목록 가져오기
       fetchWordsByDeck(deckId);
+
+      // 덱 정보 동기화
       fetchDeckById(deckId).then((data) => {
-        if (data) setCurrentDeck(data);
+        if (
+          data &&
+          (!currentDeck ||
+            currentDeck.name !== data.name ||
+            currentDeck.description !== data.description)
+        ) {
+          setCurrentDeck(data);
+        }
       });
     }
   }, [deckId, fetchWordsByDeck, fetchDeckById]);
@@ -62,7 +73,8 @@ export const useWordList = (deckId) => {
 
   // --- [5] 핵심 로직: 필터링 및 정렬 ---
   const filteredWords = useMemo(() => {
-    let result = words.filter((w) => {
+    // 원본 보호를 위해 복사본 사용
+    let result = [...words].filter((w) => {
       const matchesFilter =
         filter === "all"
           ? true
@@ -85,7 +97,6 @@ export const useWordList = (deckId) => {
         result.sort((a, b) => a.word.localeCompare(b.word));
         break;
       case "latest":
-        // created_at 필드가 서버 데이터에 포함되어야 정확히 작동합니다.
         result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         break;
       case "shuffle":
@@ -120,11 +131,20 @@ export const useWordList = (deckId) => {
     [setSearchParams],
   );
 
-  const handleFilterChange = (newFilter) => updateParams("filter", newFilter);
-  const handleSortChange = (newSort) => {
-    updateParams("sort", newSort);
-    if (newSort === "shuffle") setShuffleSeed(Math.floor(Math.random() * 1000));
-  };
+  const handleFilterChange = useCallback(
+    (newFilter) => updateParams("filter", newFilter),
+    [updateParams],
+  );
+
+  const handleSortChange = useCallback(
+    (newSort) => {
+      updateParams("sort", newSort);
+      if (newSort === "shuffle")
+        setShuffleSeed(Math.floor(Math.random() * 1000));
+    },
+    [updateParams],
+  );
+
   const onToggleMode = useCallback(
     (mode) => setHideMode((prev) => (prev === mode ? null : mode)),
     [],
@@ -145,8 +165,8 @@ export const useWordList = (deckId) => {
     return () => target && observer.unobserve(target);
   }, [filteredWords.length, displayLimit]);
 
-  // --- [9] CRUD 액션 (모달 연결) ---
-  const onAddWord = () =>
+  // --- [9] CRUD 액션 (모달 연결 + useCallback 최적화) ---
+  const onAddWord = useCallback(() => {
     openModal("WORD_ADD", {
       deckId,
       onSubmit: async (data) => {
@@ -156,26 +176,35 @@ export const useWordList = (deckId) => {
         closeModal();
       },
     });
+  }, [deckId, openModal, closeModal, addWord, addWordsBulk]);
 
-  const onEditWord = (word) =>
-    openModal("WORD_EDIT", {
-      initialData: word,
-      onSubmit: async (formData) => {
-        await updateWord(word.id, formData);
-        closeModal();
-      },
-    });
+  const onEditWord = useCallback(
+    (word) => {
+      openModal("WORD_EDIT", {
+        initialData: word,
+        onSubmit: async (formData) => {
+          await updateWord(word.id, formData);
+          closeModal();
+        },
+      });
+    },
+    [openModal, closeModal, updateWord],
+  );
 
-  const onDeleteWord = (wordId) =>
-    openModal("CONFIRM_DELETE", {
-      title: "이 단어를 삭제할까요?",
-      onConfirm: async () => {
-        await deleteWord(wordId);
-        closeModal();
-      },
-    });
+  const onDeleteWord = useCallback(
+    (wordId) => {
+      openModal("CONFIRM_DELETE", {
+        title: "이 단어를 삭제할까요?",
+        onConfirm: async () => {
+          await deleteWord(wordId);
+          closeModal();
+        },
+      });
+    },
+    [openModal, closeModal, deleteWord],
+  );
 
-  const onEditDeck = () => {
+  const onEditDeck = useCallback(() => {
     if (!currentDeck) return;
     openModal("DECK_EDIT", {
       initialData: currentDeck,
@@ -189,9 +218,9 @@ export const useWordList = (deckId) => {
         closeModal();
       },
     });
-  };
+  }, [currentDeck, deckId, openModal, closeModal, updateDeck]);
 
-  const onDeleteDeck = () =>
+  const onDeleteDeck = useCallback(() => {
     openModal("CONFIRM_DELETE", {
       title: "이 단어장을 삭제할까요?",
       message: "포함된 모든 단어가 함께 삭제됩니다.",
@@ -200,8 +229,9 @@ export const useWordList = (deckId) => {
         closeModal();
       },
     });
+  }, [deckId, openModal, closeModal, deleteDeck]);
 
-  const onBulkEdit = () =>
+  const onBulkEdit = useCallback(() => {
     openModal("WORD_EDIT_BULK", {
       words,
       onSubmit: async (updatedList) => {
@@ -209,6 +239,7 @@ export const useWordList = (deckId) => {
         closeModal();
       },
     });
+  }, [words, openModal, closeModal, updateWordsBulk]);
 
   return {
     filter,

@@ -105,4 +105,13 @@ const WordCard = React.memo(
 
 WordCard.displayName = "WordCard";
 
-export default WordCard;
+export default React.memo(WordCard, (prev, next) => {
+  return (
+    prev.item.id === next.item.id &&
+    prev.item.word === next.item.word &&
+    prev.item.meaning === next.item.meaning &&
+    prev.item.status === next.item.status &&
+    prev.item.isFavorite === next.item.isFavorite && // 즐겨찾기 상태 체크
+    prev.hideMode === next.hideMode // 가리기 모드 체크
+  );
+});

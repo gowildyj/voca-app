@@ -1,28 +1,30 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useWords } from "@/hooks/useWords";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useWordStore } from "@/store/useWordStore";
 import { toast } from "react-hot-toast";
 
-/**
- * StudySession 페이지의 모든 로직을 관리하는 통합 훅
- */
-export const useStudyPage = (deckId) => {
-  const { fetchWordsByDeck, updateWordStatus, loading } = useWords();
-  const [currentDeck, setCurrentDeck] = useState(null);
+export const useStudyPage = (
+  deckId,
+  initialWords = null,
+  initialDeckData = null,
+) => {
+  const fetchWordsByDeck = useWordStore((state) => state.fetchWordsByDeck);
+  const fetchDeckById = useWordStore((state) => state.fetchDeckById);
+  const updateWordStatus = useWordStore((state) => state.updateWordStatus);
+
+  const [currentDeck, setCurrentDeck] = useState(initialDeckData || null);
   const cardRef = useRef();
-  const location = useLocation();
-  const navigate = useNavigate();
   const transitionLock = useRef(false);
 
-  // --- [1] 상태 관리 ---
-  const [words, setWords] = useState([]); // 전체 학습 단어 리스트
+  // 🌟 [핵심 수정] 초기화가 이미 됐는지 체크하는 Ref
+  const initializedRef = useRef(false);
+
+  const [words, setWords] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [counts, setCounts] = useState({ know: 0, unknown: 0 });
-  const [unknownStack, setUnknownStack] = useState([]); // 복습용 오답 스택
+  const [unknownStack, setUnknownStack] = useState([]);
   const [isFinished, setIsFinished] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // 설정 상태 (LocalStorage 연동)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [studySettings, setStudySettings] = useState(() => {
     try {
@@ -35,38 +37,33 @@ export const useStudyPage = (deckId) => {
     }
   });
 
-  // --- [2] 초기 데이터 로드 ---
+  // --- [초기 데이터 로드 로직 수정] ---
   useEffect(() => {
-    if (deckId) {
-      fetchWordsByDeck(deckId).then((data) => {
-        let finalWords = data || [];
-        const filteredIds = location.state?.filteredIds;
-        if (filteredIds) {
-          finalWords = finalWords.filter((w) => filteredIds.includes(w.id));
-        }
-        setWords(finalWords);
-        setUnknownStack([]);
-        setCurrentIndex(0);
-        setIsFinished(false);
-      });
-      const loadDeckInfo = async () => {
-        const { data } = await supabase
-          .from("decks")
-          .select("*")
-          .eq("id", deckId)
-          .single();
-        if (data) {
-          setCurrentDeck({
-            id: data.id,
-            name: data.deck_name,
-            language: data.lang_code,
-          });
-        }
-      };
-    }
-  }, [deckId, fetchWordsByDeck, location.state]);
+    // 이미 초기화됐다면, 부모 데이터가 바뀌어도 무시!
+    if (initializedRef.current) return;
 
-  // --- [3] 설정 변경 및 저장 ---
+    if (initialWords) {
+      setWords(initialWords);
+      initializedRef.current = true;
+    } else if (deckId) {
+      // initialWords가 아예 없을 때만(null) 서버 요청
+      fetchWordsByDeck(deckId).then((data) => {
+        setWords(data || []);
+        initializedRef.current = true;
+      });
+    }
+
+    // 덱 정보 로드
+    if (initialDeckData) {
+      setCurrentDeck(initialDeckData);
+    } else if (deckId) {
+      fetchDeckById(deckId).then((deck) => {
+        if (deck) setCurrentDeck(deck);
+      });
+    }
+  }, [deckId, initialWords, initialDeckData, fetchWordsByDeck, fetchDeckById]);
+
+  // --- [나머지 로직 동일] ---
   const updateSettings = useCallback((newSettings) => {
     setStudySettings((prev) => {
       const updated = { ...prev, ...newSettings };
@@ -75,7 +72,6 @@ export const useStudyPage = (deckId) => {
     });
   }, []);
 
-  // --- [4] 핵심: 다음 카드로 넘기기 (Swipe Logic) ---
   const handleNextCard = useCallback(
     (direction) => {
       if (transitionLock.current || currentIndex >= words.length) return;
@@ -86,20 +82,18 @@ export const useStudyPage = (deckId) => {
       const isKnown = direction === "right";
       const status = isKnown ? "know" : "unknown";
 
-      // 락(Lock) 및 애니메이션 상태 설정
       transitionLock.current = true;
       setIsAnimating(true);
 
-      // 1. 카운트 및 오답 스택 기록
+      // 점수 기록
       setCounts((prev) => ({ ...prev, [status]: prev[status] + 1 }));
       if (!isKnown) {
         setUnknownStack((prev) => [...prev, currentWord]);
       }
 
-      // 2. DB 업데이트
+      // DB 업데이트 (이게 부모 리렌더링을 유발하지만, 위에서 막았으니 안전!)
       updateWordStatus(currentWord.id, status);
 
-      // 3. 인덱스 증가 (애니메이션 대기)
       setTimeout(() => {
         setCurrentIndex((prev) => {
           const nextIndex = prev + 1;
@@ -108,39 +102,11 @@ export const useStudyPage = (deckId) => {
         });
         setIsAnimating(false);
         transitionLock.current = false;
-      }, 300);
+      }, 50);
     },
     [words, currentIndex, updateWordStatus],
   );
 
-  // --- [5] 유틸리티 기능 (Undo, Shuffle, Retry) ---
-
-  // Undo: 이전 카드로 되돌리기
-  const handleUndo = useCallback(() => {
-    if (currentIndex > 0 && !transitionLock.current) {
-      const prevIndex = currentIndex - 1;
-      const prevWord = words[prevIndex];
-
-      // 결과 기록에서 제거 (마지막 기록 기반으로 유추)
-      // 실제로는 더 정밀한 기록 관리가 필요할 수 있으나 기본 구현
-      setCurrentIndex(prevIndex);
-      toast("이전 카드로 되돌아갔습니다.", { icon: "↩️" });
-    }
-  }, [currentIndex, words]);
-
-  // Shuffle: 남은 단어 섞기
-  const handleShuffle = useCallback(() => {
-    setWords((prev) => {
-      const alreadyPlayed = prev.slice(0, currentIndex);
-      const remaining = prev
-        .slice(currentIndex)
-        .sort(() => Math.random() - 0.5);
-      return [...alreadyPlayed, ...remaining];
-    });
-    toast.success("남은 단어들을 섞었습니다! 🔀");
-  }, [currentIndex]);
-
-  // Retry: 틀린 단어 다시 풀기
   const handleRetryUnknown = useCallback(() => {
     if (unknownStack.length > 0) {
       setWords([...unknownStack].sort(() => Math.random() - 0.5));
@@ -148,36 +114,32 @@ export const useStudyPage = (deckId) => {
       setCurrentIndex(0);
       setCounts({ know: 0, unknown: 0 });
       setIsFinished(false);
-      toast.success("틀린 단어 복습을 시작합니다! 🔥");
+      toast.success("틀린 단어 복습 시작! 🔥");
     } else {
-      toast.success("모든 단어를 마스터하셨습니다! 🎉");
-      navigate(`/decks/${deckId}`);
+      toast.success("모든 단어 마스터! 🎉");
     }
-  }, [unknownStack, deckId, navigate]);
+  }, [unknownStack]);
 
-  // 외부 제어 (버튼 클릭 등)
-  const triggerSwipe = (direction) => {
-    if (cardRef.current && !transitionLock.current) {
-      direction === "right"
-        ? cardRef.current.swipeRight()
-        : cardRef.current.swipeLeft();
-    }
-  };
+  const triggerSwipe = useCallback(
+    (direction) => {
+      if (cardRef.current && !transitionLock.current && !isFinished) {
+        direction === "right"
+          ? cardRef.current.swipeRight()
+          : cardRef.current.swipeLeft();
+      }
+    },
+    [isFinished],
+  );
 
-  // --- [6] 키보드 단축키 ---
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (isSettingsOpen || isFinished) return;
       if (e.key === "ArrowRight") triggerSwipe("right");
       if (e.key === "ArrowLeft") triggerSwipe("left");
-      if (e.key === "z" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        handleUndo();
-      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isSettingsOpen, isFinished, handleUndo]);
+  }, [isSettingsOpen, isFinished, triggerSwipe]);
 
   const currentCard = useMemo(
     () => words[currentIndex] || null,
@@ -185,28 +147,20 @@ export const useStudyPage = (deckId) => {
   );
 
   return {
-    // 상태
     words,
     currentCard,
+    currentDeck,
     total: words.length,
     currentIndex,
     counts,
-    loading,
-    isFinished,
-    isAnimating,
+    cardRef,
     isSettingsOpen,
     studySettings,
-    cardRef,
-    progress: words.length > 0 ? (currentIndex / words.length) * 100 : 0,
-
-    // 액션
+    isFinished,
     setIsSettingsOpen,
     setStudySettings: updateSettings,
     handleNextCard,
-    handleUndo,
-    handleShuffle,
     handleRetryUnknown,
     triggerSwipe,
-    currentDeck,
   };
 };

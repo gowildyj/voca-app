@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Plus, FilePenLine, PencilLine, Trash2 } from "lucide-react";
 import "@/styles/pages/wordList.css";
 
+import { toast } from "react-hot-toast";
 import Button from "@/components/common/Button";
 import HeroCard from "@/components/cards/HeroCard";
 import SearchBar from "@/components/common/SearchBar";
@@ -11,6 +12,7 @@ import VisibilityToggle from "@/components/common/VisibilityToggle";
 import SortSelector from "@/components/common/SortSelector";
 import WordCard from "@/components/cards/WordCard";
 import AddWordCard from "@/components/cards/AddWordCard";
+import StudyPage from "@/pages/StudyPage";
 
 import { playText } from "@/utils/ttsUtils";
 import { useWordList } from "@/hooks/pages/useWordList";
@@ -26,6 +28,8 @@ const filterOptions = [
 const WordList = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
+
+  const [isStudyOpen, setIsStudyOpen] = React.useState(false);
 
   const {
     currentDeck, // 현재 단어장 정보
@@ -105,14 +109,14 @@ const WordList = () => {
         <HeroCard
           variant="banner"
           title="학습 시작"
-          // 현재 필터링된 단어 개수
           subTitle={`${filteredWords?.length || 0}개의 단어 준비됨`}
-          onClick={() =>
-            // 학습 페이지로 이동할 때 현재 필터링된 단어들의 ID 목록을 전달
-            navigate(`/study/${deckId}`, {
-              state: { filteredIds: filteredWords.map((w) => w.id) },
-            })
-          }
+          onClick={() => {
+            if (filteredWords.length === 0) {
+              toast.error("학습할 단어가 없어요! 😅");
+              return;
+            }
+            setIsStudyOpen(true);
+          }}
         />
       </section>
 
@@ -176,6 +180,14 @@ const WordList = () => {
         icon={<Plus size={28} />}
         onClick={onAddWord}
         aria-label="새 단어 추가"
+      />
+
+      <StudyPage
+        isOpen={isStudyOpen}
+        onClose={() => setIsStudyOpen(false)}
+        deckId={deckId}
+        initialWords={filteredWords}
+        initialDeck={currentDeck}
       />
     </div>
   );

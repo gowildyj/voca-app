@@ -1,7 +1,6 @@
 /* actionButtons.css */
 
 .controls-container {
-  /* studyControls와 이름 같아도 내용이 거의 같아서 문제 없음 */
   display: flex;
   flex-direction: column;
   padding: 0 24px;

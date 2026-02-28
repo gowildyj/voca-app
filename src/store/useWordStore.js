@@ -110,6 +110,7 @@ export const useWordStore = create(
       },
 
       addDeck: async ({ name, language, icon = "", description = "" }) => {
+        logger.start("addDeck", { name, language, icon, description });
         try {
           const { data, error } = await supabase
             .from("decks")
@@ -128,6 +129,7 @@ export const useWordStore = create(
           };
 
           set((state) => ({ decks: [newDeck, ...state.decks] }));
+          logger.success("addDeck", newDeck);
           return newDeck;
         } catch (error) {
           logger.error("addDeck", error);
@@ -136,6 +138,7 @@ export const useWordStore = create(
       },
 
       updateDeck: async (id, updates) => {
+        logger.start("updateDeck", { id, updates });
         try {
           const { error } = await supabase
             .from("decks")
@@ -153,22 +156,28 @@ export const useWordStore = create(
               d.id === id ? { ...d, ...updates } : d,
             ),
           }));
+
+          logger.success("updateDeck", { id, updates });
         } catch (error) {
           logger.error("updateDeck", error);
         }
       },
 
       deleteDeck: async (id) => {
+        logger.start("deleteDeck", { id });
         try {
           const { error } = await supabase.from("decks").delete().eq("id", id);
           if (error) throw error;
           set((state) => ({ decks: state.decks.filter((d) => d.id !== id) }));
+          logger.success("deleteDeck", { id });
         } catch (error) {
           logger.error("deleteDeck", error);
         }
       },
 
       updateDeckFavorite: async (id, isFavorite) => {
+        logger.start("updateDeckFavorite", { id, isFavorite });
+
         const prevDecks = get().decks;
         set((state) => ({
           decks: state.decks.map((d) =>
@@ -182,6 +191,8 @@ export const useWordStore = create(
             .update({ is_favorite: isFavorite })
             .eq("id", id);
           if (error) throw error;
+
+          logger.success("updateDeckFavorite", { id, isFavorite });
         } catch (error) {
           set({ decks: prevDecks });
           logger.error("updateDeckFavorite", error);
@@ -191,6 +202,7 @@ export const useWordStore = create(
       // --- [Word Actions] ---
 
       fetchWordsByDeck: async (deckId) => {
+        logger.start("fetchWordsByDeck", { deckId });
         if (!deckId) return [];
         try {
           const { data, error } = await supabase
@@ -200,6 +212,7 @@ export const useWordStore = create(
             .order("created_at", { ascending: true });
           if (error) throw error;
           set({ words: data });
+          logger.success("fetchWordsByDeck", data);
           return data;
         } catch (error) {
           logger.error("fetchWordsByDeck", error);
@@ -208,6 +221,7 @@ export const useWordStore = create(
       },
 
       addWord: async (deckId, wordData) => {
+        logger.start("addWord", { deckId, wordData });
         try {
           const { data, error } = await supabase
             .from("words")
@@ -222,6 +236,7 @@ export const useWordStore = create(
               d.id === deckId ? { ...d, total: (d.total || 0) + 1 } : d,
             ),
           }));
+          logger.success("addWord", newWord);
           return newWord;
         } catch (error) {
           logger.error("addWord", error);
@@ -229,6 +244,7 @@ export const useWordStore = create(
       },
 
       addWordsBulk: async (deckId, wordsList) => {
+        logger.start("addWordsBulk", { deckId, wordsList });
         try {
           const payload = wordsList.map((w) => ({
             deck_id: deckId,
@@ -251,6 +267,7 @@ export const useWordStore = create(
                 : d,
             ),
           }));
+          logger.success("addWordsBulk", data);
           toast.success(`${data.length}개 단어 등록 완료`);
           return data;
         } catch (error) {
@@ -333,6 +350,7 @@ export const useWordStore = create(
       },
 
       deleteWord: async (id) => {
+        logger.start("deleteWord", { id });
         const targetWord = get().words.find((w) => w.id === id);
         const deckId = targetWord?.deck_id;
 
@@ -348,12 +366,14 @@ export const useWordStore = create(
                 : d,
             ),
           }));
+          logger.success("deleteWord", { id });
         } catch (error) {
           logger.error("deleteWord", error);
         }
       },
 
       updateWordStatus: async (id, newStatus) => {
+        logger.start("updateWordStatus", { id, newStatus });
         const prevWords = get().words;
         const prevDecks = get().decks;
 
@@ -415,6 +435,8 @@ export const useWordStore = create(
             .update({ is_favorite: isFavorite })
             .eq("id", id);
           if (error) throw error;
+
+          logger.success("updateWordFavorite", { id, isFavorite });
         } catch (error) {
           set({ words: prevWords });
           logger.error("updateWordFavorite", error);

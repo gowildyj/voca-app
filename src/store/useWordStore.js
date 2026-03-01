@@ -1,3 +1,5 @@
+// src/store/useWordStore.js
+
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { supabase } from "@/lib/supabase";

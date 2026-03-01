@@ -1,5 +1,7 @@
 import React, { lazy } from "react";
 import { Navigate } from "react-router-dom";
+const AdminLayout = lazy(() => import("@/layouts/AdminLayout"));
+const AdminContent = lazy(() => import("@/pages/admin/AdminContent"));
 
 /**
  * [ROUTES] 경로 상수 관리
@@ -12,6 +14,7 @@ export const ROUTES = {
   SCENARIO_LIST: "/scenarios",
   SCENARIO_SESSION: "/scenario/:id",
   DESIGN: "/design",
+  TEST: "/test",
 };
 
 /**
@@ -23,6 +26,7 @@ const StudySession = lazy(() => import("@/pages/StudySession"));
 const ScenarioList = lazy(() => import("@/pages/ScenarioList"));
 const ScenarioPage = lazy(() => import("@/pages/ScenarioPage"));
 const DesignGuide = lazy(() => import("@/pages/DesignGuide"));
+const TEST = lazy(() => import("@/pages/Test"));
 
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
@@ -64,6 +68,11 @@ export const AppRoutesData = [
     path: ROUTES.DESIGN,
     element: <DesignGuide />,
     title: "디자인 가이드",
+  },
+  {
+    path: ROUTES.TEST,
+    element: <TEST />,
+    title: "TEST",
   },
   {
     path: "*",

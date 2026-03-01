@@ -1,10 +1,12 @@
-import React, { Suspense, useMemo, useState } from "react";
+import React, { Suspense, useMemo, useState, lazy } from "react";
 import {
   HashRouter as Router,
   Routes,
   Route,
   useLocation,
   useNavigate,
+  Navigate,
+  Outlet,
 } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ModalProvider } from "@/contexts/ModalContext";
@@ -20,24 +22,27 @@ import { toastConfig, showToast } from "@/utils/toast";
 import { AppRoutesData, ROUTES } from "@/routes/AppRoutes";
 import { LANG_OPTIONS, DEFAULT_LANG } from "@/constants/languages";
 
-function AppContent() {
+// 관리자 페이지 Lazy Load
+const AdminLayout = lazy(() => import("@/admin/AdminLayout"));
+const AdminContent = lazy(() => import("@/admin/AdminContent"));
+// const AdminScenarios = lazy(() => import("@/pages/admin/AdminScenarios")); // 추후 생성 시 주석 해제
+
+/**
+ * [UserLayout] 일반 사용자용 레이아웃 래퍼
+ * - 관리자 페이지에는 Header/BottomNav가 보이지 않도록 분리함
+ */
+const UserLayout = ({
+  // children,
+  selectedLang,
+  isLangModalOpen,
+  isSettingsOpen,
+  setIsLangModalOpen,
+  setIsSettingsOpen,
+  handleLanguageChange,
+}) => {
   const location = useLocation();
-  const navigate = useNavigate();
 
-  // [상태 관리] 사용자 선택 언어 보존 (LocalStorage)
-  const [selectedLang, setSelectedLang] = useState(() => {
-    const savedLangValue = localStorage.getItem("selected_language");
-    return (
-      LANG_OPTIONS.find((l) => l.value === savedLangValue) ||
-      LANG_OPTIONS.find((l) => l.value === DEFAULT_LANG) ||
-      LANG_OPTIONS[0]
-    );
-  });
-
-  const [isLangModalOpen, setIsLangModalOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
-  // 레이아웃 표시 여부 제어
+  // 레이아웃 표시 여부 제어 (학습 화면 등에서는 헤더/푸터 숨김)
   const uiDisplay = useMemo(() => {
     const path = location.pathname;
     const isStudyPath = ["/study", "/scenario-session"].some((p) =>
@@ -48,46 +53,6 @@ function AppContent() {
       hideHeader: isStudyPath,
     };
   }, [location.pathname]);
-
-  // 개발 환경 전용 루트 필터링
-  const routes = useMemo(
-    () =>
-      process.env.NODE_ENV === "development"
-        ? AppRoutesData
-        : AppRoutesData.filter((r) => r.path !== ROUTES.DESIGN),
-    [],
-  );
-
-  // 언어 변경 및 페이지 리다이렉트 처리
-  const handleLanguageChange = (langId) => {
-    const target = LANG_OPTIONS.find((l) => l.value === langId);
-    if (!target) return;
-
-    setSelectedLang(target);
-    localStorage.setItem("selected_language", langId);
-    showToast.success(`${target.label} 모드로 변경되었습니다!`, {
-      icon: target.icon,
-    });
-    setIsLangModalOpen(false);
-
-    const currentPath = location.pathname;
-
-    // 상세 페이지 경로 패턴 확인
-    const isDeckDetail =
-      currentPath.startsWith("/decks/") && currentPath !== ROUTES.DECK_LIST;
-    const isStudySession = currentPath.startsWith("/study/");
-    const isScenarioDetail =
-      currentPath.startsWith("/scenarios/") &&
-      currentPath !== ROUTES.SCENARIO_LIST;
-    const isScenarioSession = currentPath.startsWith("/scenario-session/");
-
-    // 상세 페이지나 학습 화면에 있다면 해당 목록으로 이동
-    if (isDeckDetail || isStudySession) {
-      navigate(ROUTES.DECK_LIST); // 덱 목록으로 이동
-    } else if (isScenarioDetail || isScenarioSession) {
-      navigate(ROUTES.SCENARIO_LIST); // 시나리오 목록으로 이동
-    }
-  };
 
   return (
     <MainLayout
@@ -124,23 +89,107 @@ function AppContent() {
         </>
       }
     >
+      {/* {children} */}
+      <Outlet />
+    </MainLayout>
+  );
+};
+
+function AppContent() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // [상태 관리] 사용자 선택 언어 보존
+  const [selectedLang, setSelectedLang] = useState(() => {
+    const savedLangValue = localStorage.getItem("selected_language");
+    return (
+      LANG_OPTIONS.find((l) => l.value === savedLangValue) ||
+      LANG_OPTIONS.find((l) => l.value === DEFAULT_LANG) ||
+      LANG_OPTIONS[0]
+    );
+  });
+
+  const [isLangModalOpen, setIsLangModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // 개발 환경 전용 루트 필터링
+  const routes = useMemo(
+    () =>
+      process.env.NODE_ENV === "development"
+        ? AppRoutesData
+        : AppRoutesData.filter((r) => r.path !== ROUTES.DESIGN),
+    [],
+  );
+
+  // 언어 변경 및 페이지 리다이렉트 처리
+  const handleLanguageChange = (langId) => {
+    const target = LANG_OPTIONS.find((l) => l.value === langId);
+    if (!target) return;
+
+    setSelectedLang(target);
+    localStorage.setItem("selected_language", langId);
+    showToast.success(`${target.label} 모드로 변경되었습니다!`, {
+      icon: target.icon,
+    });
+    setIsLangModalOpen(false);
+
+    const currentPath = location.pathname;
+    const isDeckDetail =
+      currentPath.startsWith("/decks/") && currentPath !== ROUTES.DECK_LIST;
+    const isStudySession = currentPath.startsWith("/study/");
+    const isScenarioDetail =
+      currentPath.startsWith("/scenarios/") &&
+      currentPath !== ROUTES.SCENARIO_LIST;
+    const isScenarioSession = currentPath.startsWith("/scenario-session/");
+
+    if (isDeckDetail || isStudySession) {
+      navigate(ROUTES.DECK_LIST);
+    } else if (isScenarioDetail || isScenarioSession) {
+      navigate(ROUTES.SCENARIO_LIST);
+    }
+  };
+
+  return (
+    <>
       <Toaster {...toastConfig} />
       <Suspense fallback={<div className="v-page-transition-loader" />}>
         <Routes>
-          {routes.map(({ path, element }) => (
-            <Route
-              key={path}
-              path={path}
-              element={React.cloneElement(element, {
-                currentLangValue: selectedLang.value,
-                // 언어가 바뀌면 컴포넌트 강제 리마운트 (데이터 갱신)
-                key: selectedLang.value,
-              })}
-            />
-          ))}
+          {/* 관리자 라우트 */}
+          <Route path="/admin" element={<AdminLayout />}>
+            {/* /admin 접속 시 content로 리다이렉트 */}
+            <Route index element={<Navigate to="content" replace />} />
+            <Route path="content" element={<AdminContent />} />
+            <Route path="scenarios" element={<div>시나리오 준비중</div>} />
+            <Route path="tags" element={<div>태그 준비중</div>} />
+          </Route>
+
+          {/* 일반 사용자 라우트 (UserLayout 적용) */}
+          <Route
+            element={
+              <UserLayout
+                selectedLang={selectedLang}
+                isLangModalOpen={isLangModalOpen}
+                isSettingsOpen={isSettingsOpen}
+                setIsLangModalOpen={setIsLangModalOpen}
+                setIsSettingsOpen={setIsSettingsOpen}
+                handleLanguageChange={handleLanguageChange}
+              />
+            }
+          >
+            {routes.map(({ path, element }) => (
+              <Route
+                key={path}
+                path={path}
+                element={React.cloneElement(element, {
+                  currentLangValue: selectedLang.value,
+                  key: selectedLang.value,
+                })}
+              />
+            ))}
+          </Route>
         </Routes>
       </Suspense>
-    </MainLayout>
+    </>
   );
 }
 

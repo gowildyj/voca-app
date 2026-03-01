@@ -41,7 +41,7 @@
 }
 
 .v-search-input::placeholder {
-  color: var(--text-muted);
+  color: var(--text-sub);
   opacity: 0.8;
   font-weight: 400;
 }

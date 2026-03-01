@@ -62,9 +62,9 @@
 }
 
 .v-word-sub {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--text-sub);
-  opacity: 0.7;
+  opacity: 1;
 }
 
 /* 섹션 3: 액션 버튼들 (세로형 컴팩트) */

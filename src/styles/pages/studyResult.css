@@ -82,7 +82,7 @@
   align-items: center;
   padding: 20px;
   border-radius: 20px;
-  background: white;
+  background: var(--bg-layer);
   box-shadow: var(--shadow-sm);
 }
 
@@ -128,14 +128,15 @@
 }
 
 .v-result-btn.primary {
-  background-color: var(--primary);
-  color: white;
+  background-color: var(--bg-layer);
+  color: var(--text-main);
+  border: 1px solid var(--border);
 }
 
 .v-result-btn.secondary {
-  background-color: #f3f4f6;
+  background: var(--bg-layer);
   color: var(--text-main);
-  border: 1px solid var(--text-main);
+  border: 1px solid var(--border);
 }
 
 .v-result-btn.ghost {

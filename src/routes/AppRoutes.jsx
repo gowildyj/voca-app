@@ -11,7 +11,7 @@ export const ROUTES = {
   STUDY: "/study/:deckId",
   SCENARIO_LIST: "/scenarios",
   SCENARIO_SESSION: "/scenario/:id",
-  DESIGN: "/design",
+  // DESIGN: "/design",
   TEST: "/test",
 };
 
@@ -23,7 +23,7 @@ const WordList = lazy(() => import("@/pages/WordList"));
 const StudySession = lazy(() => import("@/pages/StudySession"));
 const ScenarioList = lazy(() => import("@/pages/ScenarioList"));
 const ScenarioPage = lazy(() => import("@/pages/ScenarioPage"));
-const DesignGuide = lazy(() => import("@/pages/DesignGuide"));
+// const DesignGuide = lazy(() => import("@/pages/DesignGuide"));
 const TEST = lazy(() => import("@/admin/Test"));
 
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -62,11 +62,11 @@ export const AppRoutesData = [
     element: <ScenarioPage />,
     title: "대화 연습",
   },
-  {
-    path: ROUTES.DESIGN,
-    element: <DesignGuide />,
-    title: "디자인 가이드",
-  },
+  // {
+  //   path: ROUTES.DESIGN,
+  //   element: <DesignGuide />,
+  //   title: "디자인 가이드",
+  // },
   {
     path: ROUTES.TEST,
     element: <TEST />,

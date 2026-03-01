@@ -19,9 +19,7 @@
 }
 
 .v-filter-wrapper {
-  margin-top: 16px;
-  margin-left: -16px;
-  margin-right: -16px;
+  padding: 16px 0;
 }
 
 /* 빈 상태 디자인 */

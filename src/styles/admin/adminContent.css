@@ -282,3 +282,42 @@ th {
   margin-bottom: 4px;
   display: block;
 }
+
+/* --- 태그 선택 체크박스 그룹 --- */
+.admin-tag-selection-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.admin-tag-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.admin-tag-chip:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+/* 체크박스가 선택되었을 때 스타일 */
+.admin-tag-chip.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.admin-tag-chip input {
+  display: none; /* 실제 체크박스는 숨김 */
+}

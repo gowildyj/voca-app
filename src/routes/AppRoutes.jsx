@@ -1,7 +1,5 @@
 import React, { lazy } from "react";
 import { Navigate } from "react-router-dom";
-const AdminLayout = lazy(() => import("@/admin/AdminLayout"));
-const AdminContent = lazy(() => import("@/admin/AdminContent"));
 
 /**
  * [ROUTES] 경로 상수 관리

@@ -18,6 +18,7 @@ const AdminLayout = () => {
   const menus = [
     { name: "언어 관리", path: "/admin/languages", icon: <HiGlobeAlt /> },
     { name: "해시태그 관리", path: "/admin/hashtags", icon: <HiTag /> },
+    { name: "아이템 관리", path: "/admin/items", icon: <HiSquare3Stack3D /> },
     { name: "콘텐츠 관리", path: "/admin/content", icon: <HiSquare3Stack3D /> },
     {
       name: "시나리오",

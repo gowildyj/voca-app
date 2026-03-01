@@ -50,6 +50,7 @@ const AdminTags = () => {
 1. 형식: { "tag_key": "영문키", "icon_emoji": "...", "langs": { "언어코드": "번역명칭" } }
 2. tag_key 예시: 'food', 'shopping', 'transport', 'hotel' 등 소문자 영문.
 3. 순수 JSON 배열만 출력해.
+JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스마트 문자 ’ (U+2019) 말고, 일반 아포스트로피(’) 사용해. 여러 객체는[] 배열로 감싸.
 `;
 
   useEffect(() => {

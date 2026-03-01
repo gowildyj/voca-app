@@ -9,6 +9,7 @@ export const useGlobalStore = create((set, get) => ({
   languages: [],
   categories: [],
   scenarios: [],
+  items: [],
 
   // --- Actions ---
 
@@ -281,71 +282,155 @@ export const useGlobalStore = create((set, get) => ({
     }
   },
 
-  // 3. [핵심] 단어 추가 테스트 (Master -> Translation -> Reading)
-  // 원래는 Admin 페이지에서 할 일이지만, 로직 검증을 위해 여기서 테스트
-  addTestWord: async () => {
-    const testPayload = {
-      content: "Apple",
-      meaning: "사과",
-      reading: "애플",
-      langCode: "en",
-      nativeCode: "ko",
-    };
-    logger.start("addTestWord (Transaction)", testPayload);
+  /// --- [Content (Items) Actions] ---
 
+  // 3-1. 관리자용 콘텐츠 목록 조회 (번역 및 태그 포함)
+  fetchAdminItems: async () => {
+    logger.start("fetchAdminItems");
+    const { data, error } = await supabase
+      .from("master_items")
+      .select(
+        `
+        *,
+        item_translations(*),
+        item_tag_map(tag_id)
+      `,
+      )
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      logger.error("fetchAdminItems", error);
+    } else {
+      set({ items: data }); // 스토어 상단 state에 items: [] 추가 필요
+      logger.success("fetchAdminItems", data);
+    }
+  },
+
+  // 3-2. 콘텐츠 일괄 등록 및 Upsert
+  // 3-2. 콘텐츠 일괄 등록 및 Upsert (중복 방지 강화)
+  addItemsBulk: async (itemList) => {
+    logger.start("addItemsBulk (Upsert Mode)", itemList);
     try {
-      // (1) Master Item 생성
-      const { data: master, error: masterErr } = await supabase
-        .from("master_items")
-        .insert([{ item_type: "WORD" }])
-        .select()
-        .single();
-      if (masterErr) throw masterErr;
+      for (const item of itemList) {
+        // 🌟 1. Master Item Upsert (item_key 기준)
+        // item_key가 같으면 신규 생성하지 않고 기존 ID를 가져옵니다.
+        const { data: master, error: mErr } = await supabase
+          .from("master_items")
+          .upsert(
+            {
+              item_key:
+                item.item_key || item.langs["en-US"]?.content.toLowerCase(), // 키가 없으면 영어 단어를 키로 사용
+              item_type: item.item_type,
+              image_url: item.image_url,
+            },
+            { onConflict: "item_key" },
+          )
+          .select()
+          .single();
 
-      // (2) Translation (영어 데이터 + 한국어 뜻)
-      // *주의: 실제로는 ko row, en row를 따로 넣어야 하지만,
-      // 테스트를 위해 en row에 definition(뜻)을 임시로 넣거나
-      // 설계대로 2번 insert 해야 함. 여기선 약식으로 진행.
-      const { data: trans, error: transErr } = await supabase
-        .from("item_translations")
-        .insert([
-          {
-            master_item_id: master.id,
-            lang_code: "en",
-            content: "Apple",
-            example_sentence: "I ate an apple.",
-          },
-        ])
-        .select()
-        .single();
-      if (transErr) throw transErr;
+        if (mErr) throw mErr;
 
-      // (2-1) 한국어 뜻 데이터 추가 (설계 원칙 준수)
-      await supabase.from("item_translations").insert([
-        {
+        // 2. Translations 등록
+        const transPayload = Object.entries(item.langs).map(([code, info]) => ({
           master_item_id: master.id,
-          lang_code: "ko",
-          content: "사과",
-        },
-      ]);
+          lang_code: code,
+          content: info.content,
+          definition: info.definition || null,
+          example_sentence: info.example || null,
+        }));
 
-      // (3) Reading (독음)
-      const { data: reading, error: readErr } = await supabase
-        .from("item_readings")
-        .insert([
-          {
-            item_translation_id: trans.id,
-            native_lang_code: "ko",
-            reading_content: "애플",
-          },
-        ])
-        .select();
-      if (readErr) throw readErr;
+        const { error: tErr } = await supabase
+          .from("item_translations")
+          .upsert(transPayload, { onConflict: "master_item_id,lang_code" });
 
-      logger.success("addTestWord", { master, trans, reading });
-      alert("단어 추가 성공! 콘솔 확인");
+        if (tErr) throw tErr;
+
+        // 3. 태그 매핑 (Upsert 개념으로 기존 삭제 후 재등록)
+        if (item.tag_ids && item.tag_ids.length > 0) {
+          await supabase
+            .from("item_tag_map")
+            .delete()
+            .eq("master_item_id", master.id);
+          const tagPayload = item.tag_ids.map((tagId) => ({
+            master_item_id: master.id,
+            tag_id: tagId,
+          }));
+          await supabase.from("item_tag_map").insert(tagPayload);
+        }
+      }
+
+      // 🌟 중요: 저장 후 목록을 다시 불러옵니다.
+      await get().fetchAdminItems();
+      showToast.success("데이터 통합 완료!");
+      return true;
     } catch (error) {
-      logger.error("addTestWord", error);
+      logger.error("addItemsBulk 실패", error);
+      alert("오류 발생: " + error.message);
+      return false;
+    }
+  },
+
+  // 3-3. 콘텐츠 삭제
+  deleteItem: async (id) => {
+    if (
+      !confirm(
+        "이 콘텐츠를 삭제하시겠습니까? 번역과 태그 연결이 모두 삭제됩니다.",
+      )
+    )
+      return;
+
+    const { error } = await supabase.from("master_items").delete().eq("id", id);
+
+    if (!error) {
+      set((state) => ({ items: state.items.filter((i) => i.id !== id) }));
+      showToast.success("삭제 완료");
+    }
+  },
+
+  // 3-4. 콘텐츠 수정 (Master + Translations + Tags)
+  updateItem: async (id, updates) => {
+    logger.start("updateItem", { id, updates });
+    try {
+      // 1. Master 업데이트 (이미지, 타입)
+      await supabase
+        .from("master_items")
+        .update({
+          item_type: updates.item_type,
+          image_url: updates.image_url,
+        })
+        .eq("id", id);
+
+      // 2. 번역 업데이트
+      if (updates.langs) {
+        const transPayload = Object.entries(updates.langs).map(
+          ([code, info]) => ({
+            master_item_id: id,
+            lang_code: code,
+            content: info.content,
+            example_sentence: info.example,
+          }),
+        );
+        await supabase
+          .from("item_translations")
+          .upsert(transPayload, { onConflict: "master_item_id,lang_code" });
+      }
+
+      // 3. 태그 업데이트 (기존 삭제 후 재등록 방식이 가장 깔끔)
+      if (updates.tag_ids) {
+        await supabase.from("item_tag_map").delete().eq("master_item_id", id);
+        const tagPayload = updates.tag_ids.map((tagId) => ({
+          master_item_id: id,
+          tag_id: tagId,
+        }));
+        await supabase.from("item_tag_map").insert(tagPayload);
+      }
+
+      await get().fetchAdminItems();
+      showToast.success("수정되었습니다.");
+      return true;
+    } catch (error) {
+      logger.error("updateItem 실패", error);
+      return false;
     }
   },
 

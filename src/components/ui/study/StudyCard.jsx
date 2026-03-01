@@ -17,8 +17,15 @@ const StudyCard = ({
   onToggleWordFavorite,
   isNextPreview,
   language,
+  viewMode = "frontFirst",
 }) => {
   if (!cardData) return null;
+
+  const isBackFirst = viewMode === "backFirst";
+  const frontContent = isBackFirst ? cardData.meaning : cardData.word;
+  const backContent = isBackFirst ? cardData.word : cardData.meaning;
+  const frontClass = isBackFirst ? "meaning-text" : "word-text";
+  const backClass = isBackFirst ? "word-text" : "meaning-text";
 
   // 다음 카드 프리뷰 모드
   if (isNextPreview) {
@@ -38,7 +45,7 @@ const StudyCard = ({
             style={{ border: "2px solid transparent" }}
           >
             <div className="card-face card-front">
-              <span className="word-text">{cardData.word}</span>
+              <span className={frontClass}>{frontContent}</span>
             </div>
           </div>
         </div>
@@ -124,7 +131,7 @@ const StudyCard = ({
             className="card-face card-front"
             style={{ backfaceVisibility: "hidden" }}
           >
-            <span className="word-text">{cardData.word}</span>
+            <span className={frontClass}>{frontContent}</span>
           </div>
 
           {/* 뒷면 */}
@@ -140,7 +147,7 @@ const StudyCard = ({
               height: "100%",
             }}
           >
-            <span className="meaning-text">{cardData.meaning}</span>
+            <span className={backClass}>{backContent}</span>
           </div>
         </motion.div>
       </motion.div>

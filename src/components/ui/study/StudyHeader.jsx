@@ -24,7 +24,7 @@ const StudyHeader = ({ current, total, onClose, onSettings }) => {
         <div className="v-progress-text">{progressText}</div>
 
         {/* 오른쪽: 설정 버튼 (onSettings가 있을 때만 렌더링) */}
-        <div className="v-header-right">
+        {/* <div className="v-header-right">
           {onSettings ? (
             <button
               className="v-icon-btn"
@@ -37,7 +37,7 @@ const StudyHeader = ({ current, total, onClose, onSettings }) => {
             // 버튼이 없을 때 레이아웃 균형을 위한 투명 공간 (선택 사항)
             <div style={{ width: 40, height: 40 }} />
           )}
-        </div>
+        </div> */}
       </div>
 
       {/* 하단: 진행바 */}

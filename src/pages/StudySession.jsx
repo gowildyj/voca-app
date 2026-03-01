@@ -36,9 +36,11 @@ const StudySession = ({ deckId, initialWords, initialDeck, onClose }) => {
     onToggleWordFavorite,
     handleUndo,
     handleShuffle,
-    toggleAutoPlay,
     handleFlip,
-    onSwipeAction, // 🌟 추가된 액션
+    onSwipeAction,
+    toggleAutoPlay,
+    toggleAutoAudio,
+    toggleViewMode,
   } = useStudyPage(deckId, initialWords, initialDeck);
 
   if (isFinished) {
@@ -81,6 +83,10 @@ const StudySession = ({ deckId, initialWords, initialDeck, onClose }) => {
           onShuffle={handleShuffle}
           isAutoPlay={studySettings.isAutoPlay}
           toggleAutoPlay={toggleAutoPlay}
+          isAutoAudio={studySettings.isAutoAudio}
+          toggleAutoAudio={toggleAutoAudio}
+          viewMode={studySettings.viewMode}
+          toggleViewMode={toggleViewMode}
         />
       </div>
 
@@ -92,6 +98,7 @@ const StudySession = ({ deckId, initialWords, initialDeck, onClose }) => {
               key={`next-${nextCard.id}`}
               cardData={nextCard}
               isNextPreview={true}
+              viewMode={studySettings.viewMode}
             />
           </div>
         )}
@@ -103,7 +110,6 @@ const StudySession = ({ deckId, initialWords, initialDeck, onClose }) => {
             cardData={currentCard}
             language={currentDeck?.language}
             onToggleWordFavorite={onToggleWordFavorite}
-            // 🌟 훅에서 온 애니메이션 상태 및 핸들러 주입
             x={x}
             y={y}
             rotate={rotate}
@@ -112,6 +118,7 @@ const StudySession = ({ deckId, initialWords, initialDeck, onClose }) => {
             swipeDirection={swipeDirection}
             onFlip={handleFlip}
             onSwipeAction={onSwipeAction}
+            viewMode={studySettings.viewMode}
           />
         ) : (
           <div className="v-empty">완료!</div>

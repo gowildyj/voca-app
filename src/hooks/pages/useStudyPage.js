@@ -43,9 +43,9 @@ export const useStudyPage = (
       const saved = localStorage.getItem("study_settings");
       return saved
         ? JSON.parse(saved)
-        : { isAutoPlay: false, viewMode: "frontFirst" };
+        : { isAutoPlay: false, isAutoAudio: true, viewMode: "frontFirst" };
     } catch {
-      return { isAutoPlay: false, viewMode: "frontFirst" };
+      return { isAutoPlay: false, isAutoAudio: true, viewMode: "frontFirst" };
     }
   });
 
@@ -83,6 +83,13 @@ export const useStudyPage = (
     else if (deckId)
       fetchDeckById(deckId).then((deck) => deck && setCurrentDeck(deck));
   }, [deckId, initialWords, initialDeckData, fetchWordsByDeck, fetchDeckById]);
+
+  // --- autoAudio 읽기 --
+  useEffect(() => {
+    if (words[currentIndex] && studySettings.isAutoAudio && !isFinished) {
+      playText(words[currentIndex].word, currentDeck?.language || "en-US");
+    }
+  }, [currentIndex, studySettings.isAutoAudio, isFinished, currentDeck]);
 
   // --- 카드 위치 초기화 ---
   const resetCardPosition = useCallback(() => {
@@ -208,12 +215,15 @@ export const useStudyPage = (
       clearTimeout(autoPlayTimerRef.current);
       return;
     }
+
     const runAutoPlayLoop = async () => {
       const currentWord = words[currentIndex];
       if (!currentWord) return;
-      playText(currentWord.word, currentDeck?.language || "en-US");
+
+      // playText(currentWord.word, currentDeck?.language || "en-US");
       autoPlayTimerRef.current = setTimeout(() => {
         setIsFlipped(true);
+
         autoPlayTimerRef.current = setTimeout(() => {
           if (currentIndex < words.length - 1) {
             setIsFlipped(false);
@@ -228,7 +238,7 @@ export const useStudyPage = (
             updateSettings({ isAutoPlay: false });
           }
         }, 1500);
-      }, 2000);
+      }, 1500);
     };
     runAutoPlayLoop();
     return () => clearTimeout(autoPlayTimerRef.current);
@@ -269,7 +279,8 @@ export const useStudyPage = (
     [updateWordFavorite],
   );
 
-  // --- 최종 리턴 ---
+  // --- 리턴 ---
+
   return {
     // Data
     words,
@@ -292,14 +303,22 @@ export const useStudyPage = (
     // Actions
     setIsSettingsOpen,
     setStudySettings: updateSettings,
-    handleRetryUnknown, // 🌟 이제 정의되었으므로 에러 안 남
+    handleRetryUnknown,
     triggerSwipe,
     onToggleWordFavorite,
     handleUndo,
     handleShuffle,
-    toggleAutoPlay: () =>
-      updateSettings({ isAutoPlay: !studySettings.isAutoPlay }),
     handleFlip,
     onSwipeAction,
+    // UI 컨트롤러용 토글 함수들
+    toggleAutoPlay: () =>
+      updateSettings({ isAutoPlay: !studySettings.isAutoPlay }),
+    toggleAutoAudio: () =>
+      updateSettings({ isAutoAudio: !studySettings.isAutoAudio }),
+    toggleViewMode: () =>
+      updateSettings({
+        viewMode:
+          studySettings.viewMode === "frontFirst" ? "backFirst" : "frontFirst",
+      }),
   };
 };

@@ -3,7 +3,13 @@
 .v-sort-container {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
+}
+
+.v-shuffle-btn {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 4px 10px;
+  border-radius: 5px;
 }
 
 .v-sort-select-box {

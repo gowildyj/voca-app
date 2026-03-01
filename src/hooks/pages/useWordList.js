@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import { useSearchParams, useLocation } from "react-router-dom";
+import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import { useWordStore } from "@/store/useWordStore";
 import { useModal } from "@/contexts/ModalContext";
 import { seededShuffle } from "@/utils/seedShuffle";
@@ -8,6 +8,7 @@ import { seededShuffle } from "@/utils/seedShuffle";
  * useWordList: 단어 목록 페이지의 데이터 로드, 필터링, 액션을 통합 관리하는 훅
  */
 export const useWordList = (deckId) => {
+  const navigate = useNavigate();
   const { state } = useLocation(); // 이전 페이지(단어장 목록)에서 넘겨준 state
   const { openModal, closeModal } = useModal();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,11 +52,23 @@ export const useWordList = (deckId) => {
 
   // --- [3] 초기 데이터 로드 ---
   useEffect(() => {
-    if (deckId) {
-      fetchWordsByDeck(deckId); // 단어 목록
-      fetchDeckById(deckId); // 덱 상세 정보 (최신 동기화)
-    }
-  }, [deckId, fetchWordsByDeck, fetchDeckById]);
+    if (!deckId) return;
+
+    const loadData = async () => {
+      const deckData = await fetchDeckById(deckId);
+
+      if (!deckData) {
+        // console.warn("덱 정보를 찾을 수 없습니다.");
+        navigate("/not-found", { replace: true });
+        return;
+      }
+
+      // 덱이 있으면 단어 목록 가져오기
+      fetchWordsByDeck(deckId);
+    };
+
+    loadData();
+  }, [deckId, fetchWordsByDeck, fetchDeckById, navigate]);
 
   // --- [4] 검색어 디바운싱 (성능 최적화) ---
   useEffect(() => {

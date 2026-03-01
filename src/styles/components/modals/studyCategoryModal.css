@@ -45,3 +45,7 @@
   right: 10px;
   color: var(--primary);
 }
+
+.v-category-info {
+  color: var(--text-main);
+}

@@ -1,0 +1,20 @@
+.v-not-found-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  padding: 20px;
+  text-align: center;
+}
+.v-not-found-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 12px;
+}
+.v-not-found-desc {
+  font-size: 1rem;
+  color: var(--text-sub);
+  line-height: 1.5;
+}

@@ -125,7 +125,7 @@ const WordList = () => {
           subTitle={`${filteredWords?.length || 0}개의 단어 준비됨`}
           onClick={() => {
             if (!filteredWords || filteredWords.length === 0) {
-              toast.error("학습할 단어가 없어요! 😅");
+              toast.error("학습할 단어가 없어요!");
               return;
             }
             setIsStudyOpen(true);

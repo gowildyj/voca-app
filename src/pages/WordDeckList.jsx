@@ -70,9 +70,7 @@ const WordDeckList = ({ currentLangValue }) => {
     <>
       <div className="v-deck-list-page">
         <section className="v-deck-list-header">
-          <p className="v-deck-welcome-msg">
-            오늘도 언어 천재가 되어볼까요? 🚀
-          </p>
+          <p className="v-deck-welcome-msg">노는 게 제일 좋아~ 🎵</p>
           <SearchBar
             value={searchQuery}
             onChange={(e) =>

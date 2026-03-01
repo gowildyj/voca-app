@@ -89,7 +89,7 @@ export const useStudyPage = (
     if (words[currentIndex] && studySettings.isAutoAudio && !isFinished) {
       playText(words[currentIndex].word, currentDeck?.language || "en-US");
     }
-  }, [currentIndex, studySettings.isAutoAudio, isFinished, currentDeck]);
+  }, [currentIndex, studySettings.isAutoAudio, isFinished, currentDeck, words]);
 
   // --- 카드 위치 초기화 ---
   const resetCardPosition = useCallback(() => {

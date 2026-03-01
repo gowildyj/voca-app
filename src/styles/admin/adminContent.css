@@ -114,3 +114,171 @@ th {
   background: #dcfce7;
   color: #166534;
 }
+
+/* 검색 바 */
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 16px;
+  margin-bottom: 16px;
+  gap: 10px;
+}
+.search-icon {
+  color: #94a3b8;
+  font-size: 1.2rem;
+}
+.search-bar input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+.pagination button {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.pagination button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.pagination span {
+  font-weight: 600;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.admin-inline-input {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  outline: none;
+}
+.admin-inline-input:focus {
+  border-color: #2563eb;
+  background: white;
+}
+
+/* --- 아코디언 상세 편집 패널 --- */
+.admin-accordion-panel {
+  background-color: #f8fafc;
+  padding: 24px;
+  border-bottom: 2px solid #e2e8f0;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- 커스텀 토글 스위치 --- */
+.admin-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: fit-content;
+  border: 1px solid #e2e8f0;
+  background: #f1f5f9;
+}
+
+/* 체크되었을 때의 스타일 */
+.admin-toggle-wrapper.active {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+/* 스위치 트랙 */
+.toggle-track {
+  width: 40px;
+  height: 20px;
+  background: #cbd5e1;
+  border-radius: 20px;
+  position: relative;
+  transition: background 0.3s;
+}
+
+.admin-toggle-wrapper.active .toggle-track {
+  background: #2563eb;
+}
+
+/* 스위치 핸들 (동그라미) */
+.toggle-handle {
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: left 0.2s ease;
+}
+
+.admin-toggle-wrapper.active .toggle-handle {
+  left: 23px;
+}
+
+.toggle-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.admin-toggle-wrapper.active .toggle-label {
+  color: #1e40af;
+}
+
+/* --- 다국어 수정 그리드 --- */
+.admin-lang-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.admin-lang-item {
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  transition: border-color 0.2s;
+}
+
+.admin-lang-item:focus-within {
+  border-color: #2563eb;
+}
+
+.admin-lang-label {
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-bottom: 4px;
+  display: block;
+}

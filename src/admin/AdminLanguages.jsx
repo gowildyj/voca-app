@@ -2,237 +2,232 @@ import React, { useEffect, useState } from "react";
 import { useGlobalStore } from "@/store/useGlobalStore";
 import AdminPageContainer from "@/admin/AdminPageContainer";
 import Button from "@/components/common/Button";
-import { HiTrash, HiPencil, HiPlus, HiCheck, HiXMark } from "react-icons/hi2";
+import { HiTrash, HiPencil, HiCheck, HiXMark, HiPlus } from "react-icons/hi2";
 
 const AI_PROMPT = `
-너는 데이터 생성기야. 아래 언어 목록을 JSON 형식으로 변환해줘.
-필드: code (ISO 2자리), name (해당 언어로 표기), emoji (국기)
-[예시] [ { "code": "fr", "name": "Français", "emoji": "🇫🇷" } ]
-[요청] 다음 언어들을 추가해줘: 프랑스어, 독일어, 이탈리아어, 베트남어.
+너는 다국어 데이터 생성 전문가야. 아래 요청하는 언어 목록을 JSON 배열 형식으로 변환해줘.
+
+[데이터 규격 규칙]
+1. code: 반드시 BCP 47 형식을 준수할 것 (예: 언어는 소문자, 지역은 대문자 'ko-KR', 'en-US', 'ja-JP').
+2. name: 해당 언어의 원어 명칭으로 표기 (예: '한국어', 'English', '日本語').
+3. emoji: 해당 언어를 대표하는 국가의 국기 이모지.
+
+[출력 형식 예시]
+[
+  { "code": "ko-KR", "name": "한국어", "emoji": "🇰🇷" },
+  { "code": "en-US", "name": "English", "emoji": "🇺🇸" },
+  { "code": "ja-JP", "name": "日本語", "emoji": "🇯🇵" }
+]
+
+[요청 목록]
+다음 언어들을 포함해서 JSON으로 만들어줘: 
+영어, 스페인어, 프랑스어, 독일어, 이탈리아어, 중국어(간체), 일본어, 베트남어, 태국어, 필리펀어, 러시아어, 아랍어.
+
+주의: 마크다운 코드 블록 없이 순수 JSON 배열만 출력해.
 `;
 
 const AdminLanguages = () => {
   const {
     languages,
     fetchLanguages,
-    addLanguage, // 추가
-    updateLanguage, // 🌟 수정 함수 가져오기
+    addLanguage,
+    updateLanguage,
     addLanguagesBulk,
     deleteLanguage,
   } = useGlobalStore();
 
-  // 폼 상태 관리
-  const [formData, setFormData] = useState({ code: "", name: "", emoji: "" });
-  const [isEditing, setIsEditing] = useState(false); // 수정 모드 여부
+  // 1. 단건 추가용 상태 (한 줄 인풋 박스용)
+  const [newData, setNewData] = useState({ code: "", name: "", emoji: "" });
+
+  // 2. 인라인 수정용 상태
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({ name: "", emoji: "" });
 
   useEffect(() => {
     fetchLanguages();
   }, []);
 
-  // 입력값 변경 핸들러
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // 폼 제출 (추가 or 수정)
-  const handleSubmit = async (e) => {
+  const handleSingleAdd = async (e) => {
     e.preventDefault();
-    if (!formData.code || !formData.name)
-      return alert("코드와 이름은 필수입니다.");
-
-    let success = false;
-    if (isEditing) {
-      // 수정 모드일 때
-      success = await updateLanguage(formData.code, {
-        name: formData.name,
-        emoji: formData.emoji,
-      });
-    } else {
-      // 추가 모드일 때
-      success = await addLanguage(formData);
-    }
-
-    if (success) {
-      resetForm();
-    }
+    if (!newData.code || !newData.name)
+      return alert("코드와 이름을 입력해주세요.");
+    const success = await addLanguage(newData);
+    if (success) setNewData({ code: "", name: "", emoji: "" });
   };
 
-  // 수정 버튼 클릭 시
-  const handleEditClick = (lang) => {
-    setFormData(lang); // 선택한 언어 정보로 폼 채우기
-    setIsEditing(true); // 수정 모드 ON
-    // 폼으로 스크롤 이동 (선택사항)
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handleSaveEdit = async (code) => {
+    if (!editForm.name) return alert("이름을 입력해주세요.");
+    const success = await updateLanguage(code, editForm);
+    if (success) setEditId(null);
   };
 
-  // 취소/초기화
-  const resetForm = () => {
-    setFormData({ code: "", name: "", emoji: "" });
-    setIsEditing(false);
-  };
-
-  // --- 렌더링 부분 ---
+  // 🌟 [핵심] 목록 상단에 항상 보일 한 줄 인풋 박스 UI
+  const AddFormUI = (
+    <div
+      className="guide-box"
+      style={{
+        background: "white",
+        border: "1px solid #e2e8f0",
+        padding: "12px",
+      }}
+    >
+      <form
+        onSubmit={handleSingleAdd}
+        style={{ display: "flex", gap: "10px", alignItems: "flex-end" }}
+      >
+        <div style={{ flex: "0 0 100px" }}>
+          <label style={{ fontSize: "0.75rem", color: "#64748b" }}>Code</label>
+          <input
+            className="admin-inline-input"
+            value={newData.code}
+            onChange={(e) => {
+              let val = e.target.value;
+              if (val.includes("-")) {
+                const parts = val.split("-");
+                val = parts[0].toLowerCase() + "-" + parts[1].toUpperCase();
+              } else {
+                val = val.toLowerCase();
+              }
+              setNewData({ ...newData, code: val });
+            }}
+            placeholder="en-US"
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={{ fontSize: "0.75rem", color: "#64748b" }}>Name</label>
+          <input
+            className="admin-inline-input"
+            style={{ width: "100%", height: "36px" }}
+            value={newData.name}
+            onChange={(e) => setNewData({ ...newData, name: e.target.value })}
+            placeholder="English"
+          />
+        </div>
+        <div style={{ flex: "0 0 80px" }}>
+          <label style={{ fontSize: "0.75rem", color: "#64748b" }}>Emoji</label>
+          <input
+            className="admin-inline-input"
+            style={{ width: "100%", height: "36px", textAlign: "center" }}
+            value={newData.emoji}
+            onChange={(e) => setNewData({ ...newData, emoji: e.target.value })}
+            placeholder="🇺🇸"
+          />
+        </div>
+        <Button type="submit" size="sm" icon={<HiPlus />}>
+          추가
+        </Button>
+      </form>
+    </div>
+  );
 
   const renderHeader = (
     <thead>
       <tr>
-        <th style={{ width: "60px" }}>Flag</th>
-        <th style={{ width: "80px" }}>Code</th>
+        <th style={{ width: "50px", textAlign: "center" }}>No.</th>
+        <th style={{ width: "80px", textAlign: "center" }}>Flag</th>
+        <th style={{ width: "100px" }}>Code</th>
         <th>Name</th>
-        <th style={{ width: "120px" }}>Action</th>
+        <th style={{ width: "120px", textAlign: "center" }}>Action</th>
       </tr>
     </thead>
   );
 
-  const renderRow = (lang, index) => (
-    <tr key={lang.code || index}>
-      <td style={{ fontSize: "1.5rem", textAlign: "center" }}>{lang.emoji}</td>
-      <td>
-        <span className="badge WORD">{lang.code}</span>
-      </td>
-      <td style={{ fontWeight: "bold" }}>{lang.name}</td>
-      <td>
-        <div style={{ display: "flex", gap: "6px" }}>
-          {/* 🌟 수정 버튼 */}
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => handleEditClick(lang)}
-            icon={<HiPencil />}
-          />
-          {/* 삭제 버튼 */}
-          {lang.code && (
-            <Button
-              variant="danger"
-              size="sm"
-              onClick={() => deleteLanguage(lang.code)}
-              icon={<HiTrash />}
-            />
-          )}
-        </div>
-      </td>
-    </tr>
-  );
-
-  return (
-    <div style={{ position: "relative" }}>
-      {" "}
-      {/* 컨테이너 감싸기 */}
-      {/* 1. 상단: 입력 폼 (수정/추가 공용) */}
-      <div
-        className="guide-box"
-        style={{
-          background: "white",
-          border: "1px solid #e2e8f0",
-          margin: "20px",
-          padding: "16px",
-          borderRadius: "12px",
-        }}
-      >
-        <h4
-          style={{
-            marginBottom: "12px",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
+  const renderRow = (lang, index, no) => {
+    const isEditing = editId === lang.code;
+    return (
+      <tr key={lang.code || index}>
+        <td
+          style={{ textAlign: "center", color: "#94a3b8", fontSize: "0.85rem" }}
         >
+          {no}
+        </td>
+        <td style={{ textAlign: "center" }}>
           {isEditing ? (
-            <>
-              <HiPencil /> 언어 수정 중: {formData.code}
-            </>
+            <input
+              className="admin-inline-input"
+              style={{ width: "50px", textAlign: "center" }}
+              value={editForm.emoji}
+              onChange={(e) =>
+                setEditForm({ ...editForm, emoji: e.target.value })
+              }
+            />
           ) : (
-            <>
-              <HiPlus /> 새 언어 추가
-            </>
+            <span style={{ fontSize: "1.5rem" }}>{lang.emoji}</span>
           )}
-        </h4>
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            display: "flex",
-            gap: "10px",
-            alignItems: "flex-end",
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ flex: "0 0 80px" }}>
-            <label style={{ fontSize: "0.8rem", color: "#64748b" }}>Code</label>
+        </td>
+        <td>
+          <span className="badge WORD">{lang.code}</span>
+        </td>
+        <td>
+          {isEditing ? (
             <input
-              name="code"
-              className="json-textarea"
-              style={{
-                height: "40px",
-                padding: "8px",
-                color: "white",
-                background: isEditing ? "#94a3b8" : "#1e293b",
-              }}
-              value={formData.code}
-              onChange={handleChange}
-              placeholder="fr"
-              disabled={isEditing} // 🌟 수정 시 코드는 변경 불가 (PK라서)
+              className="admin-inline-input"
+              style={{ width: "100%" }}
+              value={editForm.name}
+              onChange={(e) =>
+                setEditForm({ ...editForm, name: e.target.value })
+              }
             />
-          </div>
-          <div style={{ flex: 1, minWidth: "150px" }}>
-            <label style={{ fontSize: "0.8rem", color: "#64748b" }}>Name</label>
-            <input
-              name="name"
-              className="json-textarea"
-              style={{ height: "40px", padding: "8px", color: "white" }}
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Français"
-            />
-          </div>
-          <div style={{ flex: "0 0 60px" }}>
-            <label style={{ fontSize: "0.8rem", color: "#64748b" }}>
-              Emoji
-            </label>
-            <input
-              name="emoji"
-              className="json-textarea"
-              style={{ height: "40px", padding: "8px", color: "white" }}
-              value={formData.emoji}
-              onChange={handleChange}
-              placeholder="🇫🇷"
-            />
-          </div>
-
-          <div style={{ display: "flex", gap: "8px" }}>
-            <Button
-              type="submit"
-              size="sm"
-              icon={isEditing ? <HiCheck /> : <HiPlus />}
-            >
-              {isEditing ? "저장" : "추가"}
-            </Button>
-            {isEditing && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={resetForm}
-                icon={<HiXMark />}
-              >
-                취소
-              </Button>
+          ) : (
+            <span style={{ fontWeight: "bold" }}>{lang.name}</span>
+          )}
+        </td>
+        <td>
+          <div
+            style={{ display: "flex", gap: "6px", justifyContent: "center" }}
+          >
+            {isEditing ? (
+              <>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => handleSaveEdit(lang.code)}
+                  icon={<HiCheck />}
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEditId(null)}
+                  icon={<HiXMark />}
+                />
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    setEditId(lang.code);
+                    setEditForm({ name: lang.name, emoji: lang.emoji });
+                  }}
+                  icon={<HiPencil />}
+                />
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => deleteLanguage(lang.code)}
+                  icon={<HiTrash />}
+                />
+              </>
             )}
           </div>
-        </form>
-      </div>
-      {/* 2. 하단: 리스트 및 JSON 업로더 */}
-      <AdminPageContainer
-        title="🌐 언어 관리"
-        aiGuide={AI_PROMPT}
-        jsonPlaceholder='[ { "code": "fr", "name": "Français", "emoji": "🇫🇷" } ]'
-        data={languages}
-        onUpload={addLanguagesBulk}
-        onRefresh={fetchLanguages}
-        renderListHeader={renderHeader}
-        renderListRow={renderRow}
-      />
-    </div>
+        </td>
+      </tr>
+    );
+  };
+
+  return (
+    <AdminPageContainer
+      title="🌐 언어 관리"
+      data={languages}
+      onUpload={addLanguagesBulk}
+      onRefresh={fetchLanguages}
+      renderListHeader={renderHeader}
+      renderListRow={renderRow}
+      renderAddForm={AddFormUI} // 🌟 UI를 통째로 전달
+      aiGuide={AI_PROMPT}
+      jsonPlaceholder='[ { "code": "fr", "name": "Français", "emoji": "🇫🇷" } ]'
+    />
   );
 };
 

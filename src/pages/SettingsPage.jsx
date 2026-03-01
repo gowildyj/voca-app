@@ -113,7 +113,7 @@ const SettingsPage = ({ isOpen, onClose }) => {
         </section>
 
         {/* 3. 학습 설정 섹션 */}
-        <section className="v-settings-section">
+        {/* <section className="v-settings-section">
           <h3 className="v-settings-label">학습 설정</h3>
           <div className="v-settings-list-card">
             <div className="v-list-item">
@@ -142,10 +142,10 @@ const SettingsPage = ({ isOpen, onClose }) => {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* 4. 기타 섹션 */}
-        <section className="v-settings-section">
+        {/* <section className="v-settings-section">
           <h3 className="v-settings-label">기타</h3>
           <div className="v-settings-list-card">
             <div className="v-list-item">
@@ -174,10 +174,10 @@ const SettingsPage = ({ isOpen, onClose }) => {
               </div>
             </button>
           </div>
-        </section>
+        </section> */}
 
         <div className="v-settings-footer">
-          <p>v1.0.0 (Production Mode)</p>
+          <p>v1.0.0</p>
           <p>© 2026 동동구리. All rights reserved.</p>
         </div>
       </main>

@@ -1,36 +1,46 @@
 import React from "react";
 import "@/styles/pages/studySession.css";
-
 import StudyHeader from "@/components/ui/study/StudyHeader";
 import StudyControls from "@/components/ui/study/StudyControls";
 import ActionButtons from "@/components/ui/study/ActionButtons";
 import StudyCard from "@/components/ui/study/StudyCard";
 import StudySettingModal from "@/components/modals/StudySettingModal";
 import StudyResult from "@/pages/StudyResult";
-
 import { useStudyPage } from "@/hooks/pages/useStudyPage";
 
 const StudySession = ({ deckId, initialWords, initialDeck, onClose }) => {
   const {
+    // Data
     words,
     currentCard,
+    nextCard,
     currentDeck,
     total,
     currentIndex,
     counts,
-    cardRef,
+    isFinished,
+    // Animation & State
+    x,
+    y,
+    rotate,
+    controls,
+    isFlipped,
+    swipeDirection,
+    // Actions
     isSettingsOpen,
     setIsSettingsOpen,
     studySettings,
     setStudySettings,
-    handleNextCard,
     triggerSwipe,
-    isFinished,
     handleRetryUnknown,
+    onToggleWordFavorite,
+    handleUndo,
+    handleShuffle,
+    toggleAutoPlay,
+    handleFlip,
+    onSwipeAction, // 🌟 추가된 액션
   } = useStudyPage(deckId, initialWords, initialDeck);
 
-  // 1. 학습 종료 시 결과 화면
-  // StudyResult 안에 헤더가 포함되었으므로 여기서는 중복해서 그리지 않습니다.
   if (isFinished) {
     return (
       <StudyResult
@@ -43,7 +53,6 @@ const StudySession = ({ deckId, initialWords, initialDeck, onClose }) => {
     );
   }
 
-  // 2. 데이터 없을 때 (예외 처리)
   if (!words || words.length === 0) {
     return (
       <div className="study-session-page">
@@ -55,7 +64,6 @@ const StudySession = ({ deckId, initialWords, initialDeck, onClose }) => {
     );
   }
 
-  // 3. 학습 화면
   return (
     <div className="study-session-page">
       <div className="study-header-area">
@@ -69,37 +77,41 @@ const StudySession = ({ deckId, initialWords, initialDeck, onClose }) => {
 
       <div className="study-top-controls">
         <StudyControls
+          onUndo={handleUndo}
+          onShuffle={handleShuffle}
           isAutoPlay={studySettings.isAutoPlay}
-          toggleAutoPlay={() =>
-            setStudySettings((prev) => ({
-              ...prev,
-              isAutoPlay: !prev.isAutoPlay,
-            }))
-          }
+          toggleAutoPlay={toggleAutoPlay}
         />
       </div>
 
       <div className="study-card-area">
-        {/* 다음 카드 미리보기 */}
-        {words[currentIndex + 1] && (
+        {/* 다음 카드 미리보기 (nextCard 활용) */}
+        {nextCard && (
           <div className="next-card-preview">
             <StudyCard
-              key={`next-${words[currentIndex + 1].id}`}
-              cardData={words[currentIndex + 1]}
+              key={`next-${nextCard.id}`}
+              cardData={nextCard}
               isNextPreview={true}
             />
           </div>
         )}
 
-        {/* 현재 카드 */}
+        {/* 현재 카드 (🌟 모든 제어권 전달) */}
         {currentCard ? (
           <StudyCard
-            ref={cardRef}
             key={currentCard.id}
             cardData={currentCard}
             language={currentDeck?.language}
-            onSwipe={handleNextCard}
-            viewMode={studySettings.viewMode}
+            onToggleWordFavorite={onToggleWordFavorite}
+            // 🌟 훅에서 온 애니메이션 상태 및 핸들러 주입
+            x={x}
+            y={y}
+            rotate={rotate}
+            controls={controls}
+            isFlipped={isFlipped}
+            swipeDirection={swipeDirection}
+            onFlip={handleFlip}
+            onSwipeAction={onSwipeAction}
           />
         ) : (
           <div className="v-empty">완료!</div>

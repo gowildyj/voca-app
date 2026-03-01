@@ -159,3 +159,18 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   pointer-events: none;
 }
+
+.icon-btn.favorite {
+  transition: all 0.2s ease;
+  color: var(--text-sub);
+}
+
+.icon-btn.favorite.active {
+  color: #facc15;
+  transform: scale(1.2);
+}
+
+.icon-btn.favorite:hover {
+  transform: scale(1.1);
+  color: #facc15;
+}

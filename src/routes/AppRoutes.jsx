@@ -1,7 +1,7 @@
 import React, { lazy } from "react";
 import { Navigate } from "react-router-dom";
-const AdminLayout = lazy(() => import("@/layouts/AdminLayout"));
-const AdminContent = lazy(() => import("@/pages/admin/AdminContent"));
+const AdminLayout = lazy(() => import("@/admin/AdminLayout"));
+const AdminContent = lazy(() => import("@/admin/AdminContent"));
 
 /**
  * [ROUTES] 경로 상수 관리
@@ -26,7 +26,7 @@ const StudySession = lazy(() => import("@/pages/StudySession"));
 const ScenarioList = lazy(() => import("@/pages/ScenarioList"));
 const ScenarioPage = lazy(() => import("@/pages/ScenarioPage"));
 const DesignGuide = lazy(() => import("@/pages/DesignGuide"));
-const TEST = lazy(() => import("@/pages/Test"));
+const TEST = lazy(() => import("@/admin/Test"));
 
 const NotFound = lazy(() => import("@/pages/NotFound"));
 

@@ -6,6 +6,7 @@ import {
   HiSquare3Stack3D,
   HiChatBubbleLeftRight,
   HiTag,
+  HiGlobeAlt,
 } from "react-icons/hi2";
 import "@/styles/admin/adminLayout.css";
 
@@ -15,6 +16,7 @@ const AdminLayout = () => {
   const location = useLocation();
 
   const menus = [
+    { name: "언어 관리", path: "/admin/languages", icon: <HiGlobeAlt /> },
     { name: "콘텐츠 관리", path: "/admin/content", icon: <HiSquare3Stack3D /> },
     {
       name: "시나리오",

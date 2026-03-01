@@ -24,6 +24,7 @@ import { LANG_OPTIONS, DEFAULT_LANG } from "@/constants/languages";
 
 // 관리자 페이지 Lazy Load
 const AdminLayout = lazy(() => import("@/admin/AdminLayout"));
+const AdminLanguages = lazy(() => import("@/admin/AdminLanguages"));
 const AdminContent = lazy(() => import("@/admin/AdminContent"));
 // const AdminScenarios = lazy(() => import("@/pages/admin/AdminScenarios")); // 추후 생성 시 주석 해제
 
@@ -158,6 +159,7 @@ function AppContent() {
           <Route path="/admin" element={<AdminLayout />}>
             {/* /admin 접속 시 content로 리다이렉트 */}
             <Route index element={<Navigate to="content" replace />} />
+            <Route path="languages" element={<AdminLanguages />} />
             <Route path="content" element={<AdminContent />} />
             <Route path="scenarios" element={<div>시나리오 준비중</div>} />
             <Route path="tags" element={<div>태그 준비중</div>} />

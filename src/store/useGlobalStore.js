@@ -14,12 +14,116 @@ export const useGlobalStore = create((set, get) => ({
   // 1. 기초 데이터: 언어 목록 가져오기
   fetchLanguages: async () => {
     logger.start("fetchLanguages");
-    const { data, error } = await supabase.from("languages").select("*");
+
+    const { data, error } = await supabase
+      .from("languages")
+      .select("*")
+      .order("code", { ascending: true });
 
     if (error) logger.error("fetchLanguages", error);
     else {
       set({ languages: data });
       logger.success("fetchLanguages", data);
+    }
+  },
+
+  // 1-2. 언어 추가 (INSERT)
+  addLanguage: async (langData) => {
+    logger.start("addLanguage", langData);
+    try {
+      const { data, error } = await supabase
+        .from("languages")
+        .insert([langData]) // { code: 'fr', name: 'Français', emoji: '🇫🇷' }
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // 스토어 상태 즉시 업데이트 (새로고침 없이 반영)
+      set((state) => ({
+        languages: [...state.languages, data].sort((a, b) =>
+          a.code.localeCompare(b.code),
+        ),
+      }));
+      logger.success("addLanguage", data);
+      return true;
+    } catch (error) {
+      logger.error("addLanguage", error);
+      alert("언어 추가 실패: " + error.message);
+      return false;
+    }
+  },
+
+  // 1-3. 언어 삭제 (DELETE)
+  deleteLanguage: async (code) => {
+    logger.start("deleteLanguage", { code });
+    if (!window.confirm("정말 이 언어를 삭제하시겠습니까?")) return;
+
+    try {
+      const { error } = await supabase
+        .from("languages")
+        .delete()
+        .eq("code", code);
+
+      if (error) throw error;
+
+      // 스토어 상태 업데이트
+      set((state) => ({
+        languages: state.languages.filter((l) => l.code !== code),
+      }));
+      logger.success("deleteLanguage", { code });
+    } catch (error) {
+      logger.error("deleteLanguage", error);
+      alert("삭제 실패 (다른 데이터와 연결되어 있을 수 있습니다)");
+    }
+  },
+
+  // 1-4. 언어 일괄 등록 (Bulk Insert)
+  addLanguagesBulk: async (langList) => {
+    logger.start("addLanguagesBulk", langList);
+    try {
+      // code가 중복되면 업데이트하도록 upsert 사용
+      const { data, error } = await supabase
+        .from("languages")
+        .upsert(langList, { onConflict: "code" })
+        .select();
+
+      if (error) throw error;
+
+      // 목록 새로고침
+      await get().fetchLanguages();
+      logger.success("addLanguagesBulk", data);
+      return true;
+    } catch (error) {
+      logger.error("addLanguagesBulk", error);
+      alert("일괄 등록 실패: " + error.message);
+      return false;
+    }
+  },
+
+  // 1-5. 언어 정보 수정 (UPDATE)
+  updateLanguage: async (code, updates) => {
+    logger.start("updateLanguage", { code, updates });
+    try {
+      const { data, error } = await supabase
+        .from("languages")
+        .update(updates) // { name: '...', emoji: '...' }
+        .eq("code", code)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // 스토어 상태 업데이트 (배열에서 해당 항목만 교체)
+      set((state) => ({
+        languages: state.languages.map((l) => (l.code === code ? data : l)),
+      }));
+      logger.success("updateLanguage", data);
+      return true;
+    } catch (error) {
+      logger.error("updateLanguage", error);
+      alert("수정 실패: " + error.message);
+      return false;
     }
   },
 

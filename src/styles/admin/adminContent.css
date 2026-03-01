@@ -15,20 +15,37 @@
   font-weight: 800;
 }
 
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* 탭 버튼 */
 .tabs button {
   padding: 8px 16px;
   border: none;
   background: #f1f5f9;
   border-radius: 8px;
-  margin-left: 8px;
   font-weight: 600;
   color: #64748b;
   cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
 }
+
+.tabs button:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
 .tabs button.active {
-  background: var(--primary);
+  background: #2563eb;
   color: white;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
 }
 
 /* 가이드 박스 */

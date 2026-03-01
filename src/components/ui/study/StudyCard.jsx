@@ -32,7 +32,13 @@ const StudyCard = ({
     return (
       <div className="study-card-container preview next-card-preview">
         <div className="card-motion-wrapper">
-          <div className="card-icons-layer">
+          <div
+            className="card-icons-layer"
+            style={{
+              zIndex: 20,
+              transform: "translateZ(10px)",
+            }}
+          >
             <button className="icon-btn volume">
               <Volume2 size={24} />
             </button>
@@ -85,7 +91,13 @@ const StudyCard = ({
         onDragEnd={handleDragEnd}
         onClick={onFlip}
       >
-        <div className="card-icons-layer" style={{ zIndex: 20 }}>
+        <div
+          className="card-icons-layer"
+          style={{
+            zIndex: 20,
+            transform: "translateZ(10px)",
+          }}
+        >
           <button
             className="icon-btn volume"
             onPointerDown={(e) => e.stopPropagation()}
@@ -116,7 +128,10 @@ const StudyCard = ({
           className="card-inner"
           initial={false}
           animate={{ rotateY: isFlipped ? 180 : 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          transition={{
+            duration: 0.4,
+            ease: "easeInOut",
+          }}
           style={{
             border: "2px solid",
             borderColor: getBorderStyle(),

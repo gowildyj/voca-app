@@ -1,4 +1,5 @@
 import React, { lazy } from "react";
+import { Navigate } from "react-router-dom";
 
 /**
  * [ROUTES] 경로 상수 관리
@@ -66,9 +67,13 @@ export const AppRoutesData = [
   },
   {
     path: "*",
-    element: <NotFound />,
-    title: "페이지를 찾을 수 없음",
+    element: <Navigate to={ROUTES.HOME} replace />,
   },
+  // {
+  //   path: "*",
+  //   element: <NotFound />,
+  //   title: "페이지를 찾을 수 없음",
+  // },
 ];
 
 export const generatePath = (path, params) => {

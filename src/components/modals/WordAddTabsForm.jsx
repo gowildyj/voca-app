@@ -1,14 +1,12 @@
-// src/components/modals/WordAddTabsForm.jsx
 import React, { useState, useEffect, useRef } from "react";
 import BottomSheet from "@/components/modals/BottomSheet";
 import { StyledInput, StyledTextArea } from "@/components/common/FormElements";
 import Button from "@/components/common/Button";
 
 const WordAddTabsForm = ({ isOpen, onClose, onSubmit }) => {
-  const [activeTab, setActiveTab] = useState("single"); // 'single' | 'bulk'
+  const [activeTab, setActiveTab] = useState("single");
   const inputRef = useRef(null);
 
-  // 포커스 로직 (기존 동일)
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => {
@@ -22,7 +20,7 @@ const WordAddTabsForm = ({ isOpen, onClose, onSubmit }) => {
     e.preventDefault();
     const formData = new FormData(e.target);
 
-    // 🌟 [Case 1] 하나씩 추가 모드
+    // [Case 1] 하나씩 추가
     if (activeTab === "single") {
       const word = formData.get("word");
       const meaning = formData.get("meaning");
@@ -32,10 +30,9 @@ const WordAddTabsForm = ({ isOpen, onClose, onSubmit }) => {
         alert("단어와 뜻을 모두 입력해주세요!");
         return;
       }
-      // 단일 객체 전송
       onSubmit && onSubmit({ word, meaning, example });
     }
-    // 🌟 [Case 2] 여러 개 추가 모드
+    // [Case 2] 여러 개 추가 (로직 수정됨)
     else {
       const text = formData.get("bulkText");
       if (!text || !text.trim()) {
@@ -43,25 +40,35 @@ const WordAddTabsForm = ({ isOpen, onClose, onSubmit }) => {
         return;
       }
 
-      // 줄바꿈으로 나누고, 콤마/탭 등으로 단어와 뜻 분리
       const lines = text.split("\n").filter((line) => line.trim());
+
       const wordsList = lines
         .map((line) => {
-          // 콤마(,), 콜론(:), 탭(\t) 중 하나로 분리
-          const parts = line.split(/[,:\t]+/).map((s) => s.trim());
-          return {
-            word: parts[0],
-            meaning: parts[1] || "", // 뜻이 없으면 빈 문자열
-            example: "",
-          };
+          // 1. 구분자 찾기 (파이프 > 탭 > 콜론 > 콤마)
+          let separator = ",";
+          if (line.includes("|")) separator = "|";
+          else if (line.includes("\t")) separator = "\t";
+          else if (line.includes(":")) separator = ":";
+
+          // 🌟 [핵심 수정] split 할 때 trim()을 바로 하지 않음! (띄어쓰기 보존)
+          const parts = line.split(separator);
+
+          const word = parts[0]?.trim() || "";
+          const meaning = parts[1]?.trim() || "";
+
+          // 🌟 [핵심 수정] 3번째 조각부터 끝까지는 '구분자'를 포함해 다시 합침
+          // 예: "A, B, I like A, B." -> parts는 ["A", " B", " I like A", " B."]
+          // slice(2) -> [" I like A", " B."] -> join(",") -> " I like A, B." -> trim()
+          const example = parts.slice(2).join(separator).trim();
+
+          return { word, meaning, example };
         })
-        .filter((item) => item.word); // 단어가 있는 것만 필터링
+        .filter((item) => item.word);
 
       if (wordsList.length === 0) {
         alert("유효한 단어가 없습니다.");
         return;
       }
-      // 배열 전송
       onSubmit && onSubmit(wordsList);
     }
 
@@ -70,13 +77,12 @@ const WordAddTabsForm = ({ isOpen, onClose, onSubmit }) => {
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} title="단어 추가하기">
-      {/* 🌟 1. form 태그로 감싸고 onSubmit 연결 */}
       <form
         onSubmit={handleSubmit}
         className="word-add-tabs-container"
         style={{ paddingBottom: "20px" }}
       >
-        {/* 탭 버튼 (기존 동일) */}
+        {/* 탭 버튼 */}
         <div
           className="modal-tabs"
           style={{
@@ -88,7 +94,7 @@ const WordAddTabsForm = ({ isOpen, onClose, onSubmit }) => {
           }}
         >
           <button
-            type="button" // 🌟 탭 버튼이 submit 하지 않도록 type="button" 명시
+            type="button"
             style={{
               flex: 1,
               padding: "10px",
@@ -125,24 +131,19 @@ const WordAddTabsForm = ({ isOpen, onClose, onSubmit }) => {
           </button>
         </div>
 
-        {/* 탭별 컨텐츠 */}
         {activeTab === "single" ? (
           <div className="tab-content single-add">
             <StyledInput
               ref={inputRef}
-              name="word" // 🌟 name 속성 필수!
+              name="word"
               label="단어"
-              placeholder="영단어나 문장을 입력하세요"
+              placeholder="Apple"
             />
+            <StyledInput name="meaning" label="뜻" placeholder="사과" />
             <StyledInput
-              name="meaning" // 🌟 name 속성 필수!
-              label="뜻"
-              placeholder="한글 뜻을 입력하세요"
-            />
-            <StyledInput
-              name="example" // 🌟 name 속성 필수!
+              name="example"
               label="예문 (선택)"
-              placeholder="예문을 입력하세요"
+              placeholder="I like apples."
             />
           </div>
         ) : (
@@ -152,23 +153,28 @@ const WordAddTabsForm = ({ isOpen, onClose, onSubmit }) => {
                 fontSize: "0.85rem",
                 color: "#666",
                 marginBottom: "12px",
+                lineHeight: "1.5",
               }}
             >
-              줄바꿈으로 구분하여 여러 단어를 한 번에 넣으세요.
+              <strong>단어, 뜻, 예문</strong>을 콤마(,)나 콜론(:)으로
+              구분하세요.
               <br />
-              단어와 뜻을 콤마(,)나 콜론(:)으로 구분합니다.
+              예문 내의 쉼표와 띄어쓰기는 그대로 유지됩니다.
             </p>
             <StyledTextArea
               ref={inputRef}
-              name="bulkText" // 🌟 name 속성 필수!
+              name="bulkText"
               label="추가할 단어 목록"
-              placeholder={`Apple, 사과\nBanana: 바나나`}
-              style={{ minHeight: "180px" }}
+              placeholder={`Apple, 사과, I like apples, and bananas.\nRun: 달리다: I can run fast.`}
+              style={{
+                minHeight: "180px",
+                fontFamily: "monospace",
+                fontSize: "14px",
+              }}
             />
           </div>
         )}
 
-        {/* 🌟 2. 저장 버튼: onClick 제거, type="submit" 추가 */}
         <Button type="submit" fullWidth className="mt-16">
           저장하기
         </Button>

@@ -3,24 +3,32 @@ import BottomSheet from "@/components/modals/BottomSheet";
 import { StyledInput, StyledTextArea } from "@/components/common/FormElements";
 import Button from "@/components/common/Button";
 
-// 🌟 Props 이름을 'onSubmit'으로 통일하여 부모 핸들러와 맞춥니다.
 const WordEditBulkForm = ({ isOpen, onClose, words = [], onSubmit }) => {
-  const [activeTab, setActiveTab] = useState("list"); // 'list' | 'text'
+  const [activeTab, setActiveTab] = useState("list");
   const [editList, setEditList] = useState([]);
   const [bulkText, setBulkText] = useState("");
   const inputRef = useRef(null);
 
-  // 1. 모달이 열릴 때 원본 데이터 복사
+  // 🌟 [핵심 수정 1] deckId(Store용)와 deck_id(DB용) 둘 다 확인!
+  // Store에서 가져온 words는 'deckId'를 가지고 있습니다.
+  const currentDeckId =
+    words.length > 0 ? words[0].deck_id || words[0].deckId : null;
+
   useEffect(() => {
     if (isOpen) {
       setEditList([...words]);
-      // 텍스트 모드용 문자열 생성 (단어:뜻)
-      const text = words.map((w) => `${w.word}:${w.meaning}`).join("\n");
+
+      const text = words
+        .map((w) => {
+          const examplePart = w.example ? `:${w.example}` : "";
+          return `${w.word}:${w.meaning}${examplePart}`;
+        })
+        .join("\n");
       setBulkText(text);
     }
   }, [isOpen, words]);
 
-  // 2. 탭 전환 시 포커스 처리
+  // 포커스 로직 (기존 동일)
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => {
@@ -30,33 +38,46 @@ const WordEditBulkForm = ({ isOpen, onClose, words = [], onSubmit }) => {
     }
   }, [isOpen, activeTab]);
 
-  // 리스트 모드 인풋 핸들러
   const handleListChange = (index, field, value) => {
     const newList = [...editList];
     newList[index] = { ...newList[index], [field]: value };
     setEditList(newList);
   };
 
-  // 🌟 핵심 저장 로직
   const handleSave = () => {
     if (activeTab === "list") {
-      onSubmit?.(editList);
+      // 🌟 [핵심 수정 2] 목록 수정 시에도 deckId 체크
+      const safeEditList = editList.map((item) => ({
+        ...item,
+        // item에도 deckId가 있을 수 있고 deck_id가 있을 수 있음
+        deck_id: item.deck_id || item.deckId || currentDeckId,
+      }));
+      onSubmit?.(safeEditList);
     } else {
       const updatedWords = bulkText
         .split("\n")
         .filter((line) => line.trim() !== "")
         .map((line, index) => {
-          const parts = line.split(/[:|,|\t]/);
+          let separator = ":";
+          if (line.includes("|")) separator = "|";
+
+          const parts = line.split(separator);
           const word = parts[0]?.trim() || "";
           const meaning = parts[1]?.trim() || "";
+          const example = parts.slice(2).join(separator).trim();
 
-          // 🌟 중요: 기존 단어의 ID를 순서대로 매칭하여 업데이트가 가능하게 함
-          // (만약 새로 추가된 줄이라면 ID 없이 전송되어 신규 생성됨)
+          const originalWord = words[index];
+
           return {
-            id: words[index]?.id,
-            deck_id: words[index]?.deck_id,
+            id: originalWord?.id,
+
+            // 🌟 [핵심 수정 3] 텍스트 수정 시에도 deckId 체크
+            deck_id:
+              originalWord?.deck_id || originalWord?.deckId || currentDeckId,
+
             word,
             meaning,
+            example,
           };
         });
       onSubmit?.(updatedWords);
@@ -70,16 +91,47 @@ const WordEditBulkForm = ({ isOpen, onClose, words = [], onSubmit }) => {
         className="word-edit-tabs-container"
         style={{ paddingBottom: "20px" }}
       >
-        {/* 탭 스위치 */}
-        <div className="modal-tabs" style={tabContainerStyle}>
+        {/* 탭 버튼 */}
+        <div
+          className="modal-tabs"
+          style={{
+            display: "flex",
+            backgroundColor: "rgba(0,0,0,0.05)",
+            padding: "4px",
+            borderRadius: "12px",
+            marginBottom: "20px",
+          }}
+        >
           <button
-            style={activeTab === "list" ? activeTabStyle : inactiveTabStyle}
+            style={{
+              flex: 1,
+              padding: "10px",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: 700,
+              cursor: "pointer",
+              backgroundColor: activeTab === "list" ? "#fff" : "transparent",
+              color: activeTab === "list" ? "var(--primary)" : "#666",
+              boxShadow:
+                activeTab === "list" ? "0 2px 4px rgba(0,0,0,0.05)" : "none",
+            }}
             onClick={() => setActiveTab("list")}
           >
             목록 수정
           </button>
           <button
-            style={activeTab === "text" ? activeTabStyle : inactiveTabStyle}
+            style={{
+              flex: 1,
+              padding: "10px",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: 700,
+              cursor: "pointer",
+              backgroundColor: activeTab === "text" ? "#fff" : "transparent",
+              color: activeTab === "text" ? "var(--primary)" : "#666",
+              boxShadow:
+                activeTab === "text" ? "0 2px 4px rgba(0,0,0,0.05)" : "none",
+            }}
             onClick={() => setActiveTab("text")}
           >
             텍스트 수정
@@ -91,16 +143,21 @@ const WordEditBulkForm = ({ isOpen, onClose, words = [], onSubmit }) => {
           {activeTab === "list" ? (
             <div
               className="tab-content list-edit"
-              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+              style={{ display: "flex", flexDirection: "column", gap: "24px" }}
             >
-              {editList.length > 0 ? (
-                editList.map((item, index) => (
+              {editList.map((item, index) => (
+                <div
+                  key={item.id || index}
+                  style={{
+                    borderBottom: "1px solid #eee",
+                    paddingBottom: "16px",
+                  }}
+                >
                   <div
-                    key={item.id || index}
                     style={{
                       display: "flex",
                       gap: "10px",
-                      alignItems: "flex-end",
+                      marginBottom: "8px",
                     }}
                   >
                     <div style={{ flex: 1 }}>
@@ -122,28 +179,30 @@ const WordEditBulkForm = ({ isOpen, onClose, words = [], onSubmit }) => {
                       />
                     </div>
                   </div>
-                ))
-              ) : (
-                <p
-                  style={{
-                    textAlign: "center",
-                    color: "#999",
-                    padding: "20px",
-                  }}
-                >
-                  수정할 단어가 없습니다.
-                </p>
-              )}
+                  <StyledInput
+                    placeholder="예문 (선택)"
+                    value={item.example || ""}
+                    onChange={(e) =>
+                      handleListChange(index, "example", e.target.value)
+                    }
+                    style={{ fontSize: "0.9rem", backgroundColor: "#f9f9f9" }}
+                  />
+                </div>
+              ))}
             </div>
           ) : (
             <div className="tab-content text-edit">
               <StyledTextArea
                 ref={inputRef}
-                label="전체 수정 (단어:뜻)"
+                label="전체 수정 (단어:뜻:예문)"
                 value={bulkText}
                 onChange={(e) => setBulkText(e.target.value)}
-                placeholder="Apple:사과&#10;Banana:바나나"
-                style={{ minHeight: "250px", lineHeight: "1.6" }}
+                placeholder={`Apple:사과:I like apples\nBanana:바나나`}
+                style={{
+                  minHeight: "250px",
+                  lineHeight: "1.6",
+                  fontFamily: "monospace",
+                }}
               />
             </div>
           )}
@@ -155,38 +214,6 @@ const WordEditBulkForm = ({ isOpen, onClose, words = [], onSubmit }) => {
       </div>
     </BottomSheet>
   );
-};
-
-// 인라인 스타일 정의 (CSS 파일로 빼시는 걸 추천)
-const tabContainerStyle = {
-  display: "flex",
-  backgroundColor: "rgba(0,0,0,0.05)",
-  padding: "4px",
-  borderRadius: "12px",
-  marginBottom: "20px",
-};
-
-const activeTabStyle = {
-  flex: 1,
-  padding: "10px",
-  border: "none",
-  borderRadius: "8px",
-  fontWeight: 700,
-  cursor: "pointer",
-  backgroundColor: "#fff",
-  boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-  color: "var(--primary)",
-};
-
-const inactiveTabStyle = {
-  flex: 1,
-  padding: "10px",
-  border: "none",
-  borderRadius: "8px",
-  fontWeight: 700,
-  cursor: "pointer",
-  backgroundColor: "transparent",
-  color: "#666",
 };
 
 export default WordEditBulkForm;

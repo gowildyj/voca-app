@@ -277,7 +277,6 @@ export const useWordStore = create(
             .select();
           if (error) throw error;
 
-          // 🌟 [수정 완료] 일괄 추가된 데이터들도 정규화
           const normalized = data.map((w) => ({
             ...w,
             isFavorite: w.is_favorite,
@@ -302,19 +301,30 @@ export const useWordStore = create(
       updateWord: async (id, updates) => {
         logger.start("updateWord", { id, updates });
         try {
-          const { error } = await supabase
+          const { data, error } = await supabase
             .from("words")
-            .update(updates)
-            .eq("id", id);
+            .update({
+              ...updates,
+            })
+            .eq("id", id)
+            .select()
+            .single();
+
           if (error) throw error;
 
           set((state) => ({
             words: state.words.map((w) =>
-              w.id === id ? { ...w, ...updates } : w,
+              w.id === id
+                ? {
+                    ...w,
+                    ...data,
+                    isFavorite: data.is_favorite,
+                  }
+                : w,
             ),
           }));
 
-          logger.success("updateWord", updates);
+          logger.success("updateWord", data);
         } catch (error) {
           logger.error("updateWord", error);
         }
@@ -327,6 +337,7 @@ export const useWordStore = create(
             id: w.id,
             word: w.word,
             meaning: w.meaning,
+            example: w.example || null,
             deck_id: w.deck_id,
           }));
 
@@ -340,14 +351,12 @@ export const useWordStore = create(
           // 1. 단어 목록 업데이트
           set((state) => ({
             words: state.words.map((w) => {
-              // 🌟 [오타 및 로직 수정 완료] cconst -> const
               const updated = data.find((nw) => nw.id === w.id);
-
               if (updated) {
                 return {
                   ...w,
                   ...updated,
-                  isFavorite: updated.is_favorite, // 업데이트 된 정보에서도 매핑 유지
+                  isFavorite: updated.is_favorite, // DB(snake) -> App(camel)
                 };
               }
               return w;
@@ -484,6 +493,7 @@ export const useWordStore = create(
       partialize: (state) => ({
         decks: state.decks,
         words: state.words,
+
         lastFetchedLang: state.lastFetchedLang,
       }),
     },

@@ -313,7 +313,6 @@ const AdminScenarioContainer = ({
                 borderRadius: "12px",
               }}
             >
-              {/* 🌟 다국어 객체 처리 */}
               <h3>
                 미리보기:{" "}
                 {previewData.title?.["ko-KR"] ||
@@ -328,41 +327,101 @@ const AdminScenarioContainer = ({
 
               <div style={{ marginTop: "16px" }}>
                 {previewData.dialogues?.map((d) => {
-                  // 🌟 다국어 템플릿 처리
+                  // 1. 템플릿 텍스트 추출 (한국어 우선)
+                  const langCode = d.template?.["ko-KR"] ? "ko-KR" : "en-US"; // 언어 감지
                   const templateText =
                     typeof d.template === "object"
-                      ? d.template["en-US"] || d.template["ko-KR"]
+                      ? d.template[langCode]
                       : d.template;
+
+                  // 2. 🌟 [핵심] 옵션을 넣은 완성 문장 만들기
+                  let completeSentence = null;
+                  if (d.has_choices && d.options && d.options.length > 0) {
+                    const defaultOpt =
+                      d.options.find((o) => o.is_default) || d.options[0];
+
+                    const optText =
+                      defaultOpt.content?.[langCode] ||
+                      Object.values(defaultOpt.content || {})[0] ||
+                      "???";
+
+                    completeSentence = templateText.replace(
+                      /{\s*option\s*}/gi,
+                      optText,
+                    );
+                  }
 
                   return (
                     <div
                       key={d.order}
                       style={{
-                        fontSize: "0.9rem",
-                        marginBottom: "8px",
-                        padding: "8px",
+                        fontSize: "0.95rem",
+                        marginBottom: "12px",
+                        padding: "12px",
                         background: "white",
-                        borderRadius: "6px",
+                        borderRadius: "8px",
+                        border: "1px solid #e2e8f0",
                       }}
                     >
-                      <strong>{d.speaker}:</strong> {templateText}{" "}
-                      {d.has_choices && "✨"}
-                      {/* 옵션 미리보기 */}
+                      <div style={{ marginBottom: "4px" }}>
+                        <span
+                          className={`badge ${d.speaker === "A" ? "neutral" : "primary"}`}
+                          style={{ marginRight: "8px" }}
+                        >
+                          {d.speaker}
+                        </span>
+                        {/* 원본 템플릿 표시 */}
+                        <span style={{ color: "#64748b" }}>{templateText}</span>
+                      </div>
+
+                      {/* 🌟 3. 완성된 예시 문장 보여주기 */}
+                      {completeSentence && (
+                        <div
+                          style={{
+                            paddingLeft: "34px",
+                            color: "#059669",
+                            fontWeight: "bold",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
+                          <span>👉 예시:</span>
+                          <span>"{completeSentence}"</span>
+                        </div>
+                      )}
+
+                      {/* 옵션 목록 */}
                       {d.options && d.options.length > 0 && (
                         <div
                           style={{
-                            marginTop: "4px",
-                            fontSize: "0.8rem",
-                            color: "#64748b",
+                            marginTop: "8px",
+                            paddingLeft: "34px",
+                            display: "flex",
+                            gap: "6px",
+                            flexWrap: "wrap",
                           }}
                         >
-                          └ 옵션:{" "}
-                          {d.options
-                            .map(
-                              (o) =>
-                                o.content?.["ko-KR"] || o.content?.["en-US"],
-                            )
-                            .join(", ")}
+                          {d.options.map((o, idx) => (
+                            <span
+                              key={idx}
+                              style={{
+                                fontSize: "0.75rem",
+                                padding: "2px 8px",
+                                borderRadius: "12px",
+                                background: o.is_default
+                                  ? "#dbeafe"
+                                  : "#f1f5f9",
+                                color: o.is_default ? "#1e40af" : "#64748b",
+                                border: o.is_default
+                                  ? "1px solid #93c5fd"
+                                  : "1px solid #e2e8f0",
+                              }}
+                            >
+                              {o.is_default && "★ "}
+                              {o.content?.["ko-KR"] || o.content?.["en-US"]}
+                            </span>
+                          ))}
                         </div>
                       )}
                     </div>

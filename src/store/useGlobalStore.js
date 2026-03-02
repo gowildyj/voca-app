@@ -613,8 +613,13 @@ export const useGlobalStore = create((set, get) => ({
 
         // 3-2. 옵션(아이템) 처리
         if (d.has_choices && d.options && d.options.length > 0) {
-          for (const opt of d.options) {
-            // A. 아이템 마스터 Upsert (item_key 기준)
+          // 🌟 안전장치: AI가 is_default를 하나도 안 줬을 경우를 대비해 첫 번째를 true로
+          const hasDefault = d.options.some((o) => o.is_default);
+
+          for (let i = 0; i < d.options.length; i++) {
+            const opt = d.options[i];
+
+            // A. 아이템 마스터 Upsert
             const { data: item, error: iErr } = await supabase
               .from("master_items")
               .upsert(
@@ -639,12 +644,15 @@ export const useGlobalStore = create((set, get) => ({
               .from("item_translations")
               .upsert(iTrans, { onConflict: "master_item_id,lang_code" });
 
-            // C. 시나리오 옵션 연결
+            // C. 시나리오 옵션 연결 (is_default 저장)
+            // 🌟 로직: JSON에 true가 있으면 그거 쓰고, 없으면 첫번째(index 0)를 true로 설정
+            const isDefault = opt.is_default || (!hasDefault && i === 0);
+
             await supabase.from("scenario_options").insert([
               {
                 dialogue_id: dialogue.id,
                 choice_item_id: item.id,
-                is_default: false,
+                is_default: isDefault, // 👈 DB의 is_default 컬럼에 저장
               },
             ]);
           }
@@ -745,6 +753,27 @@ export const useGlobalStore = create((set, get) => ({
     });
 
     return JSON.stringify(json, null, 2);
+  },
+
+  // 4-9. 옵션 기본값(Default) 설정
+  setDialogueOptionDefault: async (dialogueId, optionId) => {
+    // 1. 해당 대화의 모든 옵션을 먼저 false(기본값 아님)로 초기화
+    await supabase
+      .from("scenario_options")
+      .update({ is_default: false })
+      .eq("dialogue_id", dialogueId);
+
+    // 2. 클릭한 옵션만 true(기본값)로 설정
+    const { error } = await supabase
+      .from("scenario_options")
+      .update({ is_default: true })
+      .eq("id", optionId);
+
+    if (error) {
+      logger.error("기본값 설정 실패", error);
+    } else {
+      await get().fetchAdminScenarios(); // 화면 갱신
+    }
   },
 
   // 5. 시나리오 목록 가져오기

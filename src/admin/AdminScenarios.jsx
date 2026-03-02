@@ -14,58 +14,43 @@ import {
 const AI_PROMPT = `
 너는 '다국어 회화 학습 앱'의 콘텐츠를 생성하는 백엔드 API 시스템이야.
 사용자의 요청을 분석하여, 아래 [엄격한 JSON 스키마]에 맞춰 시나리오 데이터를 생성해.
-JSON은 반드시 **"(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스마트 문자 ’ (U+2019) 말고, 일반 아포스트로피(’) 사용해. 여러 객체는[] 배열로 감싸.
+JSON은 반드시 **"(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스마트 문자 ’ (U+2019) 말고, 일반 아포스트로피(’) 사용해.
 
 [필수 규칙]
-1. 출력 형식: 마크다운 코드블록(\`\`\`json) 없이, **오직 순수 JSON 문자열만** 반환할 것. (주석 금지)
-2. 언어: 모든 텍스트 필드(title, description, template, content)는 반드시 "en-US"(영어)와 "ko-KR"(한국어)를 모두 포함해야 함.
-3. item_key: 옵션 아이템의 고유 키는 "category_word" 형태의 snake_case로 작성 (예: food_steak, place_hotel).
+1. 출력 형식: 마크다운 코드블록(\`\`\`json) 없이, **오직 순수 JSON 문자열만** 반환할 것.
+2. 언어: 모든 텍스트(title, description, template, content)는 "en-US", "ko-KR" 필수.
+3. item_key: "category_word" 형태의 snake_case (예: food_steak).
 4. has_choices 규칙:
-   - true일 경우: template 문장에 반드시 "{option}" 문자열이 포함되어야 함.
-   - true일 경우: options 배열에 최소 2개 이상의 선택지 아이템을 포함해야 함.
-   - false일 경우: options 배열은 비워둘 것([]).
+   - true일 경우: template에 "{option}" 포함 필수.
+   - true일 경우: options 배열 최소 2개 이상.
+   - 🌟 중요: options 중 **가장 일반적인 하나**를 선택하여 반드시 "is_default": true 로 설정할 것. (나머지는 false)
 
 [JSON 스키마 예시]
 {
-  "difficulty": "Easy", // Easy, Medium, Hard 중 택1
-  "title": { "ko-KR": "주제(한)", "en-US": "Topic(Eng)" },
-  "description": { "ko-KR": "상황 설명...", "en-US": "Description..." },
+  "difficulty": "Easy",
+  "title": { "ko-KR": "...", "en-US": "..." },
+  "description": { "ko-KR": "...", "en-US": "..." },
   "dialogues": [
     {
       "order": 1,
-      "speaker": "A", // A(상대방), B(나)
-      "template": { 
-        "en-US": "Hello. (English)", 
-        "ko-KR": "안녕하세요. (한국어)" 
-      },
-      "has_choices": false,
-      "options": []
-    },
-    {
-      "order": 2,
       "speaker": "B",
-      "template": { 
-        "en-US": "I'd like {option}, please.", 
-        "ko-KR": "{option}으로 부탁합니다." 
-      },
+      "template": { "en-US": "I'd like {option}.", "ko-KR": "{option} 주세요." },
       "has_choices": true,
       "options": [
         {
           "item_key": "food_pasta",
-          "item_type": "WORD",
+          "is_default": true,  // 👈 여기가 핵심!
           "content": { "en-US": "Pasta", "ko-KR": "파스타" }
         },
         {
           "item_key": "food_steak",
-          "item_type": "WORD",
+          "is_default": false,
           "content": { "en-US": "Steak", "ko-KR": "스테이크" }
         }
       ]
     }
   ]
 }
-
-[사용자 요청 상황]
 `;
 
 const AdminScenarios = () => {
@@ -81,7 +66,8 @@ const AdminScenarios = () => {
     addScenarioBulk,
     addDialogueOption,
     deleteDialogueOption,
-    exportScenarioToJson, // 🌟 Export 함수
+    exportScenarioToJson,
+    setDialogueOptionDefault,
   } = useGlobalStore();
 
   useEffect(() => {
@@ -201,24 +187,68 @@ const AdminScenarios = () => {
                   {chat.template_text.includes("{option}") && (
                     <div style={{ marginTop: "10px" }}>
                       <div className="admin-tag-selection-group">
-                        {chat.scenario_options?.map((opt) => (
-                          <span
-                            key={opt.id}
-                            className="admin-tag-chip active"
-                            style={{ fontSize: "0.75rem" }}
-                          >
-                            {opt.choice_item?.item_translations?.[0]?.content}
-                            <HiXMark
-                              style={{ cursor: "pointer", marginLeft: "4px" }}
-                              onClick={() => deleteDialogueOption(opt.id)}
-                            />
-                          </span>
-                        ))}
+                        {/* 1. 기존 옵션 칩들 (기본값 별표 포함) */}
+                        {chat.scenario_options
+                          ?.sort((a, b) =>
+                            b.is_default === a.is_default
+                              ? 0
+                              : b.is_default
+                                ? 1
+                                : -1,
+                          )
+                          .map((opt) => (
+                            <span
+                              key={opt.id}
+                              // 🌟 2. 칩을 클릭하면 기본값으로 설정!
+                              onClick={() =>
+                                setDialogueOptionDefault(chat.id, opt.id)
+                              }
+                              className={`admin-tag-chip ${opt.is_default ? "default-option" : ""}`}
+                              style={{
+                                fontSize: "0.75rem",
+                                background: opt.is_default
+                                  ? "#2563eb"
+                                  : "#f1f5f9",
+                                color: opt.is_default ? "white" : "#64748b",
+                                border: opt.is_default
+                                  ? "none"
+                                  : "1px solid #e2e8f0",
+                                cursor: "pointer", // 🌟 3. 클릭 가능하다는 표시(손가락 모양)
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                              }}
+                              title="클릭하여 기본값(Default)으로 설정" // 툴팁 추가
+                            >
+                              {opt.is_default && "★ "}
+                              {opt.choice_item?.item_translations?.[0]?.content}
+
+                              <HiXMark
+                                style={{ cursor: "pointer", opacity: 0.7 }}
+                                onClick={(e) => {
+                                  e.stopPropagation(); // 🌟 4. 삭제 버튼 누를 땐 기본값 설정 방지
+                                  if (
+                                    confirm("이 선택지를 삭제하시겠습니까?")
+                                  ) {
+                                    deleteDialogueOption(opt.id);
+                                  }
+                                }}
+                              />
+                            </span>
+                          ))}
+
+                        {/* 🌟 2. [복구] 선택지 추가 버튼 */}
                         <button
                           className="admin-tag-chip"
                           onClick={() => {
                             setTargetDialogueId(chat.id);
                             setIsModalOpen(true);
+                          }}
+                          style={{
+                            background: "white",
+                            border: "1px dashed #cbd5e1",
+                            color: "#2563eb",
+                            fontWeight: "bold",
                           }}
                         >
                           <HiPlus /> 선택지 추가

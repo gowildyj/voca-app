@@ -19,12 +19,12 @@ const AI_PROMPT = `
   { "code": "ja-JP", "name": "日本語", "emoji": "🇯🇵" }
 ]
 
+주의: 마크다운 코드 블록 없이 순수 JSON 배열만 출력해.
+JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스마트 문자 ’ (U+2019) 말고, 일반 아포스트로피(’) 사용해. 여러 객체는[] 배열로 감싸.
+
 [요청 목록]
 다음 언어들을 포함해서 JSON으로 만들어줘: 
 영어, 스페인어, 프랑스어, 독일어, 이탈리아어, 중국어(간체), 일본어, 베트남어, 태국어, 필리펀어, 러시아어, 아랍어.
-
-주의: 마크다운 코드 블록 없이 순수 JSON 배열만 출력해.
-JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스마트 문자 ’ (U+2019) 말고, 일반 아포스트로피(’) 사용해. 여러 객체는[] 배열로 감싸.
 `;
 
 const AdminLanguages = () => {
@@ -227,7 +227,7 @@ const AdminLanguages = () => {
       renderListRow={renderRow}
       renderAddForm={AddFormUI} // 🌟 UI를 통째로 전달
       aiGuide={AI_PROMPT}
-      jsonPlaceholder='[ { "code": "fr", "name": "Français", "emoji": "🇫🇷" } ]'
+      jsonPlaceholder='[ { "code": "ko-KR", "name": "한국어", "emoji": "🇰🇷" } ]'
     />
   );
 };

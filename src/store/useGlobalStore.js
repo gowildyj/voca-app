@@ -434,40 +434,98 @@ export const useGlobalStore = create((set, get) => ({
     }
   },
 
-  // 4. [핵심] 글로벌 단어 조회 (Join Query)
-  fetchStudyItems: async (targetLang = "en", nativeLang = "ko") => {
-    logger.start("fetchStudyItems", { targetLang, nativeLang });
+  /// --- [Scenario Actions] ---
 
-    // Supabase의 강력한 Join 기능 사용
+  // 4-1. 시나리오 전체 목록 (관리자용 - 모든 관계 데이터 포함)
+  fetchAdminScenarios: async () => {
+    logger.start("fetchAdminScenarios");
     const { data, error } = await supabase
-      .from("master_items")
+      .from("scenarios")
       .select(
         `
-        id,
-        image_url,
-        target:item_translations!inner(content, audio_url, example_sentence, example_audio_url),
-        native:item_translations(content),
-        reading:item_translations!inner(
-          item_readings(reading_content)
+        *,
+        scenario_translations(*),
+        scenario_dialogues(
+          *,
+          scenario_options(
+            *,
+            choice_item:master_items!scenario_options_choice_item_id_fkey(
+              item_translations(content, lang_code)
+            )
+          )
         )
       `,
       )
-      .eq("target.lang_code", targetLang) // 학습 언어
-      .eq("native.lang_code", nativeLang) // 모국어 (뜻)
-      .eq("reading.item_readings.native_lang_code", nativeLang); // 독음
+      .order("created_at", { ascending: false });
 
-    if (error) logger.error("fetchStudyItems", error);
+    if (error) logger.error("fetchAdminScenarios", error);
     else {
-      // 데이터 정규화 (프론트에서 쓰기 편하게)
-      const normalized = data.map((item) => ({
-        id: item.id,
-        word: item.target[0].content,
-        meaning: item.native[0]?.content || "뜻 없음",
-        reading: item.reading[0]?.item_readings[0]?.reading_content || "",
-        example: item.target[0].example_sentence,
-      }));
-      logger.success("fetchStudyItems", normalized);
+      set({ scenarios: data });
+      logger.success("fetchAdminScenarios", data);
     }
+  },
+
+  // 4-2. 시나리오 기본 정보 저장/수정 (Upsert)
+  saveScenario: async (scenarioData) => {
+    logger.start("saveScenario", scenarioData);
+    try {
+      // 1. Master Upsert
+      const { data: master, error: mErr } = await supabase
+        .from("scenarios")
+        .upsert({
+          id: scenarioData.id || undefined,
+          difficulty_level: scenarioData.difficulty_level || "Easy",
+        })
+        .select()
+        .single();
+      if (mErr) throw mErr;
+
+      // 2. Translations Upsert
+      const transPayload = Object.entries(scenarioData.langs).map(
+        ([code, info]) => ({
+          scenario_id: master.id,
+          lang_code: code,
+          title: info.title,
+          description: info.description,
+        }),
+      );
+      await supabase
+        .from("scenario_translations")
+        .upsert(transPayload, { onConflict: "scenario_id,lang_code" });
+
+      await get().fetchAdminScenarios();
+      showToast.success("시나리오 마스터 정보 저장 완료");
+      return master.id;
+    } catch (error) {
+      logger.error("saveScenario 실패", error);
+      return null;
+    }
+  },
+
+  // 4-3. 대화(Dialogue) 저장/수정
+  saveDialogue: async (dialogueData) => {
+    logger.start("saveDialogue", dialogueData);
+    const { data, error } = await supabase
+      .from("scenario_dialogues")
+      .upsert(dialogueData)
+      .select();
+
+    if (error) {
+      logger.error("saveDialogue 실패", error);
+      return null;
+    }
+    await get().fetchAdminScenarios(); // 목록 갱신
+    return data[0];
+  },
+
+  // 4-4. 대화 삭제
+  deleteDialogue: async (dialogueId) => {
+    const { error } = await supabase
+      .from("scenario_dialogues")
+      .delete()
+      .eq("id", dialogueId);
+
+    if (!error) await get().fetchAdminScenarios();
   },
 
   // 5. 시나리오 목록 가져오기

@@ -28,7 +28,7 @@ const AdminLanguages = lazy(() => import("@/admin/AdminLanguages"));
 const AdminTags = lazy(() => import("@/admin/AdminTags"));
 const AdminItems = lazy(() => import("@/admin/AdminItems"));
 const AdminContent = lazy(() => import("@/admin/AdminContent"));
-// const AdminScenarios = lazy(() => import("@/pages/admin/AdminScenarios")); // 추후 생성 시 주석 해제
+const AdminScenarios = lazy(() => import("@/admin/AdminScenarios"));
 
 /**
  * [UserLayout] 일반 사용자용 레이아웃 래퍼
@@ -165,7 +165,14 @@ function AppContent() {
             <Route path="hashtags" element={<AdminTags />} />
             <Route path="items" element={<AdminItems />} />
             <Route path="content" element={<AdminContent />} />
-            <Route path="scenarios" element={<div>시나리오 준비중</div>} />
+            <Route
+              path="scenarios"
+              element={
+                <Suspense fallback={<div>시나리오 에디터 로딩 중...</div>}>
+                  <AdminScenarios />
+                </Suspense>
+              }
+            />
             <Route path="tags" element={<div>태그 준비중</div>} />
           </Route>
 

@@ -50,8 +50,8 @@ const AdminItems = () => {
 JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스마트 문자 ’ (U+2019) 말고, 일반 아포스트로피(’) 사용해. 여러 객체는[] 배열로 감싸.
 
 - 형식: { 
-    "item_key": "apple", 
-    "item_type": "WORD", 
+    "item_key": "apple", // 영문 소문자로 만들어줘
+    "item_type": "WORD" / "SENTENCE" // 둘 중에 하나
     "tag_ids": ["해당하는_태그_ID_넣기"], // 위 목록에서 적절한 ID를 찾아 배열로 넣을 것
     "langs": { ... } 
    }
@@ -350,7 +350,16 @@ JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스
       renderListHeader={renderHeader}
       renderListRow={renderRow}
       aiGuide={AI_PROMPT}
-      jsonPlaceholder='[ { "item_key": "apple", "item_type": "WORD", "langs": { "en-US": { "content": "Apple", "example": "I like apples." } } } ]'
+      jsonPlaceholder='[
+            {
+                "item_key": "hello",
+                "item_type": "SENTENCE",
+                "tag_ids": ["57df5bee-64e0-4d8b-b745-3f161f640ec3"],
+                "langs": {
+                "en-US": { "content": "hello", "example": "Hello, nice to meet you." },
+                }
+            }
+        ]'
     />
   );
 };

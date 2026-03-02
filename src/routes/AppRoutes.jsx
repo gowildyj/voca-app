@@ -18,6 +18,7 @@ export const ROUTES = {
 /**
  * [Lazy Loading] 컴포넌트 동적 로딩
  */
+const Home = lazy(() => import("@/pages/users/Home"));
 const WordDeckList = lazy(() => import("@/pages/WordDeckList"));
 const WordList = lazy(() => import("@/pages/WordList"));
 const StudySession = lazy(() => import("@/pages/StudySession"));
@@ -34,7 +35,7 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 export const AppRoutesData = [
   {
     path: ROUTES.HOME,
-    element: <WordDeckList />,
+    element: <Home />,
     title: "동동구리",
   },
   {

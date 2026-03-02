@@ -128,10 +128,9 @@ const AdminPageContainer = ({
           const item = {
             id: null,
             _tempId: `temp_${Date.now()}_${idx}`, // 🌟 임시 ID 발급!
-            item_key: null,
             item_type: "WORD",
             langs: {},
-            tag_key: null,
+            uq_key: null,
             icon_emoji: null,
             is_main_category: false,
           };
@@ -143,11 +142,11 @@ const AdminPageContainer = ({
             const lowerHeader = header.toLowerCase();
 
             if (lowerHeader === "id") item.id = value;
-            else if (lowerHeader === "key" || lowerHeader === "item_key")
-              item.item_key = value;
+            else if (lowerHeader === "key" || lowerHeader === "uq_key")
+              item.uq_key = value;
             else if (lowerHeader === "type" || lowerHeader === "item_type")
               item.item_type = value;
-            else if (lowerHeader === "tag_key") item.tag_key = value;
+            else if (lowerHeader === "uq_key") item.uq_key = value;
             else if (lowerHeader === "emoji" || lowerHeader === "icon_emoji")
               item.icon_emoji = value;
             else if (lowerHeader === "main" || lowerHeader === "is_main")
@@ -167,10 +166,10 @@ const AdminPageContainer = ({
             }
           });
 
-          if (item.item_type && !item.item_key && !item.id) {
+          if (item.item_type && !item.uq_key && !item.id) {
             const firstContent = Object.values(item.langs)[0]?.content;
             if (firstContent)
-              item.item_key = firstContent.toLowerCase().replace(/\s+/g, "_");
+              item.uq_key = firstContent.toLowerCase().replace(/\s+/g, "_");
           }
 
           return item;

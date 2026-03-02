@@ -19,7 +19,7 @@ JSON은 반드시 **"(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스�
 [필수 규칙]
 1. 출력 형식: 마크다운 코드블록(\`\`\`json) 없이, **오직 순수 JSON 문자열만** 반환할 것.
 2. 언어: 모든 텍스트(title, description, template, content)는 "en-US", "ko-KR" 필수.
-3. item_key: "category_word" 형태의 snake_case (예: food_steak).
+3. uq_key: "category_word" 형태의 snake_case (예: food_steak).
 4. has_choices 규칙:
    - true일 경우: template에 "{option}" 포함 필수.
    - true일 경우: options 배열 최소 2개 이상.
@@ -38,12 +38,12 @@ JSON은 반드시 **"(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스�
       "has_choices": true,
       "options": [
         {
-          "item_key": "food_pasta",
+          "uq_key": "food_pasta",
           "is_default": true,  // 👈 여기가 핵심!
           "content": { "en-US": "Pasta", "ko-KR": "파스타" }
         },
         {
-          "item_key": "food_steak",
+          "uq_key": "food_steak",
           "is_default": false,
           "content": { "en-US": "Steak", "ko-KR": "스테이크" }
         }

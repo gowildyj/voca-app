@@ -11,7 +11,7 @@ const ItemSearchModal = ({ isOpen, onClose, onSelect, items = [] }) => {
 
     return items
       .filter((item) => {
-        if (item.item_key?.toLowerCase().includes(lowerTerm)) return true;
+        if (item.uq_key?.toLowerCase().includes(lowerTerm)) return true;
         const hasTranslation = item.item_translations?.some((t) =>
           t.content?.toLowerCase().includes(lowerTerm),
         );

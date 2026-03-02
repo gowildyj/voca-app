@@ -1,0 +1,33 @@
+export const translations = {
+  "ko-KR": {
+    settings: "설정",
+    learning_lang: "배울 언어",
+    native_lang: "모국어",
+    save: "저장",
+    cancel: "취소",
+    select_lang: "언어 선택",
+    welcome: "안녕하세요!",
+    start_learning: "학습 시작하기",
+  },
+  "en-US": {
+    settings: "Settings",
+    learning_lang: "Learning Language",
+    native_lang: "Native Language",
+    save: "Save",
+    cancel: "Cancel",
+    select_lang: "Select Language",
+    welcome: "Welcome!",
+    start_learning: "Start Learning",
+  },
+  "ja-JP": {
+    settings: "設定",
+    learning_lang: "学習言語",
+    native_lang: "母国語",
+    save: "保存",
+    cancel: "キャンセル",
+    select_lang: "言語を選択",
+    welcome: "こんにちは！",
+    start_learning: "学習を始める",
+  },
+  // 필요에 따라 다른 언어 추가...
+};

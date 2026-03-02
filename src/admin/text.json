@@ -30,7 +30,7 @@
         "has_choices": true,
         "options": [
           {
-            "item_key": "drink_coffee",
+            "uq_key": "drink_coffee",
             "item_type": "WORD",
             "content": {
               "en-US": "coffee",
@@ -38,7 +38,7 @@
             }
           },
           {
-            "item_key": "drink_tea",
+            "uq_key": "drink_tea",
             "item_type": "WORD",
             "content": {
               "en-US": "tea",
@@ -67,7 +67,7 @@
         "has_choices": true,
         "options": [
           {
-            "item_key": "size_small",
+            "uq_key": "size_small",
             "item_type": "WORD",
             "content": {
               "en-US": "small",
@@ -75,7 +75,7 @@
             }
           },
           {
-            "item_key": "size_large",
+            "uq_key": "size_large",
             "item_type": "WORD",
             "content": {
               "en-US": "large",

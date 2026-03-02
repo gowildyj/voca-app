@@ -157,9 +157,14 @@ function AppContent() {
       <Suspense fallback={<div className="v-page-transition-loader" />}>
         <Routes>
           {/* 관리자 라우트 */}
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route
+            path="/admin"
+            element={
+              currentUser ? <AdminLayout /> : <Navigate to="/" replace />
+            }
+          >
             {/* /admin 접속 시 content로 리다이렉트 */}
-            <Route index element={<Navigate to="content" replace />} />
+            <Route index element={<Navigate to="languages" replace />} />
             <Route path="languages" element={<AdminLanguages />} />
             <Route path="hashtags" element={<AdminTags />} />
             <Route path="items" element={<AdminItems />} />

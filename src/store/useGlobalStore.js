@@ -1,22 +1,35 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware"; // 🌟 저장 기능
+import { persist, createJSONStorage } from "zustand/middleware";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/utils/logger";
 import { showToast } from "@/utils/toast";
+import { translations } from "@/utils/i18n";
 
 export const useGlobalStore = create(
   persist(
     (set, get) => ({
       // --- State ---
-      currentUser: null, // 🌟 로그인된 유저 정보 { id, nickname, sync_code }
-
+      currentUser: null,
       languages: [],
       categories: [],
-      items: [], // 관리자용 전체 아이템 목록
+      items: [],
+
+      // --- User Settings ---
+      learningLang: "en-US", // 기본 배울 언어
+      nativeLang: "ko-KR", // 기본 모국어 (UI 언어 결정)
+      // 인터페이스 번역 헬퍼 함수
+      t: (key) => {
+        const { nativeLang } = get();
+        // 선택한 모국어의 번역본이 없으면 한국어(ko-KR)를 기본값으로 사용
+        const langPack = translations[nativeLang] || translations["ko-KR"];
+        return langPack[key] || key;
+      },
 
       // --- Actions ---
+      setLearningLang: (code) => set({ learningLang: code }),
+      setNativeLang: (code) => set({ nativeLang: code }),
 
-      // 0. 유저 인증 (기기 연동 - Sync Code 사용)
+      // 0. 유저 인증 (기기 연동)
       loginWithCode: async (code) => {
         if (!code) return false;
 
@@ -26,15 +39,19 @@ export const useGlobalStore = create(
           .eq("sync_code", code)
           .single();
 
-        if (error || !data) {
-          logger.error("Login Failed", error);
-          showToast.error("올바르지 않은 연동 코드입니다.");
-          return false;
+        if (!error && data) {
+          set({
+            currentUser: data,
+            nativeLang: data.native_language || "ko-KR",
+            learningLang: data.target_language || "en-US",
+          });
+
+          showToast.success(`환영합니다, ${data.nickname}님!`);
+          return true;
         }
 
-        set({ currentUser: data });
-        showToast.success(`환영합니다, ${data.nickname}님!`);
-        return true;
+        showToast.error("연동 코드가 올바르지 않습니다.");
+        return false;
       },
 
       logout: () => {
@@ -90,7 +107,6 @@ export const useGlobalStore = create(
         }
       },
 
-      // 🌟 [추가됨] 언어 일괄 등록 (AdminLanguages에서 필요)
       addLanguagesBulk: async (langList) => {
         logger.start("addLanguagesBulk", langList);
         try {
@@ -148,49 +164,46 @@ export const useGlobalStore = create(
       },
 
       addCategoriesBulk: async (categoryList) => {
-        logger.start("addCategoriesBulk", categoryList);
         try {
           for (const cat of categoryList) {
-            // Master Upsert
             const { data: master, error: mErr } = await supabase
               .from("hashtag_master")
               .upsert(
                 {
-                  tag_key: cat.tag_key,
+                  uq_key: cat.uq_key,
                   icon_emoji: cat.icon_emoji || null,
                   display_order: cat.display_order || 999,
                   is_main_category: cat.is_main_category || false,
                 },
-                { onConflict: "tag_key" },
+                { onConflict: "uq_key" },
               )
               .select()
               .single();
-
             if (mErr) throw mErr;
 
-            // Translations Upsert
             if (cat.langs) {
-              const transPayload = Object.entries(cat.langs).map(
-                ([lang, name]) => ({
+              const transPayload = Object.entries(cat.langs)
+                .map(([lang, val]) => ({
+                  // 🌟 val로 수정
                   tag_id: master.id,
                   lang_code: lang,
-                  tag_name: name,
-                }),
-              );
+                  tag_name:
+                    typeof val === "object" && val !== null
+                      ? val.content || ""
+                      : val,
+                }))
+                .filter((t) => t.tag_name);
 
-              const { error: tErr } = await supabase
+              await supabase
                 .from("hashtag_translations")
                 .upsert(transPayload, { onConflict: "tag_id,lang_code" });
-
-              if (tErr) throw tErr;
             }
           }
           await get().fetchAdminCategories();
-          showToast.success("카테고리 통합 완료");
+          showToast.success("카테고리 저장 완료");
           return true;
         } catch (error) {
-          logger.error("addCategoriesBulk", error);
-          alert("오류: " + error.message);
+          logger.error(error);
           return false;
         }
       },
@@ -215,7 +228,7 @@ export const useGlobalStore = create(
           const { error: mErr } = await supabase
             .from("hashtag_master")
             .update({
-              tag_key: updates.tag_key,
+              uq_key: updates.uq_key,
               icon_emoji: updates.icon_emoji,
               display_order: updates.display_order,
               is_main_category: updates.is_main_category,
@@ -224,13 +237,18 @@ export const useGlobalStore = create(
           if (mErr) throw mErr;
 
           if (updates.langs) {
-            const transPayload = Object.entries(updates.langs).map(
-              ([lang, name]) => ({
+            const transPayload = Object.entries(updates.langs)
+              .map(([lang, val]) => ({
                 tag_id: id,
                 lang_code: lang,
-                tag_name: name,
-              }),
-            );
+                // 🌟 여기서도 객체 구조 대응 추가
+                tag_name:
+                  typeof val === "object" && val !== null
+                    ? val.content || ""
+                    : val,
+              }))
+              .filter((t) => t.tag_name);
+
             const { error: tErr } = await supabase
               .from("hashtag_translations")
               .upsert(transPayload, { onConflict: "tag_id,lang_code" });
@@ -269,12 +287,11 @@ export const useGlobalStore = create(
 
             // 1. Master Item Upsert
             if (item.id) {
-              // 수정
               const { data, error } = await supabase
                 .from("master_items")
                 .upsert({
                   id: item.id,
-                  item_key: item.item_key,
+                  uq_key: item.uq_key,
                   item_type: item.item_type,
                   image_url: item.image_url,
                 })
@@ -283,18 +300,16 @@ export const useGlobalStore = create(
               if (error) throw error;
               master = data;
             } else {
-              // 신규 (Key 기준)
-              if (!item.item_key) continue;
-
+              if (!item.uq_key) continue;
               const { data, error } = await supabase
                 .from("master_items")
                 .upsert(
                   {
-                    item_key: item.item_key,
+                    uq_key: item.uq_key,
                     item_type: item.item_type,
                     image_url: item.image_url,
                   },
-                  { onConflict: "item_key" },
+                  { onConflict: "uq_key" },
                 )
                 .select()
                 .single();
@@ -304,15 +319,19 @@ export const useGlobalStore = create(
 
             // 2. Translations Upsert
             if (item.langs) {
-              const transPayload = Object.entries(item.langs).map(
-                ([code, info]) => ({
+              const transPayload = Object.entries(item.langs)
+                .map(([code, info]) => ({
                   master_item_id: master.id,
                   lang_code: code,
-                  content: info.content,
+                  // 🌟 객체 구조 대응
+                  content:
+                    typeof info === "object" && info !== null
+                      ? info.content || ""
+                      : info,
                   definition: info.definition || null,
                   example_sentence: info.example || null,
-                }),
-              );
+                }))
+                .filter((t) => t.content);
 
               const { error: tErr } = await supabase
                 .from("item_translations")
@@ -371,14 +390,18 @@ export const useGlobalStore = create(
             .eq("id", id);
 
           if (updates.langs) {
-            const transPayload = Object.entries(updates.langs).map(
-              ([code, info]) => ({
+            const transPayload = Object.entries(updates.langs)
+              .map(([code, info]) => ({
                 master_item_id: id,
                 lang_code: code,
-                content: info.content,
-                example_sentence: info.example,
-              }),
-            );
+                // 🌟 객체 구조 대응
+                content:
+                  typeof info === "object" && info !== null
+                    ? info.content || ""
+                    : info,
+                example_sentence: info.example || null,
+              }))
+              .filter((t) => t.content);
             await supabase
               .from("item_translations")
               .upsert(transPayload, { onConflict: "master_item_id,lang_code" });
@@ -408,7 +431,11 @@ export const useGlobalStore = create(
     {
       name: "stella-lingo-storage",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ currentUser: state.currentUser }),
+      partialize: (state) => ({
+        currentUser: state.currentUser,
+        learningLang: state.learningLang,
+        nativeLang: state.nativeLang,
+      }),
     },
   ),
 );

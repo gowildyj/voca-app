@@ -10,6 +10,7 @@ import {
   HiPencilSquare,
   HiCodeBracket,
   HiClipboardDocumentCheck,
+  HiLanguage, // 🌟 언어 아이콘 추가
 } from "react-icons/hi2";
 import "@/styles/admin/adminContent.css";
 
@@ -31,9 +32,12 @@ const AdminScenarioContainer = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddMode, setIsAddMode] = useState(false);
 
-  // JSON 관련 상태
+  // JSON 및 미리보기 상태
   const [jsonInput, setJsonInput] = useState("");
   const [previewData, setPreviewData] = useState(null);
+
+  // 🌟 [New] 미리보기 언어 상태 (기본값: 영어)
+  const [previewLang, setPreviewLang] = useState("en-US");
 
   // 1. 검색 필터링
   const filteredData = useMemo(() => {
@@ -52,16 +56,15 @@ const AdminScenarioContainer = ({
 
   const selectedItem = data.find((item) => item.id === selectedId);
 
-  // 3. JSON 파싱 핸들러 (스마트 따옴표 & 배열 처리 추가)
+  // 3. JSON 파싱 핸들러
   const handleParse = () => {
     try {
       const sanitizedInput = jsonInput
-        .replace(/[\u201C\u201D]/g, '"') // “ ” -> "
-        .replace(/[\u2018\u2019]/g, "'"); // ‘ ’ -> '
+        .replace(/[\u201C\u201D]/g, '"')
+        .replace(/[\u2018\u2019]/g, "'");
 
       let parsed = JSON.parse(sanitizedInput);
 
-      // 배열로 들어오면 첫 번째 객체만 추출
       if (Array.isArray(parsed)) {
         if (parsed.length === 0) throw new Error("빈 배열입니다.");
         parsed = parsed[0];
@@ -71,7 +74,7 @@ const AdminScenarioContainer = ({
       }
 
       setPreviewData(parsed);
-      toast.success("JSON 형식이 올바릅니다. 미리보기를 확인하세요.");
+      toast.success("JSON 형식이 올바릅니다.");
     } catch (e) {
       alert("JSON 형식이 올바르지 않습니다.\n" + e.message);
     }
@@ -79,9 +82,11 @@ const AdminScenarioContainer = ({
 
   const handleUpload = async () => {
     if (!previewData || !onUpload) return;
-    // 제목이 객체일 경우 처리
+    // 제목이 객체일 경우 처리 (현재 보고 있는 언어 기준)
     const titleText =
-      previewData.title?.["ko-KR"] || previewData.title || "제목 없음";
+      previewData.title?.[previewLang] ||
+      previewData.title?.["en-US"] ||
+      "제목 없음";
 
     if (!confirm(`시나리오 '${titleText}'를 등록하시겠습니까?`)) return;
 
@@ -284,7 +289,7 @@ const AdminScenarioContainer = ({
               variant="secondary"
               onClick={() => {
                 navigator.clipboard.writeText(aiGuide);
-                toast.success("프롬프트가 복사되었습니다!");
+                toast.success("프롬프트 복사됨!");
               }}
               icon={<HiClipboardDocumentCheck />}
             >
@@ -308,43 +313,114 @@ const AdminScenarioContainer = ({
               className="preview-area"
               style={{
                 marginTop: "24px",
-                padding: "20px",
+                padding: "24px",
                 background: "#f8fafc",
-                borderRadius: "12px",
+                borderRadius: "16px",
+                border: "1px solid #e2e8f0",
               }}
             >
-              <h3>
-                미리보기:{" "}
-                {previewData.title?.["ko-KR"] ||
-                  previewData.title?.["en-US"] ||
-                  previewData.title}
-              </h3>
-              <p>
-                {previewData.description?.["ko-KR"] ||
-                  previewData.description?.["en-US"] ||
-                  previewData.description}
-              </p>
+              {/* 🌟 1. 언어 선택 스위처 추가 */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "20px",
+                }}
+              >
+                <h3
+                  style={{
+                    margin: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <HiLanguage color="#2563eb" /> 미리보기 확인
+                </h3>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    background: "white",
+                    padding: "4px",
+                    borderRadius: "8px",
+                    border: "1px solid #cbd5e1",
+                  }}
+                >
+                  <button
+                    onClick={() => setPreviewLang("en-US")}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      border: "none",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      background:
+                        previewLang === "en-US" ? "#2563eb" : "transparent",
+                      color: previewLang === "en-US" ? "white" : "#64748b",
+                    }}
+                  >
+                    🇺🇸 English
+                  </button>
+                  <button
+                    onClick={() => setPreviewLang("ko-KR")}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      border: "none",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      background:
+                        previewLang === "ko-KR" ? "#2563eb" : "transparent",
+                      color: previewLang === "ko-KR" ? "white" : "#64748b",
+                    }}
+                  >
+                    🇰🇷 한국어
+                  </button>
+                </div>
+              </div>
 
-              <div style={{ marginTop: "16px" }}>
+              {/* 🌟 2. 선택된 언어로 제목/설명 표시 */}
+              <div style={{ marginBottom: "24px" }}>
+                <h2 style={{ fontSize: "1.5rem", marginBottom: "8px" }}>
+                  {previewData.title?.[previewLang] ||
+                    previewData.title?.["en-US"] ||
+                    "No Title"}
+                </h2>
+                <p style={{ color: "#64748b" }}>
+                  {previewData.description?.[previewLang] ||
+                    previewData.description?.["en-US"] ||
+                    "No Description"}
+                </p>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                }}
+              >
                 {previewData.dialogues?.map((d) => {
-                  // 1. 템플릿 텍스트 추출 (한국어 우선)
-                  const langCode = d.template?.["ko-KR"] ? "ko-KR" : "en-US"; // 언어 감지
+                  // 🌟 3. 선택된 언어로 템플릿과 옵션 적용
                   const templateText =
                     typeof d.template === "object"
-                      ? d.template[langCode]
+                      ? d.template[previewLang] || d.template["en-US"]
                       : d.template;
 
-                  // 2. 🌟 [핵심] 옵션을 넣은 완성 문장 만들기
+                  // 문장 완성 로직
                   let completeSentence = null;
                   if (d.has_choices && d.options && d.options.length > 0) {
                     const defaultOpt =
                       d.options.find((o) => o.is_default) || d.options[0];
-
+                    // 옵션 단어도 현재 언어에 맞춰서 가져옴
                     const optText =
-                      defaultOpt.content?.[langCode] ||
-                      Object.values(defaultOpt.content || {})[0] ||
+                      defaultOpt.content?.[previewLang] ||
+                      defaultOpt.content?.["en-US"] ||
                       "???";
 
+                    // 정규식으로 치환 (대소문자 무시, 공백 허용)
                     completeSentence = templateText.replace(
                       /{\s*option\s*}/gi,
                       optText,
@@ -355,47 +431,61 @@ const AdminScenarioContainer = ({
                     <div
                       key={d.order}
                       style={{
-                        fontSize: "0.95rem",
-                        marginBottom: "12px",
-                        padding: "12px",
+                        padding: "16px",
                         background: "white",
-                        borderRadius: "8px",
+                        borderRadius: "12px",
                         border: "1px solid #e2e8f0",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
                       }}
                     >
-                      <div style={{ marginBottom: "4px" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          marginBottom: "6px",
+                        }}
+                      >
                         <span
                           className={`badge ${d.speaker === "A" ? "neutral" : "primary"}`}
-                          style={{ marginRight: "8px" }}
                         >
                           {d.speaker}
                         </span>
-                        {/* 원본 템플릿 표시 */}
-                        <span style={{ color: "#64748b" }}>{templateText}</span>
+                        {/* 원본 템플릿 (회색) */}
+                        <span style={{ color: "#94a3b8", fontSize: "0.9rem" }}>
+                          {templateText}
+                        </span>
                       </div>
 
-                      {/* 🌟 3. 완성된 예시 문장 보여주기 */}
-                      {completeSentence && (
+                      {/* 완성된 문장 (강조) */}
+                      {completeSentence ? (
                         <div
                           style={{
                             paddingLeft: "34px",
                             color: "#059669",
                             fontWeight: "bold",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
+                            fontSize: "1.05rem",
                           }}
                         >
-                          <span>👉 예시:</span>
-                          <span>"{completeSentence}"</span>
+                          "{completeSentence}"
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            paddingLeft: "34px",
+                            color: "#334155",
+                            fontSize: "1.05rem",
+                          }}
+                        >
+                          "{templateText}"
                         </div>
                       )}
 
-                      {/* 옵션 목록 */}
+                      {/* 옵션 목록 (선택된 언어로 표시) */}
                       {d.options && d.options.length > 0 && (
                         <div
                           style={{
-                            marginTop: "8px",
+                            marginTop: "12px",
                             paddingLeft: "34px",
                             display: "flex",
                             gap: "6px",
@@ -406,9 +496,9 @@ const AdminScenarioContainer = ({
                             <span
                               key={idx}
                               style={{
-                                fontSize: "0.75rem",
-                                padding: "2px 8px",
-                                borderRadius: "12px",
+                                fontSize: "0.8rem",
+                                padding: "4px 10px",
+                                borderRadius: "16px",
                                 background: o.is_default
                                   ? "#dbeafe"
                                   : "#f1f5f9",
@@ -419,7 +509,7 @@ const AdminScenarioContainer = ({
                               }}
                             >
                               {o.is_default && "★ "}
-                              {o.content?.["ko-KR"] || o.content?.["en-US"]}
+                              {o.content?.[previewLang] || o.content?.["en-US"]}
                             </span>
                           ))}
                         </div>
@@ -428,8 +518,13 @@ const AdminScenarioContainer = ({
                   );
                 })}
               </div>
-              <Button fullWidth onClick={handleUpload} className="mt-4">
-                이 시나리오를 DB에 저장하기
+              <Button
+                fullWidth
+                onClick={handleUpload}
+                className="mt-6"
+                size="lg"
+              >
+                이 시나리오 DB에 저장하기
               </Button>
             </div>
           )}

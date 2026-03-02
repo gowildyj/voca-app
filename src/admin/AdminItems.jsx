@@ -2,15 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useGlobalStore } from "@/store/useGlobalStore";
 import AdminPageContainer from "@/admin/AdminPageContainer";
 import Button from "@/components/common/Button";
+import { toast } from "react-hot-toast";
 
 import {
   HiTrash,
   HiCheck,
-  HiXMark,
-  HiPlus,
   HiChevronDown,
   HiChevronUp,
   HiPhoto,
+  HiDocumentDuplicate, // 복사 아이콘
+  HiCursorArrowRays, // 선택 아이콘
 } from "react-icons/hi2";
 
 const AdminItems = () => {
@@ -27,6 +28,10 @@ const AdminItems = () => {
   } = useGlobalStore();
 
   const [expandedId, setExpandedId] = useState(null);
+
+  // 🌟 [New] 선택된 ID 관리 (Set 사용)
+  const [selectedIds, setSelectedIds] = useState(new Set());
+
   const [editData, setEditData] = useState({
     item_type: "WORD",
     image_url: "",
@@ -40,43 +45,86 @@ const AdminItems = () => {
     fetchAdminItems();
   }, []);
 
-  // AI 프롬프트 생성
-  const tagGuide = categories
-    .map((c) => `${c.icon_emoji}${c.tag_key}(ID:${c.id})`)
-    .join(", ");
-  const currentLangCodes = languages.map((l) => l.code).join(", ");
-  const AI_PROMPT = `
-너는 다국어 학습 콘텐츠 생성 전문가야. 아래 규칙으로 JSON 배열을 만들어줘.
-JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스마트 문자 ’ (U+2019) 말고, 일반 아포스트로피(’) 사용해. 여러 객체는[] 배열로 감싸.
+  // 🌟 1. 체크박스 핸들러
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      // 현재 로딩된 모든 아이템 선택 (또는 필터된 것만 선택하려면 filteredData를 받아야 함)
+      // 여기서는 심플하게 전체 선택
+      setSelectedIds(new Set(items.map((i) => i.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
 
-- 형식: { 
-    "item_key": "apple", // 영문 소문자로 만들어줘
-    "item_type": "WORD" / "SENTENCE" // 둘 중에 하나
-    "tag_ids": ["해당하는_태그_ID_넣기"], // 위 목록에서 적절한 ID를 찾아 배열로 넣을 것
-    "langs": { ... } 
-   }
-- 언어 목록: ${currentLangCodes}
-- 지원 태그 목록: ${tagGuide}
-- 요청 단어: 사과, 바나나, 포도, 안녕하세요, 감사합니다, 미안합니다,
-  `;
+  const handleSelectRow = (id) => {
+    const newSet = new Set(selectedIds);
+    if (newSet.has(id)) {
+      newSet.delete(id);
+    } else {
+      newSet.add(id);
+    }
+    setSelectedIds(newSet);
+  };
 
-  // 🌟 아코디언 토글 시 데이터 매핑 보정
+  // 🌟 2. 선택된 ID 복사 (Bulk 수정용)
+  const handleCopySelectedIds = () => {
+    if (selectedIds.size === 0) {
+      toast.error("선택된 항목이 없습니다.");
+      return;
+    }
+
+    // Set -> Array -> String (줄바꿈 구분)
+    const idsString = Array.from(selectedIds).join("\n");
+    navigator.clipboard.writeText(idsString);
+    toast.success(
+      `${selectedIds.size}개의 ID가 복사되었습니다!\n'Bulk 수정' 탭에서 불러오세요.`,
+    );
+  };
+
+  // 🌟 3. ID 목록을 받아서 Pipe Text로 변환 (Bulk 탭에서 호출됨)
+  const handleConvertIdsToText = (idsArray) => {
+    // 1. 헤더 생성
+    const langCodes = languages.map((l) => l.code);
+    const headers = ["id", "key", "type", ...langCodes];
+    const headerLine = headers.join(" | ");
+
+    // 2. 데이터 행 생성
+    const rows = idsArray
+      .map((id) => {
+        const item = items.find((i) => i.id === id.trim()); // 공백 제거 중요
+        if (!item) return null;
+
+        const cols = [
+          item.id,
+          item.item_key || "",
+          item.item_type || "WORD",
+          ...langCodes.map((code) => {
+            return (
+              item.item_translations?.find((t) => t.lang_code === code)
+                ?.content || ""
+            );
+          }),
+        ];
+        return cols.join(" | ");
+      })
+      .filter(Boolean);
+
+    return [headerLine, ...rows].join("\n");
+  };
+
+  // ... (handleToggle 등 기존 로직) ...
   const handleToggle = (item) => {
     if (expandedId === item.id) {
       setExpandedId(null);
     } else {
       setExpandedId(item.id);
-
       const langMap = {};
-      // 1. 기존 DB 번역 데이터가 있다면 매핑
       item.item_translations?.forEach((t) => {
         langMap[t.lang_code] = {
           content: t.content || "",
           example: t.example_sentence || "",
         };
       });
-
-      // 2. 만약 JSON 미리보기 중이라면 (id가 없음) langs에서 바로 가져옴
       if (!item.id && item.langs) {
         Object.entries(item.langs).forEach(([code, info]) => {
           langMap[code] = {
@@ -85,19 +133,26 @@ JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스
           };
         });
       }
-
       setEditData({
         item_type: item.item_type || "WORD",
-        image_url: item.image_url || "", // 🌟 null 방지
+        image_url: item.image_url || "",
         tag_ids: item.item_tag_map?.map((t) => t.tag_id) || item.tag_ids || [],
         langs: langMap,
       });
     }
   };
 
+  // 🌟 헤더 렌더링 (체크박스 추가)
   const renderHeader = (
     <thead>
       <tr>
+        <th style={{ width: "40px", textAlign: "center" }}>
+          <input
+            type="checkbox"
+            onChange={handleSelectAll}
+            checked={items.length > 0 && selectedIds.size === items.length}
+          />
+        </th>
         <th style={{ width: "50px", textAlign: "center" }}>No.</th>
         <th style={{ width: "80px", textAlign: "center" }}>Type</th>
         <th style={{ width: "100px", textAlign: "center" }}>Image</th>
@@ -108,8 +163,10 @@ JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스
     </thead>
   );
 
+  // 🌟 행 렌더링 (체크박스 추가)
   const renderRow = (item, index, no) => {
     const isExpanded = expandedId === item.id;
+    const isSelected = selectedIds.has(item.id);
 
     // 요약 표시 로직
     let displayContent = "No Data";
@@ -133,9 +190,29 @@ JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스
           onClick={() => handleToggle(item)}
           style={{
             cursor: "pointer",
-            background: isExpanded ? "#f1f5f9" : "transparent",
+            background: isSelected
+              ? "#eff6ff"
+              : isExpanded
+                ? "#f8fafc"
+                : "transparent", // 선택 시 파란 배경
+            borderLeft: isSelected
+              ? "4px solid #2563eb"
+              : "4px solid transparent",
           }}
         >
+          {/* 🌟 체크박스 셀 */}
+          <td
+            style={{ textAlign: "center" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => handleSelectRow(item.id)}
+              disabled={!item.id} // ID 없는(신규) 항목은 선택 불가
+            />
+          </td>
+
           <td style={{ textAlign: "center" }}>{no || "-"}</td>
           <td style={{ textAlign: "center" }}>
             <span className={`badge ${item.item_type}`}>{item.item_type}</span>
@@ -166,16 +243,15 @@ JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스
                 gap: "6px",
               }}
             >
-              {displayContent}
+              {displayContent}{" "}
               {isExpanded ? <HiChevronUp /> : <HiChevronDown />}
             </div>
             <div style={{ fontSize: "0.7rem", color: "#cbd5e1" }}>
-              {item.id ? `ID: ${item.id}` : "신규 등록 예정"}
+              {item.item_key}
             </div>
           </td>
           <td>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
-              {/* DB에서 온 데이터(item_tag_map)와 미리보기 데이터(tag_ids) 모두 대응 */}
               {(
                 item.item_tag_map?.map((m) => m.tag_id) ||
                 item.tag_ids ||
@@ -208,9 +284,11 @@ JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스
           </td>
         </tr>
 
+        {/* 아코디언 내용은 기존과 동일하므로 생략 (위 코드 참고) */}
         {isExpanded && (
           <tr>
-            <td colSpan="6" className="admin-accordion-panel">
+            <td colSpan="7" className="admin-accordion-panel">
+              {/* colSpan을 6에서 7로 증가 (체크박스 때문) */}
               <div
                 style={{ display: "flex", gap: "24px", marginBottom: "20px" }}
               >
@@ -229,15 +307,15 @@ JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스
                   <label className="admin-lang-label">관련 태그 설정</label>
                   <div className="admin-tag-selection-group">
                     {categories.map((cat) => {
-                      const isSelected = editData.tag_ids.includes(cat.id);
+                      const isTagSelected = editData.tag_ids.includes(cat.id);
                       return (
                         <label
                           key={cat.id}
-                          className={`admin-tag-chip ${isSelected ? "active" : ""}`}
+                          className={`admin-tag-chip ${isTagSelected ? "active" : ""}`}
                         >
                           <input
                             type="checkbox"
-                            checked={isSelected}
+                            checked={isTagSelected}
                             onChange={(e) => {
                               const newTags = e.target.checked
                                 ? [...editData.tag_ids, cat.id]
@@ -255,33 +333,30 @@ JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스
                   </div>
                 </div>
               </div>
-
+              {/* ... 언어 입력 그리드 등 ... */}
               <div className="admin-lang-grid">
                 {languages.map((lang) => {
                   const info = editData.langs[lang.code] || {
                     content: "",
                     example: "",
                   };
-
                   return (
                     <div key={lang.code} className="admin-lang-item">
-                      <span className="admin-lang-label">
-                        {lang.name} ({lang.code})
-                      </span>
+                      <span className="admin-lang-label">{lang.name}</span>
                       <input
                         className="admin-inline-input"
                         style={{ width: "100%", marginBottom: "4px" }}
-                        placeholder="단어/문장 내용"
-                        value={info.content || ""} // 🌟 명시적 빈 문자열 처리
-                        onChange={(e) => {
+                        placeholder="내용"
+                        value={info.content || ""}
+                        onChange={(e) =>
                           setEditData({
                             ...editData,
                             langs: {
                               ...editData.langs,
                               [lang.code]: { ...info, content: e.target.value },
                             },
-                          });
-                        }}
+                          })
+                        }
                       />
                       <textarea
                         className="admin-inline-input"
@@ -290,23 +365,22 @@ JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스
                           height: "60px",
                           fontSize: "0.8rem",
                         }}
-                        placeholder="예문 입력"
-                        value={info.example || ""} // 🌟 명시적 빈 문자열 처리
-                        onChange={(e) => {
+                        placeholder="예문"
+                        value={info.example || ""}
+                        onChange={(e) =>
                           setEditData({
                             ...editData,
                             langs: {
                               ...editData.langs,
                               [lang.code]: { ...info, example: e.target.value },
                             },
-                          });
-                        }}
+                          })
+                        }
                       />
                     </div>
                   );
                 })}
               </div>
-
               <div
                 style={{
                   marginTop: "20px",
@@ -322,16 +396,12 @@ JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스
                   icon={<HiCheck />}
                   onClick={async () => {
                     if (item.id) {
-                      const success = await updateItem(item.id, editData);
-                      if (success) setExpandedId(null);
-                    } else {
-                      alert(
-                        "이 데이터는 아직 DB에 저장되지 않은 미리보기 상태입니다. 'JSON 일괄 등록' 탭 하단의 저장 버튼을 이용해 주세요.",
-                      );
+                      await updateItem(item.id, editData);
+                      setExpandedId(null);
                     }
                   }}
                 >
-                  {item.id ? "수정사항 저장" : "미리보기 모드"}
+                  수정사항 저장
                 </Button>
               </div>
             </td>
@@ -341,25 +411,46 @@ JSON은 반드시 **”(ASCII 쌍따옴표)** 만 허용하며, 유니코드 스
     );
   };
 
+  // 🌟 상단 툴바 (선택된 것만 복사)
+  const renderAddForm = (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        marginBottom: "10px",
+        alignItems: "center",
+        gap: "10px",
+      }}
+    >
+      {selectedIds.size > 0 && (
+        <span
+          style={{ fontSize: "0.9rem", color: "#2563eb", fontWeight: "bold" }}
+        >
+          {selectedIds.size}개 선택됨
+        </span>
+      )}
+      <Button
+        variant={selectedIds.size > 0 ? "primary" : "secondary"} // 선택되면 파란색
+        icon={<HiDocumentDuplicate />}
+        onClick={handleCopySelectedIds}
+        disabled={selectedIds.size === 0}
+      >
+        선택한 ID 복사 ({selectedIds.size})
+      </Button>
+    </div>
+  );
+
   return (
     <AdminPageContainer
       title="🗂️ 콘텐츠 관리"
       data={items}
       onRefresh={fetchAdminItems}
       onUpload={addItemsBulk}
+      onLoadData={handleConvertIdsToText} // 🌟 컨테이너에게 ID -> Text 변환 함수 전달
       renderListHeader={renderHeader}
       renderListRow={renderRow}
-      aiGuide={AI_PROMPT}
-      jsonPlaceholder='[
-            {
-                "item_key": "hello",
-                "item_type": "SENTENCE",
-                "tag_ids": ["57df5bee-64e0-4d8b-b745-3f161f640ec3"],
-                "langs": {
-                "en-US": { "content": "hello", "example": "Hello, nice to meet you." },
-                }
-            }
-        ]'
+      renderAddForm={renderAddForm}
+      // ...
     />
   );
 };

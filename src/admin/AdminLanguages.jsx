@@ -32,8 +32,8 @@ const AdminLanguages = () => {
     languages,
     fetchLanguages,
     addLanguage,
-    updateLanguage,
     addLanguagesBulk,
+    updateLanguage,
     deleteLanguage,
   } = useGlobalStore();
 
@@ -225,7 +225,7 @@ const AdminLanguages = () => {
       onRefresh={fetchLanguages}
       renderListHeader={renderHeader}
       renderListRow={renderRow}
-      renderAddForm={AddFormUI} // 🌟 UI를 통째로 전달
+      renderAddForm={AddFormUI}
       aiGuide={AI_PROMPT}
       jsonPlaceholder='[ { "code": "ko-KR", "name": "한국어", "emoji": "🇰🇷" } ]'
     />

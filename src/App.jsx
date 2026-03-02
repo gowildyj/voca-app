@@ -27,7 +27,6 @@ const AdminLayout = lazy(() => import("@/admin/AdminLayout"));
 const AdminLanguages = lazy(() => import("@/admin/AdminLanguages"));
 const AdminTags = lazy(() => import("@/admin/AdminTags"));
 const AdminItems = lazy(() => import("@/admin/AdminItems"));
-const AdminContent = lazy(() => import("@/admin/AdminContent"));
 const AdminScenarios = lazy(() => import("@/admin/AdminScenarios"));
 
 /**
@@ -164,7 +163,6 @@ function AppContent() {
             <Route path="languages" element={<AdminLanguages />} />
             <Route path="hashtags" element={<AdminTags />} />
             <Route path="items" element={<AdminItems />} />
-            <Route path="content" element={<AdminContent />} />
             <Route
               path="scenarios"
               element={

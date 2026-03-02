@@ -73,6 +73,7 @@ const AdminScenarios = () => {
     items,
     scenarios,
     fetchAdminScenarios,
+    fetchItems,
     saveScenario,
     saveDialogue,
     deleteScenario,
@@ -85,6 +86,7 @@ const AdminScenarios = () => {
 
   useEffect(() => {
     fetchAdminScenarios();
+    fetchItems();
   }, []);
 
   const [isModalOpen, setIsModalOpen] = useState(false);

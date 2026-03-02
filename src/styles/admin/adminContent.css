@@ -480,3 +480,168 @@ th {
 .selection-item-row:hover {
   background: #f1f5f9;
 }
+
+/* --- 모달 (Modal) 스타일 업데이트 --- */
+.admin-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.admin-modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  /* 🌟 레이아웃 & 크기 설정 */
+  width: 600px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 헤더 영역 */
+.admin-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px; /* border-bottom은 아이템 리스트와 구분하기 위해 제거하거나 유지 선택 */
+  flex-shrink: 0;
+}
+
+.admin-modal-title {
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: bold;
+}
+
+.admin-modal-close-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.admin-modal-close-btn:hover {
+  background: #f1f5f9;
+}
+
+/* 검색창 영역 */
+.item-search-bar {
+  margin: 16px 0;
+  flex-shrink: 0;
+}
+
+/* 리스트 컨테이너 */
+.item-selection-list {
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px; /* 스크롤바 여백 */
+}
+
+/* 리스트 아이템 행 */
+.selection-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.2s;
+  gap: 16px;
+}
+
+.selection-item-row:hover {
+  background: #f8fafc; /* 🌟 CSS 호버 적용 */
+}
+
+/* 아이템 정보 (왼쪽) */
+.item-info {
+  flex: 1;
+  min-width: 0; /* 텍스트 말줄임 처리를 위해 필수 */
+}
+
+.item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.item-main-text {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.item-sub-text {
+  font-size: 0.85rem;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.item-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* ID 태그 스타일 */
+.item-id-tag {
+  font-family: monospace;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f8fafc;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: #64748b;
+}
+
+/* 추가 버튼 (오른쪽 동그라미) */
+.item-add-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.selection-item-row:hover .item-add-btn {
+  background: #2563eb;
+  color: white;
+  transform: scale(1.1);
+}
+
+/* 결과 없음 상태 */
+.empty-result {
+  padding: 40px 0;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.empty-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}

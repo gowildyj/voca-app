@@ -434,6 +434,32 @@ export const useGlobalStore = create((set, get) => ({
     }
   },
 
+  // --- [Item Actions] ---
+  fetchItems: async () => {
+    logger.start("fetchItems");
+    const { data, error } = await supabase
+      .from("master_items")
+      .select(
+        `
+        *,
+        item_translations(*),
+        item_tag_map(
+          tag:hashtag_master(
+            *,
+            hashtag_translations(*)
+          )
+        )
+      `,
+      )
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      logger.error(error); // logger 대신 console 사용 가능
+    } else {
+      set({ items: data }); // 🌟 여기서 items 상태를 채워줍니다!
+    }
+  },
+
   /// --- [Scenario Actions] ---
 
   // 4-1. 시나리오 전체 목록 (관리자용 - 모든 관계 데이터 포함)

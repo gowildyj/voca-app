@@ -127,7 +127,7 @@ const AdminPageContainer = ({
 
           const item = {
             id: null,
-            _tempId: `temp_${Date.now()}_${idx}`, // 🌟 임시 ID 발급!
+            _tempId: `temp_${Date.now()}_${idx}`,
             item_type: "WORD",
             langs: {},
             uq_key: null,

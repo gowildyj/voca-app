@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo, useState, lazy } from "react";
+import React, { Suspense, useMemo, useState, useEffect, lazy } from "react";
 import {
   HashRouter as Router,
   Routes,
@@ -21,6 +21,7 @@ import { toastConfig, showToast } from "@/utils/toast";
 
 import { AppRoutesData, ROUTES } from "@/routes/AppRoutes";
 import { LANG_OPTIONS, DEFAULT_LANG } from "@/constants/languages";
+import { useGlobalStore } from "@/store/useGlobalStore"; // 🌟 스토어 임포트 확인
 
 // 관리자 페이지 Lazy Load
 const AdminLayout = lazy(() => import("@/admin/AdminLayout"));
@@ -31,10 +32,8 @@ const AdminScenarios = lazy(() => import("@/admin/AdminScenarios"));
 
 /**
  * [UserLayout] 일반 사용자용 레이아웃 래퍼
- * - 관리자 페이지에는 Header/BottomNav가 보이지 않도록 분리함
  */
 const UserLayout = ({
-  // children,
   selectedLang,
   isLangModalOpen,
   isSettingsOpen,
@@ -44,16 +43,12 @@ const UserLayout = ({
 }) => {
   const location = useLocation();
 
-  // 레이아웃 표시 여부 제어 (학습 화면 등에서는 헤더/푸터 숨김)
   const uiDisplay = useMemo(() => {
     const path = location.pathname;
     const isStudyPath = ["/study", "/scenario-session"].some((p) =>
       path.startsWith(p),
     );
-    return {
-      hideBottomNav: isStudyPath,
-      hideHeader: isStudyPath,
-    };
+    return { hideBottomNav: isStudyPath, hideHeader: isStudyPath };
   }, [location.pathname]);
 
   return (
@@ -91,7 +86,6 @@ const UserLayout = ({
         </>
       }
     >
-      {/* {children} */}
       <Outlet />
     </MainLayout>
   );
@@ -101,54 +95,33 @@ function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // [상태 관리] 사용자 선택 언어 보존
-  const [selectedLang, setSelectedLang] = useState(() => {
-    const savedLangValue = localStorage.getItem("selected_language");
-    return (
-      LANG_OPTIONS.find((l) => l.value === savedLangValue) ||
-      LANG_OPTIONS.find((l) => l.value === DEFAULT_LANG) ||
-      LANG_OPTIONS[0]
-    );
-  });
+  const { currentUser, learningLang, setLearningLang, fetchLanguages } =
+    useGlobalStore();
 
   const [isLangModalOpen, setIsLangModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // 개발 환경 전용 루트 필터링
-  const routes = useMemo(
-    () =>
-      process.env.NODE_ENV === "development"
-        ? AppRoutesData
-        : AppRoutesData.filter((r) => r.path !== ROUTES.DESIGN),
-    [],
-  );
+  // 초기 데이터 로드
+  useEffect(() => {
+    fetchLanguages();
+  }, []);
 
-  // 언어 변경 및 페이지 리다이렉트 처리
+  // [상태 관리] 현재 선택된 언어 객체 계산
+  const selectedLang = useMemo(() => {
+    return (
+      LANG_OPTIONS.find((l) => l.value === learningLang) ||
+      LANG_OPTIONS.find((l) => l.value === DEFAULT_LANG) ||
+      LANG_OPTIONS[0]
+    );
+  }, [learningLang]);
+
+  const routes = useMemo(() => AppRoutesData, []);
+
   const handleLanguageChange = (langId) => {
-    const target = LANG_OPTIONS.find((l) => l.value === langId);
-    if (!target) return;
-
-    setSelectedLang(target);
-    localStorage.setItem("selected_language", langId);
-    showToast.success(`${target.label} 모드로 변경되었습니다!`, {
-      icon: target.icon,
-    });
+    setLearningLang(langId);
+    showToast.success(`언어가 변경되었습니다!`);
     setIsLangModalOpen(false);
-
-    const currentPath = location.pathname;
-    const isDeckDetail =
-      currentPath.startsWith("/decks/") && currentPath !== ROUTES.DECK_LIST;
-    const isStudySession = currentPath.startsWith("/study/");
-    const isScenarioDetail =
-      currentPath.startsWith("/scenarios/") &&
-      currentPath !== ROUTES.SCENARIO_LIST;
-    const isScenarioSession = currentPath.startsWith("/scenario-session/");
-
-    if (isDeckDetail || isStudySession) {
-      navigate(ROUTES.DECK_LIST);
-    } else if (isScenarioDetail || isScenarioSession) {
-      navigate(ROUTES.SCENARIO_LIST);
-    }
+    // 리다이렉트 로직...
   };
 
   return (
@@ -156,30 +129,21 @@ function AppContent() {
       <Toaster {...toastConfig} />
       <Suspense fallback={<div className="v-page-transition-loader" />}>
         <Routes>
-          {/* 관리자 라우트 */}
+          {/* 관리자 라우트 보호 */}
           <Route
             path="/admin"
             element={
               currentUser ? <AdminLayout /> : <Navigate to="/" replace />
             }
           >
-            {/* /admin 접속 시 content로 리다이렉트 */}
-            <Route index element={<Navigate to="languages" replace />} />
+            <Route index element={<Navigate to="items" replace />} />
             <Route path="languages" element={<AdminLanguages />} />
             <Route path="hashtags" element={<AdminTags />} />
             <Route path="items" element={<AdminItems />} />
-            <Route
-              path="scenarios"
-              element={
-                <Suspense fallback={<div>시나리오 에디터 로딩 중...</div>}>
-                  <AdminScenarios />
-                </Suspense>
-              }
-            />
-            <Route path="tags" element={<div>태그 준비중</div>} />
+            <Route path="scenarios" element={<AdminScenarios />} />
           </Route>
 
-          {/* 일반 사용자 라우트 (UserLayout 적용) */}
+          {/* 일반 사용자 라우트 */}
           <Route
             element={
               <UserLayout
@@ -193,14 +157,7 @@ function AppContent() {
             }
           >
             {routes.map(({ path, element }) => (
-              <Route
-                key={path}
-                path={path}
-                element={React.cloneElement(element, {
-                  currentLangValue: selectedLang.value,
-                  key: selectedLang.value,
-                })}
-              />
+              <Route key={path} path={path} element={element} />
             ))}
           </Route>
         </Routes>

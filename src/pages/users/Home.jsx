@@ -4,6 +4,7 @@ import { useGlobalStore } from "@/store/useGlobalStore";
 import LanguageSelectModal from "@/components/modals/LanguageSelectModal";
 import Button from "@/components/common/Button";
 import { HiLanguage, HiArrowPath, HiUserCircle } from "react-icons/hi2";
+import "@/styles/user.css";
 
 const UserHome = () => {
   const navigate = useNavigate();

@@ -1,0 +1,109 @@
+[
+  {
+    "difficulty": "Easy",
+    "title": {
+      "ko-KR": "카페에서 음료 주문하기",
+      "en-US": "Ordering a Drink at a Cafe"
+    },
+    "description": {
+      "ko-KR": "해외 여행 중 카페에서 원하는 음료를 주문하는 상황입니다. 기본적인 주문 표현과 공손한 응답을 연습합니다.",
+      "en-US": "You are at a cafe while traveling abroad. Practice basic ordering expressions and polite responses."
+    },
+    "dialogues": [
+      {
+        "order": 1,
+        "speaker": "A",
+        "template": {
+          "en-US": "Hello. What would you like to drink?",
+          "ko-KR": "안녕하세요. 무엇을 마시겠어요?"
+        },
+        "has_choices": false,
+        "options": []
+      },
+      {
+        "order": 2,
+        "speaker": "B",
+        "template": {
+          "en-US": "I’d like a {option}, please.",
+          "ko-KR": "{option}으로 부탁합니다."
+        },
+        "has_choices": true,
+        "options": [
+          {
+            "item_key": "drink_coffee",
+            "item_type": "WORD",
+            "content": {
+              "en-US": "coffee",
+              "ko-KR": "커피"
+            }
+          },
+          {
+            "item_key": "drink_tea",
+            "item_type": "WORD",
+            "content": {
+              "en-US": "tea",
+              "ko-KR": "차"
+            }
+          }
+        ]
+      },
+      {
+        "order": 3,
+        "speaker": "A",
+        "template": {
+          "en-US": "What size would you like?",
+          "ko-KR": "어떤 사이즈로 드릴까요?"
+        },
+        "has_choices": false,
+        "options": []
+      },
+      {
+        "order": 4,
+        "speaker": "B",
+        "template": {
+          "en-US": "A {option}, please.",
+          "ko-KR": "{option} 사이즈로 주세요."
+        },
+        "has_choices": true,
+        "options": [
+          {
+            "item_key": "size_small",
+            "item_type": "WORD",
+            "content": {
+              "en-US": "small",
+              "ko-KR": "스몰"
+            }
+          },
+          {
+            "item_key": "size_large",
+            "item_type": "WORD",
+            "content": {
+              "en-US": "large",
+              "ko-KR": "라지"
+            }
+          }
+        ]
+      },
+      {
+        "order": 5,
+        "speaker": "A",
+        "template": {
+          "en-US": "That will be five dollars.",
+          "ko-KR": "5달러입니다."
+        },
+        "has_choices": false,
+        "options": []
+      },
+      {
+        "order": 6,
+        "speaker": "B",
+        "template": {
+          "en-US": "Here you go. Thank you.",
+          "ko-KR": "여기 있습니다. 감사합니다."
+        },
+        "has_choices": false,
+        "options": []
+      }
+    ]
+  }
+]

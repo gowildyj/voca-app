@@ -23,6 +23,7 @@ const AdminContent = () => {
       logger.success("JSON Parse", parsed);
     } catch (e) {
       alert("JSON 형식이 올바르지 않습니다.\n" + e.message);
+      console.log("JSON 형식이 올바르지 않습니다.\n" + e.message);
     }
   };
 

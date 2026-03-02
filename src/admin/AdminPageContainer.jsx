@@ -48,9 +48,11 @@ const AdminPageContainer = ({
   const handleParse = () => {
     try {
       const sanitizedInput = jsonInput
-        .replace(/[\u201C\u201D]/g, '"')
-        .replace(/[\u2018\u2019]/g, '"');
-      const parsed = JSON.parse(sanitizedInput);
+        .replace(/[\u201C\u201D]/g, '"') // “ ” -> " (쌍따옴표는 그대로 쌍따옴표로)
+        .replace(/[\u2018\u2019]/g, "'"); // ‘ ’ -> ' (홑따옴표는 아포스트로피로!)
+
+      let parsed = JSON.parse(sanitizedInput);
+
       if (!Array.isArray(parsed))
         throw new Error("데이터는 배열([]) 형태여야 합니다.");
       setPreviewData(parsed);

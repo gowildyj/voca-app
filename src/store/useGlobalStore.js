@@ -505,16 +505,29 @@ export const useGlobalStore = create((set, get) => ({
   // 4-3. 대화(Dialogue) 저장/수정
   saveDialogue: async (dialogueData) => {
     logger.start("saveDialogue", dialogueData);
+
+    // 🌟 중요: 관계 데이터(scenario_options 등)를 제외하고 테이블 컬럼만 추출
+    const payload = {
+      id: dialogueData.id || undefined,
+      scenario_id: dialogueData.scenario_id,
+      order_index: dialogueData.order_index,
+      speaker_type: dialogueData.speaker_type,
+      template_text: dialogueData.template_text,
+      default_master_item_id: dialogueData.default_master_item_id || null,
+      has_choices: dialogueData.has_choices || false,
+    };
+
     const { data, error } = await supabase
       .from("scenario_dialogues")
-      .upsert(dialogueData)
+      .upsert(payload) // 🌟 정제된 payload만 전송
       .select();
 
     if (error) {
       logger.error("saveDialogue 실패", error);
       return null;
     }
-    await get().fetchAdminScenarios(); // 목록 갱신
+
+    await get().fetchAdminScenarios();
     return data[0];
   },
 
@@ -526,6 +539,186 @@ export const useGlobalStore = create((set, get) => ({
       .eq("id", dialogueId);
 
     if (!error) await get().fetchAdminScenarios();
+  },
+
+  // 4-5. (UPGRADE) 시나리오 + 옵션 + 다국어 일괄 등록
+  addScenarioBulk: async (json) => {
+    logger.start("addScenarioBulk (Full)", json);
+    try {
+      // 1. 시나리오 마스터 생성
+      const { data: master, error: mErr } = await supabase
+        .from("scenarios")
+        .insert([{ difficulty_level: json.difficulty }])
+        .select()
+        .single();
+      if (mErr) throw mErr;
+
+      // 2. 시나리오 번역 등록 (JSON의 title 객체 순회)
+      const sTrans = Object.keys(json.title).map((langCode) => ({
+        scenario_id: master.id,
+        lang_code: langCode,
+        title: json.title[langCode],
+        description: json.description[langCode] || "",
+      }));
+      await supabase.from("scenario_translations").insert(sTrans);
+
+      // 3. 대화문 루프
+      for (const d of json.dialogues) {
+        // 3-1. 대화문 등록 (기본 텍스트는 영어나 첫 번째 언어로 저장)
+        // 실제 앱에서는 언어별 템플릿 테이블이 따로 있으면 좋지만, 일단 template_text에 대표 언어(영어) 저장
+        const defaultTemplate =
+          d.template["en-US"] || Object.values(d.template)[0];
+
+        const { data: dialogue, error: dErr } = await supabase
+          .from("scenario_dialogues")
+          .insert([
+            {
+              scenario_id: master.id,
+              order_index: d.order,
+              speaker_type: d.speaker,
+              template_text: defaultTemplate,
+              has_choices: d.has_choices,
+            },
+          ])
+          .select()
+          .single();
+
+        if (dErr) throw dErr;
+
+        // 3-2. 옵션(아이템) 처리
+        if (d.has_choices && d.options && d.options.length > 0) {
+          for (const opt of d.options) {
+            // A. 아이템 마스터 Upsert (item_key 기준)
+            const { data: item, error: iErr } = await supabase
+              .from("master_items")
+              .upsert(
+                {
+                  item_key: opt.item_key,
+                  item_type: opt.item_type || "WORD",
+                },
+                { onConflict: "item_key" },
+              )
+              .select()
+              .single();
+
+            if (iErr) throw iErr;
+
+            // B. 아이템 번역 Upsert
+            const iTrans = Object.keys(opt.content).map((langCode) => ({
+              master_item_id: item.id,
+              lang_code: langCode,
+              content: opt.content[langCode],
+            }));
+            await supabase
+              .from("item_translations")
+              .upsert(iTrans, { onConflict: "master_item_id,lang_code" });
+
+            // C. 시나리오 옵션 연결
+            await supabase.from("scenario_options").insert([
+              {
+                dialogue_id: dialogue.id,
+                choice_item_id: item.id,
+                is_default: false,
+              },
+            ]);
+          }
+        }
+      }
+
+      await get().fetchAdminScenarios();
+      showToast.success(`시나리오 '${json.title["ko-KR"]}' 생성 완료!`);
+      return true;
+    } catch (error) {
+      logger.error("addScenarioBulk 실패", error);
+      showToast.error("시나리오 생성 중 오류 발생: " + error.message);
+      return false;
+    }
+  },
+
+  // 4-6. 대화 선택지(Option) 추가
+  addDialogueOption: async (dialogueId, masterItemId) => {
+    logger.start("addDialogueOption", { dialogueId, masterItemId });
+    const { error } = await supabase.from("scenario_options").insert([
+      {
+        dialogue_id: dialogueId,
+        choice_item_id: masterItemId,
+        is_default: false,
+      },
+    ]);
+
+    if (error) {
+      logger.error("addDialogueOption 실패", error);
+      return false;
+    }
+    await get().fetchAdminScenarios(); // 갱신
+    return true;
+  },
+
+  // 4-7. 대화 선택지 삭제
+  deleteDialogueOption: async (optionId) => {
+    const { error } = await supabase
+      .from("scenario_options")
+      .delete()
+      .eq("id", optionId);
+
+    if (!error) await get().fetchAdminScenarios();
+  },
+
+  // 4-8. (NEW) 기존 시나리오를 JSON으로 추출 (Export)
+  exportScenarioToJson: async (scenarioId) => {
+    const s = get().scenarios.find((item) => item.id === scenarioId);
+    if (!s) return null;
+
+    // DB 데이터를 JSON 포맷으로 변환
+    const json = {
+      difficulty: s.difficulty_level,
+      title: {},
+      description: {},
+      dialogues: [],
+    };
+
+    // 제목/설명 매핑
+    s.scenario_translations?.forEach((t) => {
+      json.title[t.lang_code] = t.title;
+      json.description[t.lang_code] = t.description;
+    });
+
+    // 대화문 매핑
+    // 주의: 실제 DB에는 dialogue template의 다국어가 따로 저장되지 않고 하나만 있음.
+    // 완벽한 다국어 복원을 위해서는 DB 구조 개선이 필요하나, 현재 구조상 template_text를 넣습니다.
+    json.dialogues = s.scenario_dialogues?.map((d) => {
+      const dialogueObj = {
+        order: d.order_index,
+        speaker: d.speaker_type,
+        template: { "en-US": d.template_text }, // 현재 DB 한계로 일단 영어 키에 할당
+        has_choices: d.has_choices,
+        options: [],
+      };
+
+      // 옵션 매핑
+      if (d.scenario_options && d.scenario_options.length > 0) {
+        dialogueObj.options = d.scenario_options.map((opt) => {
+          const item = opt.choice_item; // fetchAdminScenarios에서 조인된 데이터
+          const contentMap = {};
+
+          // item_translations 배열을 객체로 변환
+          if (Array.isArray(item?.item_translations)) {
+            item.item_translations.forEach((it) => {
+              contentMap[it.lang_code] = it.content;
+            });
+          }
+
+          return {
+            item_key: item?.item_key || `gen_${item?.id}`, // item_key가 없으면 ID라도
+            item_type: item?.item_type || "WORD",
+            content: contentMap,
+          };
+        });
+      }
+      return dialogueObj;
+    });
+
+    return JSON.stringify(json, null, 2);
   },
 
   // 5. 시나리오 목록 가져오기

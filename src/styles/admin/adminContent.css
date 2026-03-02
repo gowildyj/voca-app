@@ -321,3 +321,162 @@ th {
 .admin-tag-chip input {
   display: none; /* 실제 체크박스는 숨김 */
 }
+
+/* --- 시나리오 전용 레이아웃 --- */
+.scenario-grid {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* 왼쪽 사이드바 */
+.scenario-sidebar {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 16px;
+  position: sticky;
+  top: 20px;
+}
+
+.scenario-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* 오른쪽 상세 편집창 */
+.scenario-detail-view {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  min-height: 600px;
+  padding: 24px;
+}
+
+.scenario-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 16px;
+}
+
+/* --- 채팅 타임라인 (말풍선) --- */
+.chat-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 24px; /* 말풍선 간의 간격 */
+  margin-bottom: 40px;
+  padding: 10px;
+}
+
+.dialogue-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 95%; /* 🌟 너비 시원하게 확장 */
+}
+
+.dialogue-item.A {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.dialogue-item.B {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.dialogue-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dialogue-bubble {
+  width: 100%;
+  min-height: 80px; /* 🌟 높이 확보 */
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 1rem;
+  line-height: 1.6;
+  outline: none;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+  resize: vertical;
+}
+
+.dialogue-bubble:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* 화자별 스타일 포인트 */
+.dialogue-item.A .dialogue-bubble {
+  background: #f8fafc;
+  border-left: 4px solid #cbd5e1; /* 왼쪽 포인트 선 */
+}
+
+.dialogue-item.B .dialogue-bubble {
+  background: #eff6ff;
+  border-right: 4px solid #2563eb; /* 오른쪽 포인트 선 */
+}
+
+.dialogue-info {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.dialogue-info .highlight {
+  color: #2563eb;
+  font-weight: bold;
+}
+
+/* 모달 레이아웃 */
+.admin-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.admin-modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.admin-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 16px;
+}
+
+/* 리스트 로우 */
+.selection-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #f8fafc;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.selection-item-row:hover {
+  background: #f1f5f9;
+}

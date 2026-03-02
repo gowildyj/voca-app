@@ -6,6 +6,7 @@ import { Navigate } from "react-router-dom";
  */
 export const ROUTES = {
   HOME: "/",
+  SYNC: "/sync",
   DECK_LIST: "/decks",
   DECK_DETAIL: "/decks/:deckId",
   STUDY: "/study/:deckId",
@@ -18,7 +19,8 @@ export const ROUTES = {
 /**
  * [Lazy Loading] 컴포넌트 동적 로딩
  */
-const Home = lazy(() => import("@/pages/users/Home"));
+const HOME = lazy(() => import("@/pages/WordDeckList"));
+const SYNC = lazy(() => import("@/pages/users/Home"));
 const WordDeckList = lazy(() => import("@/pages/WordDeckList"));
 const WordList = lazy(() => import("@/pages/WordList"));
 const StudySession = lazy(() => import("@/pages/StudySession"));
@@ -35,7 +37,7 @@ const NotFound = lazy(() => import("@/pages/NotFound"));
 export const AppRoutesData = [
   {
     path: ROUTES.HOME,
-    element: <Home />,
+    element: <WordDeckList />,
     title: "동동구리",
   },
   {
@@ -68,6 +70,11 @@ export const AppRoutesData = [
   //   element: <DesignGuide />,
   //   title: "디자인 가이드",
   // },
+  {
+    path: ROUTES.SYNC,
+    element: <SYNC />,
+    title: "동동구리",
+  },
   {
     path: ROUTES.TEST,
     element: <TEST />,

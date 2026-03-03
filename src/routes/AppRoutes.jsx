@@ -9,6 +9,8 @@ export const ROUTES = {
   SYNC: "/sync",
   DECK_LIST: "/decks",
   DECK_DETAIL: "/decks/:deckId",
+  CATEGORY_LIST: "/categories",
+  CATEGORY_DETAIL: "/category/:categoryId",
   STUDY: "/study/:deckId",
   SCENARIO_LIST: "/scenarios",
   SCENARIO_SESSION: "/scenario/:id",
@@ -23,6 +25,8 @@ const HOME = lazy(() => import("@/pages/WordDeckList"));
 const SYNC = lazy(() => import("@/pages/users/Home"));
 const WordDeckList = lazy(() => import("@/pages/WordDeckList"));
 const WordList = lazy(() => import("@/pages/WordList"));
+const CategoryExplorer = lazy(() => import("@/pages/users/CategoryExplorer"));
+const CategoryWordList = lazy(() => import("@/pages/users/CategoryWordList"));
 const StudySession = lazy(() => import("@/pages/StudySession"));
 const ScenarioList = lazy(() => import("@/pages/ScenarioList"));
 const ScenarioPage = lazy(() => import("@/pages/ScenarioPage"));
@@ -48,6 +52,16 @@ export const AppRoutesData = [
   {
     path: ROUTES.DECK_DETAIL,
     element: <WordList />,
+    title: "단어 목록",
+  },
+  {
+    path: ROUTES.CATEGORY_LIST,
+    element: <CategoryExplorer />,
+    title: "학습 주제 탐색",
+  },
+  {
+    path: ROUTES.CATEGORY_DETAIL,
+    element: <CategoryWordList />,
     title: "단어 목록",
   },
   {

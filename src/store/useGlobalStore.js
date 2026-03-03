@@ -31,6 +31,7 @@ export const useGlobalStore = create(
 
       // 0. 유저 인증 (기기 연동)
       loginWithCode: async (code) => {
+        logger.start("loginWithCode", { code });
         if (!code) return false;
 
         const { data, error } = await supabase

@@ -42,12 +42,49 @@ export const useContentStore = create(
       if (error) {
         toast.error(t("error"));
         logger.error("fetchLanguages", error.message);
-        return;
+        throw error;
       }
 
       set({ languages: data });
       toast.success(t("success"));
-      logger.success("[content]fetchLanguages", data);
+      logger.success(`[content]fetchLanguages : ${data.length}`, data);
+    },
+
+    // 언어 등록 (Upsert - 있으면 수정, 없으면 등록)
+    upsertLanguage: async (langData) => {
+      logger.start("[content]upsertLanguage", langData);
+      const { data, error } = await supabase
+        .from("languages")
+        .upsert(langData) // { code: 'fr-FR', name: 'Français', emoji: '🇫🇷' }
+        .select();
+
+      if (error) {
+        logger.error("[content]upsertLanguage", error.message);
+        throw error;
+      }
+
+      // 목록 새로고침
+      get().fetchLanguages();
+      logger.success("[content]upsertLanguage", data);
+    },
+
+    // 삭제
+    deleteLanguage: async (code) => {
+      if (!window.confirm(`${code} 언어를 삭제하시겠습니까?`)) return;
+
+      logger.start("[content]deleteLanguage", code);
+      const { error } = await supabase
+        .from("languages")
+        .delete()
+        .eq("code", code);
+
+      if (error) {
+        logger.error("[content]deleteLanguage", error.message);
+        throw error;
+      }
+
+      get().fetchLanguages();
+      logger.success("[content]deleteLanguage", "Deleted");
     },
 
     // 해시태그 목록 가져오기 (master + translations)
@@ -61,7 +98,7 @@ export const useContentStore = create(
 
       if (error) {
         logger.error("[content]fetchTags", error.message);
-        return;
+        throw error;
       }
 
       set({ tags: data });
@@ -87,7 +124,7 @@ export const useContentStore = create(
 
       if (error) {
         logger.error("[content]fetchTagsByLang", error.message);
-        return;
+        throw error;
       }
 
       set({ tags: data });
@@ -185,10 +222,10 @@ export const useContentStore = create(
     },
 
     // 해시태그별 정보와 개수 가져오기
-    fetchTagsInfoByLang: async (nativeLang, learningLang) => {
+    fetchTagsInfoByLang: async (learningLang, nativeLang) => {
       logger.start("[content]fetchTagsInfoByLang", {
-        nativeLang,
         learningLang,
+        nativeLang,
       });
 
       const { data, error } = await supabase
@@ -202,7 +239,7 @@ export const useContentStore = create(
 
       if (error) {
         logger.error("[content]fetchTagsInfoByLang", error.message);
-        return;
+        throw error;
       }
 
       const normalized = data.map((tag) => ({
@@ -252,7 +289,6 @@ export const useContentStore = create(
         item_tag_map!inner(tag_id)
       `,
           )
-          // 🌟 별칭(Alias)으로 필터링해야 함!
           .eq("learning_translation.lang_code", learningLang)
           .eq("native_translation.lang_code", nativeLang);
 
@@ -277,7 +313,10 @@ export const useContentStore = create(
           ascending: false,
         });
 
-        if (error) throw error;
+        if (error) {
+          logger.error("[content]fetchItemsByFilter", error.message);
+          throw error;
+        }
 
         const normalized = data.map((item) => ({
           id: item.id,
@@ -307,5 +346,8 @@ export const useContentStore = create(
         set({ isLoading: false });
       }
     },
+
+    // 아이템 대량등록
+    handleBulkRegister: async (itemList) => {},
   })),
 );

@@ -1,115 +1,287 @@
-// src/admin/Test.jsx
 import React, { useState } from "react";
 import Button from "@/components/common/Button";
 import Card from "@/components/common/Card/Card";
 import { CardSection } from "@/components/common/Card/CardSection";
-// import { useGlobalStore } from "@/store/useGlobalStore";
 import { useContentStore } from "@/store/useContentStore";
-import styles from "./Test.module.css"; // 페이지 전용 CSS
+import styles from "./Test.module.css";
 import "@/styles/layout/layout.css";
-import { StyledInput } from "@/components/common/FormElements";
 
 const Test = () => {
   const {
     languages,
     fetchLanguages,
+    upsertLanguage,
+    deleteLanguage,
+    tags,
     fetchTags,
     fetchTagsByLang,
     fetchTagsInfoByLang,
     fetchStatsInfoByLang,
     fetchItemsByFilter,
+    handleBulkRegister,
   } = useContentStore();
 
-  const [selectedLang, setSelectedLang] = useState("");
+  const [rawJson, setRawJson] = useState(null);
+  const [openSection, setOpenSection] = useState("foundation");
+  const [learningLang, setlearningLang] = useState("");
+  const [itemType, setItemType] = useState("");
+  const [nativeLang, setnativeLang] = useState("en-US");
+  const [newLang, setNewLang] = useState({ code: "", name: "", emoji: "" });
+  const [bulkText, setBulkText] = useState("");
+
+  const toggleSection = (name) =>
+    setOpenSection(openSection === name ? null : name);
+
+  const wrapFetch = async (fetchFn, stateKey) => {
+    setRawJson("🚀 Loading 데이터 요청 중...");
+
+    try {
+      await fetchFn();
+
+      setTimeout(() => {
+        const currentState = useContentStore.getState();
+        setRawJson(stateKey ? currentState[stateKey] : currentState);
+      }, 100);
+    } catch (error) {
+      setRawJson({
+        status: "Error ❌",
+        message: error.message || "알 수 없는 에러가 발생했습니다.",
+        stack: error.stack,
+      });
+      console.error("Fetch Error:", error);
+    }
+  };
 
   return (
     <div className="v-app-layout">
       <div className="v-page-container">
         <header className={styles["p-test-header"]}>
-          <h1 className={styles["p-test-title"]}>🧪 DB 연결 테스트</h1>
-          <p className={styles["p-test-subtitle"]}>
-            F12 개발자 도구의 콘솔을 확인하세요. logger가 데이터를 보여줍니다.
-          </p>
+          <h1 className={styles["p-test-title"]}>🧪 DB 통합 테스트</h1>
         </header>
 
-        <Card>
-          <CardSection
-            title="1. 기초 데이터 (Foundation)"
-            description="언어, 태그, 학습 통계"
+        <div
+          className={`${styles.accordion} ${openSection === "foundation" ? styles.active : ""}`}
+        >
+          <div
+            className={styles.accHeader}
+            onClick={() => toggleSection("foundation")}
           >
-            <Button onClick={fetchLanguages} size="sm">
-              언어 목록 조회
-            </Button>
+            <span>1. 기초 데이터 (언어/태그)</span>
+            <span>{openSection === "foundation" ? "▲" : "▼"}</span>
+          </div>
+          {openSection === "foundation" && (
+            <div className={styles.accContent}>
+              <div className={styles["button-group"]}>
+                <Button
+                  onClick={() => wrapFetch(fetchLanguages, "languages")}
+                  size="sm"
+                >
+                  언어전체목록
+                </Button>
+                <Button onClick={() => wrapFetch(fetchTags, "tags")} size="sm">
+                  태그전체목록
+                </Button>
+                <Button
+                  onClick={() =>
+                    wrapFetch(() => fetchTagsByLang(nativeLang), "tags")
+                  }
+                  size="sm"
+                >
+                  언어별태그목록
+                </Button>
+                <Button
+                  onClick={() =>
+                    wrapFetch(
+                      () => fetchTagsInfoByLang(learningLang, nativeLang),
+                      "tags",
+                    )
+                  }
+                  size="sm"
+                >
+                  언어별태그정보
+                </Button>
+                <Button
+                  onClick={() =>
+                    wrapFetch(
+                      () => fetchStatsInfoByLang(learningLang),
+                      "statsInfo",
+                    )
+                  }
+                  size="sm"
+                >
+                  언어별필터정보
+                </Button>
+              </div>
 
-            <Button onClick={() => fetchTags()} size="sm">
-              태그 조회
-            </Button>
+              <div className={styles["admin-form-box"]}>
+                <h4 className={styles["admin-form-title"]}>
+                  🌐 언어 등록/수정
+                </h4>
+                <div className={styles["select-group"]}>
+                  <input
+                    placeholder="코드"
+                    className={styles["styled-select"]}
+                    value={newLang.code}
+                    onChange={(e) =>
+                      setNewLang({ ...newLang, code: e.target.value })
+                    }
+                  />
+                  <input
+                    placeholder="이름"
+                    className={styles["styled-select"]}
+                    value={newLang.name}
+                    onChange={(e) =>
+                      setNewLang({ ...newLang, name: e.target.value })
+                    }
+                  />
+                  <input
+                    placeholder="이모지"
+                    className={styles["styled-select"]}
+                    value={newLang.emoji}
+                    onChange={(e) =>
+                      setNewLang({ ...newLang, emoji: e.target.value })
+                    }
+                  />
+                  <Button
+                    onClick={() => {
+                      upsertLanguage(newLang);
+                      setNewLang({ code: "", name: "", emoji: "" });
+                    }}
+                    variant="primary"
+                    size="sm"
+                  >
+                    저장
+                  </Button>
+                </div>
 
-            <Button onClick={() => fetchTagsByLang(selectedLang)} size="sm">
-              {selectedLang || "언어별"} 태그 조회
-            </Button>
+                <div className={styles["lang-tag-list"]}>
+                  {languages?.map((lang) => (
+                    <span key={lang.code} className={styles["lang-badge"]}>
+                      {lang.emoji} {lang.code}
+                      <button
+                        className={styles["delete-btn"]}
+                        onClick={() => deleteLanguage(lang.code)}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
 
-            <Button
-              onClick={() => fetchTagsInfoByLang("ko-KR", selectedLang)}
-              size="sm"
-            >
-              태그 정보 조회
-            </Button>
+              {/* 필터용 셀렉트 박스 */}
+              <div
+                className={styles["select-group"]}
+                style={{ marginTop: "15px" }}
+              >
+                <select
+                  className={styles["styled-select"]}
+                  value={learningLang}
+                  onChange={(e) => setlearningLang(e.target.value)}
+                >
+                  <option value="">학습 언어 선택</option>
+                  {languages?.map((l) => (
+                    <option key={l.code} value={l.code}>
+                      {l.emoji} {l.name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className={styles["styled-select"]}
+                  value={nativeLang}
+                  onChange={(e) => setnativeLang(e.target.value)}
+                >
+                  <option value="">모국어 선택</option>
+                  {languages?.map((l) => (
+                    <option key={l.code} value={l.code}>
+                      {l.emoji} {l.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+        </div>
 
-            <Button
-              onClick={() => fetchStatsInfoByLang(selectedLang)}
-              size="sm"
-            >
-              학습 통계 필터
-            </Button>
-
-            <select
-              value={selectedLang}
-              onChange={(e) => setSelectedLang(e.target.value)}
-            >
-              <option value="">select</option>
-              {languages?.map((lang) => (
-                <option key={lang.code} value={lang.code}>
-                  {lang.emoji} {lang.name}
-                </option>
-              ))}
-            </select>
-          </CardSection>
-
-          <CardSection
-            title="2. 핵심 콘텐츠 (Word/Sentence)"
-            description="* 아이템(단어/문장) 관련 CRUD 테스트"
+        {/* 대량 등록 */}
+        <div
+          className={`${styles.accordion} ${openSection === "bulk" ? styles.active : ""}`}
+        >
+          <div
+            className={styles.accHeader}
+            onClick={() => toggleSection("bulk")}
           >
-            {/* <Button onClick={addTestWord} variant="secondary" size="sm">
-              [INSERT] 테스트 단어 추가
-            </Button> */}
-            <Button
-              onClick={() =>
-                fetchItemsByFilter({
-                  learningLang: selectedLang,
-                  nativeLang: "ko-KR",
-                  // userId: currentUser?.id,
-                  itemType: "SENTENCE",
-                })
-              }
-              size="sm"
+            <span>2. 핵심 콘텐츠 (대량 등록)</span>
+            <span>{openSection === "bulk" ? "▲" : "▼"}</span>
+          </div>
+          {openSection === "bulk" && (
+            <div className={styles.accContent}>
+              <textarea
+                className={styles["bulk-textarea"]}
+                value={bulkText}
+                onChange={(e) => setBulkText(e.target.value)}
+                placeholder="코드 | 단어 | 예문"
+              />
+
+              <select
+                className={styles["styled-select"]}
+                value={itemType}
+                onChange={(e) => setItemType(e.target.value)}
+              >
+                <option value="">itemType</option>
+                <option value="WORD">단어</option>
+                <option value="SENTENCE">문장</option>
+              </select>
+
+              <div
+                className={styles["button-group"]}
+                style={{ marginTop: "10px" }}
+              >
+                <Button
+                  onClick={() => handleBulkRegister(bulkText)}
+                  variant="secondary"
+                  size="sm"
+                >
+                  대량등록
+                </Button>
+                <Button
+                  onClick={() =>
+                    wrapFetch(
+                      () =>
+                        fetchItemsByFilter({
+                          learningLang,
+                          nativeLang,
+                          itemType: itemType,
+                        }),
+                      "items",
+                    )
+                  }
+                  size="sm"
+                >
+                  아이템 조회
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 3. 프리뷰 영역 */}
+        <div className={styles.previewSection}>
+          <div className={styles.previewHeader}>
+            <span className={styles.panelTitle}>🔍 RAW DATA PREVIEW</span>
+            <button
+              onClick={() => setRawJson(null)}
+              className={styles.clearBtn}
             >
-              [SELECT] 단어장 조회
-            </Button>
-          </CardSection>
-
-          {/* <CardSection title="3. 시나리오 (Scenario)">
-            <Button onClick={() => fetchScenarios("en")} size="sm">
-              시나리오 목록 조회
-            </Button>
-          </CardSection> */}
-
-          {/* <CardSection title="4. 사용자 (User)" isLast={true}>
-            <Button onClick={createGuestUser} variant="danger" size="sm">
-              비로그인 유저 생성
-            </Button>
-          </CardSection> */}
-        </Card>
+              Clear
+            </button>
+          </div>
+          <div className={styles.previewBody}>
+            <pre>
+              {rawJson ? JSON.stringify(rawJson, null, 2) : "결과 대기 중..."}
+            </pre>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { CardSection } from "@/components/common/Card/CardSection";
 import { useContentStore } from "@/store/useContentStore";
 import styles from "./Test.module.css";
 import "@/styles/layout/layout.css";
+import { toast } from "react-hot-toast";
 
 const Test = () => {
   const {
@@ -29,9 +30,11 @@ const Test = () => {
   const [newLang, setNewLang] = useState({ code: "", name: "", emoji: "" });
   const [bulkText, setBulkText] = useState("");
 
+  // 카드섹션 아코디언 토글
   const toggleSection = (name) =>
     setOpenSection(openSection === name ? null : name);
 
+  // preview 에 데이터 보여주기
   const wrapFetch = async (fetchFn, stateKey) => {
     setRawJson("🚀 Loading 데이터 요청 중...");
 
@@ -144,9 +147,13 @@ const Test = () => {
                   />
                   <Button
                     onClick={() => {
+                      if (!newLang.code || !newLang.name) {
+                        return toast.error("코드와 이름을 입력해주세요.");
+                      }
                       upsertLanguage(newLang);
                       setNewLang({ code: "", name: "", emoji: "" });
                     }}
+                    disabled={!newLang.code || !newLang.name}
                     variant="primary"
                     size="sm"
                   >
@@ -156,11 +163,24 @@ const Test = () => {
 
                 <div className={styles["lang-tag-list"]}>
                   {languages?.map((lang) => (
-                    <span key={lang.code} className={styles["lang-badge"]}>
+                    <span
+                      key={lang.code}
+                      className={styles["lang-badge"]}
+                      onClick={() =>
+                        setNewLang({
+                          code: lang.code,
+                          name: lang.name,
+                          emoji: lang.emoji,
+                        })
+                      }
+                    >
                       {lang.emoji} {lang.code}
                       <button
                         className={styles["delete-btn"]}
-                        onClick={() => deleteLanguage(lang.code)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteLanguage(lang.code);
+                        }}
                       >
                         ×
                       </button>

@@ -21,7 +21,11 @@ import { toastConfig, showToast } from "@/utils/toast";
 
 import { AppRoutesData, ROUTES } from "@/routes/AppRoutes";
 import { LANG_OPTIONS, DEFAULT_LANG } from "@/constants/languages";
-import { useGlobalStore } from "@/store/useGlobalStore"; // 🌟 스토어 임포트 확인
+import { useGlobalStore } from "@/store/useGlobalStore";
+import { useWordStore } from "@/store/useWordStore";
+
+const { learningLang, fetchLanguages } = useGlobalStore();
+const { fetchDecks } = useWordStore();
 
 // 관리자 페이지 Lazy Load
 const AdminLayout = lazy(() => import("@/admin/AdminLayout"));
@@ -106,6 +110,12 @@ function AppContent() {
     fetchLanguages();
   }, []);
 
+  useEffect(() => {
+    if (learningLang) {
+      fetchDecks(learningLang);
+    }
+  }, [learningLang, fetchDecks]);
+
   // [상태 관리] 현재 선택된 언어 객체 계산
   const selectedLang = useMemo(() => {
     return (
@@ -132,9 +142,10 @@ function AppContent() {
           {/* 관리자 라우트 보호 */}
           <Route
             path="/admin"
-            element={
-              currentUser ? <AdminLayout /> : <Navigate to="/" replace />
-            }
+            element={<AdminLayout />}
+            // element={
+            //   currentUser ? <AdminLayout /> : <Navigate to="/" replace />
+            // }
           >
             <Route index element={<Navigate to="items" replace />} />
             <Route path="languages" element={<AdminLanguages />} />

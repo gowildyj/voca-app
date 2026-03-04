@@ -22,6 +22,7 @@ export const logger = {
     if (result) {
       if (Array.isArray(result)) {
         console.table(result); // 배열은 표 형식으로 출력
+        // console.log(result);
       } else {
         console.log("✅ Output Data:", result);
       }

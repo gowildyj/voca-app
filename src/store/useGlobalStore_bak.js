@@ -14,10 +14,9 @@ export const useGlobalStore = create(
       categories: [],
       items: [],
 
-      // --- User Language Settings ---
+      // --- User Settings ---
       learningLang: "en-US", // 기본 배울 언어
       nativeLang: "ko-KR", // 기본 모국어 (UI 언어 결정)
-
       // 인터페이스 번역 헬퍼 함수
       t: (key) => {
         const { nativeLang } = get();
@@ -26,6 +25,7 @@ export const useGlobalStore = create(
         return langPack[key] || key;
       },
 
+      // --- Actions ---
       setLearningLang: (code) => set({ learningLang: code }),
       setNativeLang: (code) => set({ nativeLang: code }),
 

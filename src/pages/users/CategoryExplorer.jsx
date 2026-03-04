@@ -17,12 +17,14 @@ const CategoryExplorer = () => {
     fetchAdminCategories();
   }, [fetchAdminCategories]);
 
-  // 🌟 [수정] 로그에 찍힌 'uq_key' 필드를 사용하도록 보정
+  // 🌟 [수정] 로그에 찍힌 'unique_key' 필드를 사용하도록 보정
   const getTagName = (cat) => {
     const trans = cat.hashtag_translations?.find(
       (t) => t.lang_code === nativeLang,
     );
-    return trans ? trans.tag_name : cat.uq_key || cat.unique_key || "Unknown";
+    return trans
+      ? trans.tag_name
+      : cat.unique_key || cat.unique_key || "Unknown";
   };
 
   const filteredCategories = useMemo(() => {

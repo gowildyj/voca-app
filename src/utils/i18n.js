@@ -1,5 +1,8 @@
 export const translations = {
   "ko-KR": {
+    success: "성공!",
+    failed: "실패!",
+    error: "에러",
     settings: "설정",
     learning_lang: "배울 언어",
     native_lang: "모국어",
@@ -8,8 +11,13 @@ export const translations = {
     select_lang: "언어 선택",
     welcome: "안녕하세요!",
     start_learning: "학습 시작하기",
+    not_logged_in: "로그인 상태가 아님.",
+    logout_confirm: "로그아웃 하시겠습니까?",
   },
   "en-US": {
+    success: "Success!",
+    failed: "Failed!",
+    error: "Error",
     settings: "Settings",
     learning_lang: "Learning Language",
     native_lang: "Native Language",
@@ -18,8 +26,12 @@ export const translations = {
     select_lang: "Select Language",
     welcome: "Welcome!",
     start_learning: "Start Learning",
+    not_logged_in: "You are not logged in.",
+    logout_confirm: "Are you sure you want to log out?",
   },
   "ja-JP": {
+    success: "成功",
+    failed: "失敗",
     settings: "設定",
     learning_lang: "学習言語",
     native_lang: "母国語",

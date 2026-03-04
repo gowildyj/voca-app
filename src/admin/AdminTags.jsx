@@ -28,7 +28,7 @@ const AdminTags = () => {
   // 🌟 아코디언 상세 수정을 위한 통합 상태
   const [expandedId, setExpandedId] = useState(null);
   const [editData, setEditData] = useState({
-    uq_key: "", // 🌟 키 수정도 가능하게 추가
+    unique_key: "", // 🌟 키 수정도 가능하게 추가
     icon_emoji: "",
     is_main: false,
     langs: {},
@@ -39,7 +39,7 @@ const AdminTags = () => {
 
   // 단건 추가용 상태
   const [newTag, setNewTag] = useState({
-    uq_key: "",
+    unique_key: "",
     icon_emoji: "",
     is_main: false,
     langs: {},
@@ -52,8 +52,8 @@ const AdminTags = () => {
 요청하는 카테고리들을 아래 언어 코드들에 맞춰 JSON 배열로 변환해줘.
 
 [규칙]
-1. 형식: { "uq_key": "영문키(소문자)", "icon_emoji": "...", "langs": { "언어코드": "번역명칭" } }
-2. uq_key는 고유해야 해 (예: 'food', 'travel_basic').
+1. 형식: { "unique_key": "영문키(소문자)", "icon_emoji": "...", "langs": { "언어코드": "번역명칭" } }
+2. unique_key는 고유해야 해 (예: 'food', 'travel_basic').
 3. 순수 JSON 배열만 출력해.
 
 언어 목록: ${currentLangCodes}
@@ -111,7 +111,7 @@ const AdminTags = () => {
 
         const cols = [
           cat.id,
-          cat.uq_key,
+          cat.unique_key,
           cat.icon_emoji || "",
           cat.is_main_category ? "TRUE" : "FALSE",
           ...langCodes.map((code) => {
@@ -131,7 +131,7 @@ const AdminTags = () => {
 
   // 🌟 아코디언 토글
   const handleToggle = (cat) => {
-    const uniqueId = cat.id || cat._tempId || cat.uq_key;
+    const uniqueId = cat.id || cat._tempId || cat.unique_key;
 
     if (expandedId === uniqueId) {
       setExpandedId(null);
@@ -156,11 +156,11 @@ const AdminTags = () => {
         if (langMap[l.code] === undefined) langMap[l.code] = "";
       });
 
-      // 🌟 필드 매핑 보정: uq_key(DB)와 uq_key(Bulk Parser) 모두 대응
-      const effectiveKey = cat.uq_key || cat.uq_key || "";
+      // 🌟 필드 매핑 보정: unique_key(DB)와 unique_key(Bulk Parser) 모두 대응
+      const effectiveKey = cat.unique_key || cat.unique_key || "";
 
       setEditData({
-        uq_key: effectiveKey, // 이제 인풋창에 값이 정상적으로 들어갑니다.
+        unique_key: effectiveKey, // 이제 인풋창에 값이 정상적으로 들어갑니다.
         icon_emoji: cat.icon_emoji,
         is_main: cat.is_main_category,
         langs: langMap,
@@ -171,7 +171,7 @@ const AdminTags = () => {
   // 🌟 상세 편집 저장
   const handleSaveAll = async (id) => {
     const success = await updateCategory(id, {
-      uq_key: editData.uq_key,
+      unique_key: editData.unique_key,
       icon_emoji: editData.icon_emoji,
       is_main_category: editData.is_main,
       langs: editData.langs,
@@ -182,12 +182,12 @@ const AdminTags = () => {
   // 🌟 단건 추가 핸들러
   const handleSingleAdd = async (e) => {
     e.preventDefault();
-    if (!newTag.uq_key || !newTag.langs["ko-KR"])
+    if (!newTag.unique_key || !newTag.langs["ko-KR"])
       return toast.error("Key(영문)와 한국어 이름은 필수입니다.");
 
     const success = await addCategoriesBulk([newTag]);
     if (success) {
-      setNewTag({ uq_key: "", icon_emoji: "", is_main: false, langs: {} });
+      setNewTag({ unique_key: "", icon_emoji: "", is_main: false, langs: {} });
     }
   };
 
@@ -217,13 +217,13 @@ const AdminTags = () => {
   // 🌟 행 렌더링
   const renderRow = (cat, index, no) => {
     // 식별자 일치 여부 확인
-    const uniqueId = cat.id || cat._tempId || cat.uq_key;
+    const uniqueId = cat.id || cat._tempId || cat.unique_key;
     const isExpanded = expandedId === uniqueId;
 
     // 선택 여부는 DB ID가 있는 경우만 가능
     const isSelected = cat.id && selectedIds.has(cat.id);
 
-    const displayKey = cat.uq_key || cat.uq_key || "-";
+    const displayKey = cat.unique_key || cat.unique_key || "-";
 
     // 요약 이름 표시
     let namesSummary = "No Data";
@@ -349,9 +349,9 @@ const AdminTags = () => {
                   <input
                     className="admin-inline-input"
                     style={{ width: "100%" }}
-                    value={editData.uq_key || ""}
+                    value={editData.unique_key || ""}
                     onChange={(e) =>
-                      setEditData({ ...editData, uq_key: e.target.value })
+                      setEditData({ ...editData, unique_key: e.target.value })
                     }
                   />
                 </div>
@@ -466,8 +466,10 @@ const AdminTags = () => {
             <input
               className="admin-inline-input"
               style={{ width: "100%" }}
-              value={newTag.uq_key}
-              onChange={(e) => setNewTag({ ...newTag, uq_key: e.target.value })}
+              value={newTag.unique_key}
+              onChange={(e) =>
+                setNewTag({ ...newTag, unique_key: e.target.value })
+              }
               placeholder="food"
             />
           </div>
@@ -547,7 +549,7 @@ const AdminTags = () => {
       renderAddForm={renderAddForm}
       aiGuide={AI_PROMPT}
       searchPlaceholder="태그 이름 또는 Key 검색..."
-      jsonPlaceholder='[{"uq_key": "food", "icon_emoji": "🍽️", "langs": {"en-US": "Food"}}]'
+      jsonPlaceholder='[{"unique_key": "food", "icon_emoji": "🍽️", "langs": {"en-US": "Food"}}]'
     />
   );
 };

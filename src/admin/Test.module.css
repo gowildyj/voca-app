@@ -1,0 +1,16 @@
+/* src/admin/Test.module.css */
+.p-test-header {
+  margin-bottom: 30px;
+}
+
+.p-test-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.p-test-subtitle {
+  color: #888;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}

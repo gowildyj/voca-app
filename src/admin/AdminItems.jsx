@@ -35,7 +35,7 @@ const AdminItems = () => {
 
   // 상세 편집 상태
   const [editData, setEditData] = useState({
-    uq_key: "",
+    unique_key: "",
     item_type: "WORD",
     image_url: "",
     is_favorite: false, // 즐겨찾기 추가
@@ -55,8 +55,8 @@ const AdminItems = () => {
 요청하는 단어/문장을 아래 언어 코드들에 맞춰 JSON 배열로 변환하세요.
 
 [규칙]
-1. 형식: { "uq_key": "영문_키", "item_type": "WORD"|"SENTENCE", "langs": { "코드": { "content": "내용", "example": "예문" } } }
-2. uq_key: 고유한 영문 이름 (예: 'greeting_hello', 'travel_taxi').
+1. 형식: { "unique_key": "영문_키", "item_type": "WORD"|"SENTENCE", "langs": { "코드": { "content": "내용", "example": "예문" } } }
+2. unique_key: 고유한 영문 이름 (예: 'greeting_hello', 'travel_taxi').
 3. item_type: 짧은 단어는 'WORD', 문장은 'SENTENCE'.
 4. 예문: 단어(WORD)일 때만 포함하고 문장은 빈 문자열("") 처리.
 
@@ -93,7 +93,7 @@ const AdminItems = () => {
   // --- Bulk 텍스트 변환 (IDs -> Text) ---
   const handleConvertIdsToText = (idsArray) => {
     const langCodes = languages.map((l) => l.code);
-    const headers = ["id", "uq_key", "type", ...langCodes];
+    const headers = ["id", "unique_key", "type", ...langCodes];
     const headerLine = headers.join(" | ");
 
     const rows = idsArray
@@ -102,7 +102,7 @@ const AdminItems = () => {
         if (!item) return null;
         const cols = [
           item.id,
-          item.uq_key || item.item_key || "",
+          item.unique_key || item.item_key || "",
           item.item_type || "WORD",
           ...langCodes.map(
             (code) =>
@@ -119,7 +119,7 @@ const AdminItems = () => {
 
   // --- 🌟 [핵심] 아코디언 토글 & 데이터 매핑 로직 ---
   const handleToggle = (item) => {
-    const uniqueId = item.id || item._tempId || item.uq_key;
+    const uniqueId = item.id || item._tempId || item.unique_key;
 
     if (expandedId === uniqueId) {
       setExpandedId(null);
@@ -152,7 +152,7 @@ const AdminItems = () => {
       });
 
       setEditData({
-        uq_key: item.uq_key || item.item_key || "",
+        unique_key: item.unique_key || item.item_key || "",
         item_type: item.item_type || "WORD",
         image_url: item.image_url || "",
         is_favorite: item.is_favorite || false,
@@ -190,7 +190,7 @@ const AdminItems = () => {
   );
 
   const renderRow = (item, index, no) => {
-    const uniqueId = item.id || item._tempId || item.uq_key;
+    const uniqueId = item.id || item._tempId || item.unique_key;
     const isExpanded = expandedId === uniqueId;
     const isSelected = item.id && selectedIds.has(item.id);
 
@@ -282,7 +282,7 @@ const AdminItems = () => {
               {isExpanded ? <HiChevronUp /> : <HiChevronDown />}
             </div>
             <div style={{ fontSize: "0.75rem", color: "#64748b" }}>
-              {item.uq_key || item.item_key}
+              {item.unique_key || item.item_key}
             </div>
           </td>
           <td>
@@ -295,7 +295,7 @@ const AdminItems = () => {
                     className="badge success"
                     style={{ fontSize: "0.65rem" }}
                   >
-                    {tag?.uq_key}
+                    {tag?.unique_key}
                   </span>
                 );
               })}
@@ -337,9 +337,9 @@ const AdminItems = () => {
                   <input
                     className="admin-inline-input"
                     style={{ width: "100%" }}
-                    value={editData.uq_key}
+                    value={editData.unique_key}
                     onChange={(e) =>
-                      setEditData({ ...editData, uq_key: e.target.value })
+                      setEditData({ ...editData, unique_key: e.target.value })
                     }
                   />
                 </div>
@@ -401,7 +401,7 @@ const AdminItems = () => {
                             }}
                           />
                           <span>
-                            {cat.icon_emoji} {cat.uq_key}
+                            {cat.icon_emoji} {cat.unique_key}
                           </span>
                         </label>
                       );
@@ -582,7 +582,7 @@ const AdminItems = () => {
       renderAddForm={renderAddForm}
       aiGuide={AI_GUIDE}
       searchPlaceholder="고유 키 또는 내용 검색..."
-      jsonPlaceholder='[{"uq_key": "hello", "item_type": "WORD", "langs": {"ko-KR": {"content": "안녕하세요", "example": "그가 나에게 인사했다."}}}]'
+      jsonPlaceholder='[{"unique_key": "hello", "item_type": "WORD", "langs": {"ko-KR": {"content": "안녕하세요", "example": "그가 나에게 인사했다."}}}]'
     />
   );
 };

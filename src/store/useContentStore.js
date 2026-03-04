@@ -4,15 +4,18 @@ import { supabase } from "@/lib/supabase";
 import { toast } from "react-hot-toast";
 import { logger } from "@/utils/logger";
 import { translations } from "@/utils/i18n";
+import { hotelBreakfast } from "@/data/scenarios/hotel_breakfast";
 
 export const useContentStore = create(
   persist((set, get) => ({
     // --- State ---
-    languages: null,
-    tags: null,
-    items: null,
+    languages: [],
+    tags: [],
+    items: [],
+    statsInfo: {},
     learningLang: "en-US",
     nativeLang: "ko-KR",
+    isLoading: false,
 
     // 인터페이스 번역 헬퍼 함수
     t: (key) => {
@@ -92,11 +95,101 @@ export const useContentStore = create(
     },
 
     // 필터항목별 단어 정보와 개수 가져오기(word, sentence, known, unknown, favorite)
-    fetchOverviewStats: async () => {},
+    fetchStatsInfoByLang: async (learningLang, userId) => {
+      logger.start("[content]fetchStatsInfoByLang", { learningLang, userId });
+
+      if (!learningLang) {
+        logger.error(
+          "[content]fetchStatsInfoByLang",
+          "learningLang이 없습니다!",
+        );
+        return;
+      }
+
+      try {
+        // 공통쿼리
+        const commonQueries = [
+          supabase
+            .from("master_items")
+            .select("id, item_translations!inner(id)", {
+              count: "exact",
+              head: true,
+            })
+            .eq("item_translations.lang_code", learningLang),
+          supabase
+            .from("master_items")
+            .select("id, item_translations!inner(id)", {
+              count: "exact",
+              head: true,
+            })
+            .eq("item_type", "WORD")
+            .eq("item_translations.lang_code", learningLang),
+          supabase
+            .from("master_items")
+            .select("id, item_translations!inner(id)", {
+              count: "exact",
+              head: true,
+            })
+            .eq("item_type", "SENTENCE")
+            .eq("item_translations.lang_code", learningLang),
+        ];
+        // 유저용 쿼리
+        let userQueries = [];
+        if (userId) {
+          userQueries = [
+            supabase
+              .from("favorites")
+              .select(
+                "master_item_id, master_items!inner(item_translations!inner(id))",
+                { count: "exact", head: true },
+              )
+              .eq("user_id", userId)
+              .eq("master_items.item_translations.lang_code", learningLang),
+            supabase
+              .from("user_study_records")
+              .select(
+                "master_item_id, master_items!inner(item_translations!inner(id))",
+                { count: "exact", head: true },
+              )
+              .eq("user_id", userId)
+              .eq("status", "KNOWN")
+              .eq("learning_lang", learningLang),
+            supabase
+              .from("user_study_records")
+              .select(
+                "master_item_id, master_items!inner(item_translations!inner(id))",
+                { count: "exact", head: true },
+              )
+              .eq("user_id", userId)
+              .eq("status", "UNKNOWN")
+              .eq("learning_lang", learningLang),
+          ];
+        }
+
+        const results = await Promise.all([...commonQueries, ...userQueries]);
+
+        const stats = {
+          total: results[0]?.count || 0,
+          word: results[1]?.count || 0,
+          sentence: results[2]?.count || 0,
+          favorite: userId ? results[3]?.count || 0 : 0,
+          known: userId ? results[4]?.count || 0 : 0,
+          unknown: userId ? results[5]?.count || 0 : 0,
+        };
+
+        set({ statsInfo: stats });
+        logger.success("[content]fetchStatsInfoByLang", stats);
+      } catch (error) {
+        logger.error("[content]fetchStatsInfoByLang", error.message);
+      }
+    },
 
     // 해시태그별 정보와 개수 가져오기
-    fetchTagsInfoByLang: async (nativeLang, targetLang) => {
-      logger.start("[content]fetchTagsInfoByLang", { nativeLang, targetLang });
+    fetchTagsInfoByLang: async (nativeLang, learningLang) => {
+      logger.start("[content]fetchTagsInfoByLang", {
+        nativeLang,
+        learningLang,
+      });
 
       const { data, error } = await supabase
         .from("hashtag_master")
@@ -112,7 +205,7 @@ export const useContentStore = create(
         return;
       }
 
-      const formatted = data.map((tag) => ({
+      const normalized = data.map((tag) => ({
         id: tag.id,
         key: tag.unique_key,
         emoji: tag.icon_emoji,
@@ -121,10 +214,98 @@ export const useContentStore = create(
         isMain: tag.is_main_category,
       }));
 
-      set({ tags: formatted });
-      logger.success("[content]fetchTagsInfoByLang", formatted);
+      set({ tags: normalized });
+      logger.success("[content]fetchTagsInfoByLang", normalized);
     },
 
-    // 해시태그별 단어목록 가져오기
+    // 필터별 단어목록 가져오기
+    fetchItemsByFilter: async ({
+      learningLang,
+      nativeLang,
+      userId,
+      itemType,
+      status,
+      isFavorite,
+      tagId,
+    }) => {
+      logger.start("[content]fetchItemsByFilter", {
+        learningLang,
+        nativeLang,
+        userId,
+        itemType,
+        status,
+        isFavorite,
+        tagId,
+      });
+      set({ isLoading: true });
+
+      try {
+        let query = supabase
+          .from("master_items")
+          .select(
+            `
+        *, 
+        learning_translation:item_translations!inner(*),
+        native_translation:item_translations!inner(*),
+        user_study_records(status, learning_lang),
+        favorites(created_at),
+        item_tag_map!inner(tag_id)
+      `,
+          )
+          // 🌟 별칭(Alias)으로 필터링해야 함!
+          .eq("learning_translation.lang_code", learningLang)
+          .eq("native_translation.lang_code", nativeLang);
+
+        if (itemType) query = query.eq("item_type", itemType);
+
+        if (status && userId) {
+          query = query
+            .eq("user_study_records.status", status)
+            .eq("user_study_records.user_id", userId)
+            .eq("user_study_records.learning_lang", learningLang);
+        }
+
+        if (isFavorite && userId) {
+          query = query
+            .not("favorites", "is", null)
+            .eq("favorites.user_id", userId);
+        }
+
+        if (tagId) query = query.eq("item_tag_map.tag_id", tagId);
+
+        const { data, error } = await query.order("created_at", {
+          ascending: false,
+        });
+
+        if (error) throw error;
+
+        const normalized = data.map((item) => ({
+          id: item.id,
+          type: item.item_type,
+          key: item.unique_key,
+          imageUrl: item.image_url,
+          // 배울언어
+          content: item.learning_translation[0]?.content,
+          example: item.learning_translation[0]?.example_sentence,
+          definition: item.learning_translation[0]?.definition,
+          phonetic: item.learning_translation[0]?.phonetic_symbol,
+          audioUrl: item.learning_translation[0]?.audio_url,
+          // 모국어
+          meaning: item.native_translation[0]?.content,
+          meaningExample: item.native_translation[0]?.example_sentence,
+          // 상태 데이터
+          status: item.user_study_records?.[0]?.status || "NONE",
+          isFavorite: !!item.favorites?.[0],
+          tagIds: item.item_tag_map?.map((t) => t.tag_id) || [],
+        }));
+
+        set({ items: normalized });
+        logger.success("[content]fetchItemsByFilter", normalized);
+      } catch (error) {
+        logger.error("[content]fetchItemsByFilter", error.message);
+      } finally {
+        set({ isLoading: false });
+      }
+    },
   })),
 );

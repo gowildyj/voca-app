@@ -16,6 +16,8 @@ const Test = () => {
     fetchTags,
     fetchTagsByLang,
     fetchTagsInfoByLang,
+    fetchStatsInfoByLang,
+    fetchItemsByFilter,
   } = useContentStore();
 
   const [selectedLang, setSelectedLang] = useState("");
@@ -31,16 +33,36 @@ const Test = () => {
         </header>
 
         <Card>
-          <CardSection title="1. 기초 데이터 (Foundation)">
+          <CardSection
+            title="1. 기초 데이터 (Foundation)"
+            description="언어, 태그, 학습 통계"
+          >
             <Button onClick={fetchLanguages} size="sm">
               언어 목록 조회
             </Button>
+
             <Button onClick={() => fetchTags()} size="sm">
               태그 조회
             </Button>
+
             <Button onClick={() => fetchTagsByLang(selectedLang)} size="sm">
               {selectedLang || "언어별"} 태그 조회
             </Button>
+
+            <Button
+              onClick={() => fetchTagsInfoByLang("ko-KR", selectedLang)}
+              size="sm"
+            >
+              태그 정보 조회
+            </Button>
+
+            <Button
+              onClick={() => fetchStatsInfoByLang(selectedLang)}
+              size="sm"
+            >
+              학습 통계 필터
+            </Button>
+
             <select
               value={selectedLang}
               onChange={(e) => setSelectedLang(e.target.value)}
@@ -52,26 +74,29 @@ const Test = () => {
                 </option>
               ))}
             </select>
-
-            <Button
-              onClick={() => fetchTagsInfoByLang("ko-KR", "en-US")}
-              size="sm"
-            >
-              태그 정보 조회
-            </Button>
           </CardSection>
 
-          {/* <CardSection
+          <CardSection
             title="2. 핵심 콘텐츠 (Word/Sentence)"
-            description="* 단어 추가 시 Master, Translation, Reading 테이블에 동시 입력됩니다."
+            description="* 아이템(단어/문장) 관련 CRUD 테스트"
           >
-            <Button onClick={addTestWord} variant="secondary" size="sm">
+            {/* <Button onClick={addTestWord} variant="secondary" size="sm">
               [INSERT] 테스트 단어 추가
-            </Button>
-            <Button onClick={() => fetchStudyItems("en", "ko")} size="sm">
+            </Button> */}
+            <Button
+              onClick={() =>
+                fetchItemsByFilter({
+                  learningLang: selectedLang,
+                  nativeLang: "ko-KR",
+                  // userId: currentUser?.id,
+                  itemType: "SENTENCE",
+                })
+              }
+              size="sm"
+            >
               [SELECT] 단어장 조회
             </Button>
-          </CardSection> */}
+          </CardSection>
 
           {/* <CardSection title="3. 시나리오 (Scenario)">
             <Button onClick={() => fetchScenarios("en")} size="sm">

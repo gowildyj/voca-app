@@ -1,0 +1,27 @@
+/* src/styles/admin/AdminCommon.css */
+:root {
+  --admin-bg: #f3f4f6;
+  --admin-primary: #3b82f6;
+  --admin-border: #e5e7eb;
+}
+
+.admin-page-container {
+  min-height: 100vh;
+  background-color: var(--admin-bg);
+  padding: 16px;
+}
+
+@media (min-width: 1024px) {
+  .admin-page-container {
+    padding: 32px;
+  }
+}
+
+.admin-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--admin-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 24px;
+}

@@ -35,6 +35,9 @@ const TEST = lazy(() => import("@/admin/Test"));
 
 const NotFound = lazy(() => import("@/pages/NotFound"));
 
+//new admin
+const NewAdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
+
 /**
  * [AppRoutesData] 라우트 구성 데이터
  */

@@ -16,6 +16,7 @@ const AdminLayout = () => {
   const location = useLocation();
 
   const menus = [
+    { name: "언어 관리1", path: "/admin/languages1", icon: <HiGlobeAlt /> },
     { name: "언어 관리", path: "/admin/languages", icon: <HiGlobeAlt /> },
     { name: "해시태그 관리", path: "/admin/hashtags", icon: <HiTag /> },
     { name: "콘텐츠 관리", path: "/admin/items", icon: <HiSquare3Stack3D /> },

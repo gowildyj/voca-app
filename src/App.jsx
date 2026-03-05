@@ -30,6 +30,12 @@ const AdminTags = lazy(() => import("@/admin/AdminTags"));
 const AdminItems = lazy(() => import("@/admin/AdminItems"));
 const AdminScenarios = lazy(() => import("@/admin/AdminScenarios"));
 
+// new admin
+const NewAdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
+const AdminLanguage = lazy(
+  () => import("@/pages/admin/Languages/AdminLanguage"),
+);
+
 /**
  * [UserLayout] 일반 사용자용 레이아웃 래퍼
  */
@@ -142,6 +148,16 @@ function AppContent() {
             <Route path="hashtags" element={<AdminTags />} />
             <Route path="items" element={<AdminItems />} />
             <Route path="scenarios" element={<AdminScenarios />} />
+          </Route>
+
+          {/* 새로운 관리자 라우트 설정 */}
+          <Route path="/new-admin" element={<NewAdminLayout />}>
+            {/* 기본적으로 언어 관리 페이지를 보여줌 */}
+            <Route index element={<Navigate to="languages" replace />} />
+            <Route path="languages" element={<AdminLanguage />} />
+
+            {/* 나중에 추가할 다른 관리 메뉴들도 여기 아래에 추가하면 됩니다 */}
+            {/* <Route path="tags" element={<AdminTagPage />} /> */}
           </Route>
 
           {/* 일반 사용자 라우트 */}

@@ -2,7 +2,7 @@
 
 /* 앱 전체 래퍼 (중앙 고정) */
 .v-app-layout {
-  max-width: 1000px;
+  /* max-width: 1000px; */
   margin: 0 auto;
   min-height: 100dvh;
   background-color: var(--bg);
@@ -76,6 +76,6 @@
   }
 }
 
-/* .v-fade-in {
+.v-fade-in {
   animation: fadeIn 0.2s ease-out;
-} */
+}

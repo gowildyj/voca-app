@@ -167,7 +167,6 @@
   line-height: 1.5;
 }
 
-/* 스크롤바 커스텀 (프리뷰 창용) */
 .previewBody::-webkit-scrollbar {
   width: 8px;
 }
@@ -179,7 +178,6 @@
   background: #282c34;
 }
 
-/* 언어 뱃지들이 담기는 박스 */
 .lang-tag-list {
   display: flex;
   flex-wrap: wrap;
@@ -191,7 +189,6 @@
   border: 1px solid #f1f3f5;
 }
 
-/* 개별 언어 뱃지 */
 .lang-badge {
   display: inline-flex;
   align-items: center;
@@ -209,7 +206,6 @@
   transform: translateY(-1px);
 }
 
-/* 삭제 X 버튼 */
 .delete-btn {
   display: flex;
   align-items: center;
@@ -229,4 +225,161 @@
 
 .delete-btn:hover {
   background-color: #f56565;
+}
+
+.tab-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #eee;
+}
+
+.tab-group button {
+  background: #f5f5f5;
+  border: 1px solid #eee;
+  border-bottom: hidden;
+  padding: 8px 16px;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.tab-group button:hover {
+  background: #e9e9e9;
+}
+
+.activeTab {
+  background: #4a90e2 !important;
+  color: white !important;
+  border-color: #4a90e2 !important;
+  font-weight: bold;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.table-wrapper {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.admin-table th {
+  background: #f8f9fa;
+  padding: 10px;
+  border-bottom: 2px solid #dee2e6;
+  position: sticky;
+  top: 0;
+}
+
+.admin-table td {
+  padding: 8px 10px;
+  height: 45px;
+  vertical-align: middle;
+}
+
+.admin-table tr:hover {
+  background-color: #f1f3f5;
+}
+
+.center {
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.inline-input {
+  width: 100%;
+  height: 30px;
+  padding: 2px 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.inline-input:not(:disabled) {
+  border-color: #4a90e2;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+}
+
+.inline-input:disabled {
+  color: #4a5568;
+  cursor: default;
+}
+
+/*--------------------------*/
+.edit-inline-btn,
+.delete-inline-btn,
+.save-inline-btn,
+.cancel-inline-btn {
+  width: 54px;
+  height: 28px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  border: 1px solid #ddd;
+}
+
+.edit-inline-btn {
+  background: #fff;
+  color: #4a90e2;
+  border-color: #4a90e2;
+}
+.edit-inline-btn:hover {
+  background: #4a90e2;
+  color: #fff;
+}
+
+.delete-inline-btn {
+  background: #fff;
+  color: #fa5252;
+  border-color: #fa5252;
+}
+.delete-inline-btn:hover {
+  background: #fa5252;
+  color: #fff;
+}
+
+.save-inline-btn {
+  background: #4a90e2;
+  color: #fff;
+  border-color: #4a90e2;
+}
+.save-inline-btn:hover {
+  background: #357abd;
+  border-color: #357abd;
+}
+
+.cancel-inline-btn {
+  background: #f8f9fa;
+  color: #666;
+  border-color: #ddd;
+}
+.cancel-inline-btn:hover {
+  background: #e9ecef;
+  border-color: #ccc;
 }

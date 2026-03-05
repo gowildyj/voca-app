@@ -53,9 +53,13 @@ export const useContentStore = create(
     // 언어 등록 (Upsert - 있으면 수정, 없으면 등록)
     upsertLanguage: async (langData) => {
       logger.start("[content]upsertLanguage", langData);
+
+      const saveData = { ...langData };
+      if (!saveData.id) delete saveData.id;
+
       const { data, error } = await supabase
         .from("languages")
-        .upsert(langData) // { code: 'fr-FR', name: 'Français', emoji: '🇫🇷' }
+        .upsert(saveData)
         .select();
 
       if (error) {
@@ -68,15 +72,10 @@ export const useContentStore = create(
       logger.success("[content]upsertLanguage", data);
     },
 
-    // 삭제
-    deleteLanguage: async (code) => {
-      if (!window.confirm(`${code} 언어를 삭제하시겠습니까?`)) return;
-
+    // 언어 삭제
+    deleteLanguage: async (id, code) => {
       logger.start("[content]deleteLanguage", code);
-      const { error } = await supabase
-        .from("languages")
-        .delete()
-        .eq("code", code);
+      const { error } = await supabase.from("languages").delete().eq("id", id);
 
       if (error) {
         logger.error("[content]deleteLanguage", error.message);

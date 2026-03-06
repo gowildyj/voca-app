@@ -7,6 +7,7 @@ import { lazy } from "react";
 
 // --- Admin Pages ---
 const Test = lazy(() => import("@/pages/admin/Test"));
+const DesignGuide = lazy(() => import("@/pages/admin/DesignGuide"));
 const AdminLanguages = lazy(() => import("@/pages/admin/AdminLanguages"));
 // const AdminTags = lazy(() => import("@/pages/admin/AdminTags"));
 // const AdminItems = lazy(() => import("@/pages/admin/AdminItems"));
@@ -21,6 +22,7 @@ const AppRoutes = {
     { path: "test", element: <Test /> },
     { path: "languages", element: <AdminLanguages /> },
     { path: "tags", element: <AdminLanguages /> },
+    { path: "design", element: <DesignGuide /> },
     // { path: "tags", element: <AdminTags /> },
     // { path: "items", element: <AdminItems /> },
   ],

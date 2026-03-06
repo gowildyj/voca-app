@@ -26,6 +26,7 @@ const AdminLayout = () => {
   }, []);
 
   const menuItems = [
+    { path: "/admin/design", label: "design", icon: "🌐" },
     { path: "/admin/test", label: "test", icon: "🌐" },
     { path: "/admin/languages", label: "Languages", icon: "🌐" },
     { path: "/admin/tags", label: "Hashtags", icon: "🏷️" },

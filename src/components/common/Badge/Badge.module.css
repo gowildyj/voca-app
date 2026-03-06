@@ -1,0 +1,60 @@
+/* src/components/common/Badge/Badge.module.css */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm, 8px);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: all var(--transition-base, 0.2s ease);
+}
+
+/* 해시태그(#) 스타일 */
+.hash {
+  opacity: 0.5;
+  font-weight: 500;
+  margin-right: 2px;
+}
+
+.emoji {
+  margin-left: 4px;
+  font-style: normal;
+}
+
+/* 1. 태그형: # 여행 */
+.tag {
+  background-color: var(--bg-layer);
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+}
+
+/* 2. 강조형: 초급, 중급 */
+.primary {
+  background-color: rgba(var(--primary-rgb, 99, 102, 241), 0.1);
+  color: var(--primary);
+  border: 1px solid rgba(var(--primary-rgb, 99, 102, 241), 0.2);
+}
+
+/* 3. 아웃라인형 */
+.outline {
+  background-color: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-sub);
+}
+
+/* 4. 고스트형 */
+.ghost {
+  background-color: transparent;
+  color: var(--text-muted);
+  padding: 0;
+}
+
+/* 5. 위험/경고형 */
+.danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}

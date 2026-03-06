@@ -1,0 +1,78 @@
+/* src/components/common/SearchBar/SearchBar.module.css */
+
+.container {
+  position: relative;
+  width: 100%;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 10px;
+  height: 44px;
+  box-sizing: border-box;
+  border-radius: var(--radius-full, 999px);
+  width: 100%;
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  transition: all var(--transition-base, 0.2s ease);
+  overflow: hidden;
+}
+
+/* 포커스 시 테두리 강조 */
+.searchBar:focus-within {
+  border-color: var(--primary);
+  background-color: var(--bg);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  outline: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  height: 100%;
+  padding: 0;
+}
+
+.searchInput::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+  font-weight: 400;
+}
+
+.searchIcon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.searchBar:focus-within .searchIcon {
+  color: var(--primary);
+}
+
+/* 검색어 지우기 버튼 */
+.clearBtn {
+  flex-shrink: 0;
+  background: var(--bg-layer);
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-sub);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.clearBtn:hover {
+  background-color: var(--border);
+  color: var(--text-main);
+  transform: scale(1.1);
+}

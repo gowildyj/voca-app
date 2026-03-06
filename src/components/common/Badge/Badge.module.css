@@ -24,7 +24,7 @@
   font-style: normal;
 }
 
-/* 1. 태그형: # 여행 */
+/* 태그형: # 여행 */
 .tag {
   background-color: var(--bg-layer);
   color: var(--text-sub);

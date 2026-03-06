@@ -9,8 +9,9 @@ import VisibilityToggle from "@/components/common/VisibilityToggle/VisibilityTog
 import SortSelector from "@/components/common/SortSelector/SortSelector";
 import StudyControls from "@/components/ui/StudyControls/StudyControls";
 import StudyCard from "@/components/common/StudyCard/StudyCard";
+import VocabItem from "@/components/ui/VocabItem/VocabItem";
 
-import { Star, PlayCircle, ChevronRight } from "lucide-react";
+import { Star, PlayCircle, ChevronRight, Volume2 } from "lucide-react";
 
 const DesignGuide = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -68,8 +69,10 @@ const DesignGuide = () => {
     setHideMode((prevMode) => (prevMode === mode ? null : mode));
   };
 
-  const handleReveal = (id) => {
-    setRevealedIds((prev) => [...prev, id]);
+  const handleReveal = (revealKey) => {
+    setRevealedIds((prev) =>
+      prev.includes(revealKey) ? prev : [...prev, revealKey],
+    );
   };
 
   return (
@@ -78,7 +81,6 @@ const DesignGuide = () => {
         <h1>🎨 Design System Guide</h1>
         <p>프로젝트 공통 컴포넌트 및 테마 변수 확인 페이지</p>
       </header>
-
       {/* Buttons 섹션 */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Buttons</h2>
@@ -102,7 +104,6 @@ const DesignGuide = () => {
           </div>
         </div>
       </section>
-
       {/* Badges 섹션 */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Badges Showcase</h2>
@@ -150,7 +151,6 @@ const DesignGuide = () => {
           </div>
         </div>
       </section>
-
       {/* SearchBar 섹션 */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Forms & Inputs</h2>
@@ -177,7 +177,6 @@ const DesignGuide = () => {
         </div>
         {/* </div> */}
       </section>
-
       {/* FilterBar 섹션 */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Navigation (Tabs)</h2>
@@ -205,7 +204,6 @@ const DesignGuide = () => {
           </p>
         </div>
       </section>
-
       {/* FilterBar 섹션 */}
       {/* 1. 가로 스크롤 네비게이션 섹션 */}
       <section className={styles.section}>
@@ -241,7 +239,6 @@ const DesignGuide = () => {
           </div>
         </div>
       </section>
-
       {/* 2. 필터바 변형 섹션 (줄바꿈 모드) */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>FilterBar Variants</h2>
@@ -268,12 +265,13 @@ const DesignGuide = () => {
           />
         </div>
       </section>
-
       {/* VisibilityToggle 섹션 */}
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Content Controls</h2>
+        <h2 className={styles.sectionTitle}>
+          Content Controls (VocabItem Test)
+        </h2>
         <div className={styles.item}>
-          <h3>Visibility Toggle & Gray Overlay Test</h3>
+          <h3>Visibility Toggle & VocabItem Integration</h3>
           <div style={{ marginBottom: "20px" }}>
             <VisibilityToggle
               hideMode={hideMode}
@@ -281,43 +279,39 @@ const DesignGuide = () => {
             />
           </div>
 
-          {/* 길이가 다른 3가지 샘플 세트 */}
-          <div className={styles.testContainer}>
+          <div className={styles.vocabContainer}>
             {[
-              { id: 0, word: "Oui", meaning: "네 / 예" },
-              { id: 1, word: "Enchanté", meaning: "만나서 반가워요" },
               {
-                id: 2,
-                word: "Je m'appelle Stella",
-                meaning: "제 이름은 스텔라입니다",
+                id: 101,
+                word: "Oui",
+                meaning: "네 / 예",
+                example: "Oui, c'est ça.",
+                isFavorite: true,
+              },
+              {
+                id: 102,
+                word: "Enchanté",
+                meaning: "만나서 반가워요",
+                example: "Enchanté de vous voir.",
+                isFavorite: false,
+              },
+              {
+                id: 103,
+                word: "C'est la vie",
+                meaning: "그것이 인생이다",
+                example: null,
+                isFavorite: false,
               },
             ].map((item) => (
-              <div key={item.id} className={styles.wordCardSample}>
-                {/* 1. 단어 영역 */}
-                <div className="hide-wrapper">
-                  <span className={styles.wordText}>{item.word}</span>
-                  {/* 전체 모드가 'word'이고, 개별 해제 목록에 없으면 가림 */}
-                  {hideMode === "word" &&
-                    !revealedIds.includes(`${item.id}-word`) && (
-                      <div
-                        className="hide-overlay"
-                        onClick={() => handleReveal(`${item.id}-word`)}
-                      />
-                    )}
-                </div>
-
-                {/* 2. 뜻 영역 */}
-                <div className="hide-wrapper">
-                  <span className={styles.meaningText}>{item.meaning}</span>
-                  {hideMode === "meaning" &&
-                    !revealedIds.includes(`${item.id}-meaning`) && (
-                      <div
-                        className="hide-overlay"
-                        onClick={() => handleReveal(`${item.id}-meaning`)}
-                      />
-                    )}
-                </div>
-              </div>
+              <VocabItem
+                key={item.id}
+                item={item}
+                hideMode={hideMode}
+                revealedIds={revealedIds}
+                onReveal={handleReveal}
+                onPlayAudio={() => console.log("Audio:", item.word)}
+                onToggleFavorite={() => console.log("Fav:", item.id)}
+              />
             ))}
           </div>
         </div>
@@ -346,7 +340,6 @@ const DesignGuide = () => {
           </p>
         </div>
       </section>
-
       {/* 스터디카드 컨트롤 */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Study Session Controls</h2>
@@ -367,7 +360,6 @@ const DesignGuide = () => {
           />
         </div>
       </section>
-
       {/* 스터디덱 카드 섹션 */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Dashboard Cards</h2>
@@ -392,6 +384,87 @@ const DesignGuide = () => {
             tags={items}
             onPlay={() => alert("비즈니스 학습!")}
           />
+        </div>
+      </section>
+
+      {/* 단어 영역 */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Vocabulary Infinite List</h2>
+        <div className={styles.item}>
+          <p
+            style={{
+              marginBottom: "12px",
+              fontSize: "0.85rem",
+              color: "var(--text-sub)",
+            }}
+          >
+            총 2,540개의 단어 중 30개 표시 중 (스크롤 테스트용)
+          </p>
+
+          {/* 실제 단어들이 나열되는 컨테이너 */}
+          <div className={styles.vocabListContainer}>
+            {[
+              {
+                id: 101,
+                word: "Bonjour",
+                meaning: "안녕하세요",
+                example: "Bonjour, 아침 인사예요.",
+                isFavorite: true,
+              },
+              {
+                id: 102,
+                word: "Merci beaucoup",
+                meaning: "매우 감사합니다",
+                example: null,
+                isFavorite: false,
+              },
+              {
+                id: 103,
+                word: "Je t'aime",
+                meaning: "사랑해",
+                example: "Je t'aime de tout mon cœur.",
+                isFavorite: true,
+              },
+              {
+                id: 104,
+                word: "Où est la gare?",
+                meaning: "기차역이 어디인가요?",
+                example: null,
+                isFavorite: false,
+              },
+              {
+                id: 105,
+                word: "Enchanté",
+                meaning: "만나서 반가워요",
+                example: "Enchanté de vous rencontrer.",
+                isFavorite: false,
+              },
+              {
+                id: 106,
+                word: "C'est combien?",
+                meaning: "이건 얼마예요?",
+                example: null,
+                isFavorite: true,
+              },
+            ].map((item) => (
+              <VocabItem
+                key={item.id}
+                item={item}
+                hideMode={hideMode} // 상단 토글 상태 연결
+                revealedIds={revealedIds}
+                onReveal={handleReveal}
+                onPlayAudio={() => console.log(`${item.word} 재생`)}
+                onToggleFavorite={() => console.log(`${item.id} 즐겨찾기 토글`)}
+              />
+            ))}
+
+            {/* 로딩 표시 샘플 (수천 개 데이터를 가져올 때 하단에 표시될 요소) */}
+            <div className={styles.listLoader}>
+              <span className={styles.loaderText}>
+                새로운 단어를 불러오는 중...
+              </span>
+            </div>
+          </div>
         </div>
       </section>
 

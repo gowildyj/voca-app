@@ -1,0 +1,80 @@
+/* src/components/ui/VocabItem/VocabItem.module.css */
+.vocabItem {
+  padding: 16px 20px;
+  background-color: var(--card);
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s;
+}
+
+.vocabItem:hover {
+  background-color: var(--bg-layer);
+}
+
+.wordRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  /* align-items: center; */
+  margin-bottom: 6px;
+}
+
+.wordRow :global(.hide-wrapper) {
+  flex: 1;
+  min-width: 0;
+}
+
+.wordText {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+  word-break: break-all;
+  overflow-wrap: break-word;
+  white-space: normal;
+  display: block;
+}
+
+.vocabActions {
+  display: flex;
+  gap: 12px;
+  color: var(--text-sub);
+  flex-shrink: 0;
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.starActive {
+  color: var(--warning);
+}
+
+.meaningRow {
+  margin-bottom: 8px;
+}
+
+.meaningText {
+  font-size: 0.95rem;
+  color: var(--text-sub);
+  font-weight: 600;
+}
+
+.exampleBox {
+  margin-top: 10px;
+  padding-left: 12px;
+  border-left: 3px solid var(--border);
+}
+
+.exampleText {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+  /* transition: color 0.1s ease; */
+}

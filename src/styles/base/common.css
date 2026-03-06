@@ -21,3 +21,13 @@
 .hide-overlay:hover {
   background-color: var(--border);
 }
+
+/* .hide-overlay:hover {
+  background-color: rgba(var(--primary-rgb), 0.1);
+} */
+
+.hide-text {
+  color: transparent !important;
+  border-left: hidden !important;
+  /* user-select: none;  드래그 방지 */
+}

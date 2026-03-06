@@ -75,7 +75,6 @@
 }
 
 /* visibilitty toggle */
-
 .testContainer {
   display: flex;
   flex-direction: column;
@@ -104,4 +103,26 @@
 .meaningText {
   font-size: 0.95rem;
   color: var(--text-sub);
+}
+
+/* 단어리스트 */
+.vocabListContainer {
+  background-color: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.listLoader {
+  padding: 20px;
+  text-align: center;
+  background-color: var(--bg-layer);
+  border-top: 1px solid var(--border);
+}
+
+.loaderText {
+  font-size: 0.85rem;
+  color: var(--text-sub);
+  font-weight: 600;
 }

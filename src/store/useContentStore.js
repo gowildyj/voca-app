@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { toast } from "react-hot-toast";
 import { logger } from "@/utils/logger";
 import { translations } from "@/utils/i18n";
-import { hotelBreakfast } from "@/data/scenarios/hotel_breakfast";
+// import { hotelBreakfast } from "@/data/scenarios/hotel_breakfast";
 
 export const useContentStore = create(
   persist((set, get) => ({

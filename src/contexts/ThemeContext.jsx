@@ -1,3 +1,5 @@
+// src/contexts/ThemeContext.jsx
+
 import React, {
   createContext,
   useContext,
@@ -10,9 +12,7 @@ import React, {
 // Context 생성 (기본값 설정으로 에러 방지 가드)
 const ThemeContext = createContext(undefined);
 
-/**
- * 테마 유효성 검사 (보안: 로컬 스토리지 조작 방지)
- */
+// 테마 유효성 검사
 export const VALID_THEMES = [
   "modern",
   "dark",
@@ -28,15 +28,12 @@ const getSafeTheme = (theme) =>
   VALID_THEMES.includes(theme) ? theme : "system";
 
 export function ThemeProvider({ children }) {
-  // 초기 상태 설정: 보안 검사를 거친 값만 허용
   const [theme, setThemeState] = useState(() => {
     if (typeof window === "undefined") return "system";
     return getSafeTheme(localStorage.getItem("app-theme"));
   });
 
-  /**
-   * 테마 변경 함수 (확장성/성능: useCallback으로 리렌더링 최적화)
-   */
+  // 테마 변경 함수
   const setTheme = useCallback((newTheme) => {
     const safeTheme = getSafeTheme(newTheme);
     setThemeState(safeTheme);
@@ -54,7 +51,7 @@ export function ThemeProvider({ children }) {
       }
       localStorage.setItem("app-theme", targetTheme);
 
-      // 🌟 2. 모바일 상단바 색상 동적 변경 (Safe Area 대응)
+      // 2. 모바일 상단바 색상 동적 변경 (Safe Area 대응)
       const themeMeta = document.getElementById("theme-meta");
       if (themeMeta) {
         // 브라우저가 스타일을 계산한 뒤 실행되도록 requestAnimationFrame 사용

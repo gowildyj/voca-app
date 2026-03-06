@@ -1,33 +1,15 @@
 :root {
-  /* =========================================
-     레이아웃 & UI 상수 (불변)
-     ========================================= */
+  /* --- 레이아웃 & UI 상수 (불변) --- */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-full: 9999px;
-
   --transition-base: 0.2s ease;
   --z-modal: 1000;
   --z-toast: 2000;
 
-  /* =========================================
-     테마별 대표 고정 색상 (Theme Palette)
-     ========================================= */
-  --color-modern: #475569;
-  --color-dark: #6366f1;
-  --color-bw: #000000;
-  --color-pink: #fb7185;
-  --color-blue: #38bdf8;
-  --color-green: #84cc16;
-  --color-yellow: #f59e0b;
-  --color-purple: #a855f7;
-  --color-pastel: #ffc9d7;
-
-  /* =========================================
-     기본값 (Modern - Default Light)
-     ========================================= */
+  /* --- 기본값 (Modern - Default Light) --- */
   --bg: #f8fafc;
   --bg-layer: #f1f5f9;
   --card: #ffffff;
@@ -40,18 +22,31 @@
   --primary: #475569;
   --primary-hover: #1e293b;
   --accent: #818cf8;
-
   --danger: #ef4444;
   --success: #10b981;
   --warning: #f59e0b;
-
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* =========================================
-   1. Dark (차분한 미드나잇)
-   ========================================= */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f172a;
+    --bg-layer: #1e293b;
+    --card: #1e293b;
+    --text-main: #f1f5f9;
+    --text-sub: #94a3b8;
+    --text-muted: #475569;
+    --text-inverse: #0f172a;
+    --border: #334155;
+    --border-active: #818cf8;
+    --primary: #6366f1;
+    --primary-hover: #818cf8;
+    --accent: #a5b4fc;
+  }
+}
+
+/* Dark 테마 (시스템/유저 선택 시) */
 [data-theme="dark"] {
   --bg: #0f172a;
   --bg-layer: #1e293b;
@@ -65,8 +60,6 @@
   --primary: #6366f1;
   --primary-hover: #818cf8;
   --accent: #a5b4fc;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
 
 /* =========================================

@@ -1,31 +1,16 @@
-/* src/styles/main.css */
-/* Base (기반 설정) */
-@import "./base/variables.css";
-@import "./base/reset.css";
-@import "./base/typography.css";
+/* @/styles/main.css */
 
-/* Layout (전체 구조) */
-@import "./layout/layout.css";
-/* @import "./layout/header.css"; */
-@import "./layout/bottomNav.css";
+@import "@/styles/base/variables.css";
+/* @import "@/styles/theme/admin-variables.css"; */
+/* @import "@/styles/theme/user-variables.css"; */
+@import "@/styles//base/reset.css";
+@import "@/styles/base/typography.css";
 
-/* Components (공통 UI 요소) */
-/* @import "./components/common/badge.css"; */
-/* @import "./components/common/buttons.css"; */
-/* @import "./components/common/cards.css"; */
-/* @import "./components/cards/deckCard.css"; */
-/* @import "./components/common/forms.css"; */
-/* @import "./components/common/modals.css"; */
-@import "./components/common/toast.css";
+/* @import "./global.css"; */
 
-/* Pages (페이지별 전용 스타일) */
-/* @import "./pages/homePage.css"; */
-/* @import "./pages/wordDeckList.css"; */
-/* @import "./pages/wordList.css"; */
-/* @import "./pages/scenario.css"; */
+/* 3. 공통 컴포넌트 클래스 (선택 사항) */
+/* 유틸리티 클래스 (예: .text-center, .mt-20 등)를 모아둔 파일이 있다면 추가 */
+/* @import "./utils/helpers.css"; */
 
-/* 설정 페이지 */
-/* @import "./pages/settings.css"; */
-
-/* Utils (유틸리티/도구) */
-@import "./utils/utils.css";
+/* 4. 애니메이션 (공통으로 쓰는 페이드인 등) */
+/* @import "./animations.css"; */

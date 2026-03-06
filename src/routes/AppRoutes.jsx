@@ -1,116 +1,29 @@
-import React, { lazy } from "react";
-import { Navigate } from "react-router-dom";
+import { lazy } from "react";
 
-/**
- * [ROUTES] 경로 상수 관리
- */
-export const ROUTES = {
-  HOME: "/",
-  SYNC: "/sync",
-  DECK_LIST: "/decks",
-  DECK_DETAIL: "/decks/:deckId",
-  CATEGORY_LIST: "/categories",
-  CATEGORY_DETAIL: "/category/:categoryId",
-  STUDY: "/study/:deckId",
-  SCENARIO_LIST: "/scenarios",
-  SCENARIO_SESSION: "/scenario/:id",
-  // DESIGN: "/design",
-  TEST: "/test",
+// --- User Pages ---
+// const Home = lazy(() => import("@/pages/user/Home"));
+// const StudySession = lazy(() => import("@/pages/user/StudySession"));
+// const Settings = lazy(() => import("@/pages/user/Settings"));
+
+// --- Admin Pages ---
+const Test = lazy(() => import("@/pages/admin/Test"));
+const AdminLanguages = lazy(() => import("@/pages/admin/AdminLanguages"));
+// const AdminTags = lazy(() => import("@/pages/admin/AdminTags"));
+// const AdminItems = lazy(() => import("@/pages/admin/AdminItems"));
+
+const AppRoutes = {
+  user: [
+    // { path: "/", element: <Home /> },
+    // { path: "/study", element: <StudySession /> },
+    // { path: "/settings", element: <Settings /> },
+  ],
+  admin: [
+    { path: "test", element: <Test /> },
+    { path: "languages", element: <AdminLanguages /> },
+    { path: "tags", element: <AdminLanguages /> },
+    // { path: "tags", element: <AdminTags /> },
+    // { path: "items", element: <AdminItems /> },
+  ],
 };
 
-/**
- * [Lazy Loading] 컴포넌트 동적 로딩
- */
-const HOME = lazy(() => import("@/pages/WordDeckList"));
-const SYNC = lazy(() => import("@/pages/users/Home"));
-const WordDeckList = lazy(() => import("@/pages/WordDeckList"));
-const WordList = lazy(() => import("@/pages/WordList"));
-const CategoryExplorer = lazy(() => import("@/pages/users/CategoryExplorer"));
-const CategoryWordList = lazy(() => import("@/pages/users/CategoryWordList"));
-const StudySession = lazy(() => import("@/pages/StudySession"));
-const ScenarioList = lazy(() => import("@/pages/ScenarioList"));
-const ScenarioPage = lazy(() => import("@/pages/ScenarioPage"));
-// const DesignGuide = lazy(() => import("@/pages/DesignGuide"));
-const TEST = lazy(() => import("@/admin/Test"));
-
-const NotFound = lazy(() => import("@/pages/NotFound"));
-
-//new admin
-const NewAdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
-
-/**
- * [AppRoutesData] 라우트 구성 데이터
- */
-export const AppRoutesData = [
-  {
-    path: ROUTES.HOME,
-    element: <WordDeckList />,
-    title: "동동구리",
-  },
-  {
-    path: ROUTES.DECK_LIST,
-    element: <WordDeckList />,
-    title: "내 단어장",
-  },
-  {
-    path: ROUTES.DECK_DETAIL,
-    element: <WordList />,
-    title: "단어 목록",
-  },
-  {
-    path: ROUTES.CATEGORY_LIST,
-    element: <CategoryExplorer />,
-    title: "학습 주제 탐색",
-  },
-  {
-    path: ROUTES.CATEGORY_DETAIL,
-    element: <CategoryWordList />,
-    title: "단어 목록",
-  },
-  {
-    path: ROUTES.STUDY,
-    element: <StudySession />,
-    title: "카드 학습",
-  },
-  {
-    path: ROUTES.SCENARIO_LIST,
-    element: <ScenarioList />,
-    title: "시나리오 선택",
-  },
-  {
-    path: ROUTES.SCENARIO_SESSION,
-    element: <ScenarioPage />,
-    title: "대화 연습",
-  },
-  // {
-  //   path: ROUTES.DESIGN,
-  //   element: <DesignGuide />,
-  //   title: "디자인 가이드",
-  // },
-  {
-    path: ROUTES.SYNC,
-    element: <SYNC />,
-    title: "동동구리",
-  },
-  {
-    path: ROUTES.TEST,
-    element: <TEST />,
-    title: "TEST",
-  },
-  {
-    path: "*",
-    element: <Navigate to={ROUTES.HOME} replace />,
-  },
-  // {
-  //   path: "*",
-  //   element: <NotFound />,
-  //   title: "페이지를 찾을 수 없음",
-  // },
-];
-
-export const generatePath = (path, params) => {
-  return Object.entries(params).reduce(
-    (acc, [key, val]) => acc.replace(`:${key}`, val),
-    path,
-  );
-};
+export default AppRoutes;

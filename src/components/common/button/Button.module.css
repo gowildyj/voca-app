@@ -1,0 +1,84 @@
+/* src/components/common/Button/Button.module.css */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  transition: all var(--transition-base);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- Variants: variables.css의 변수를 그대로 사용 --- */
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background-color: var(--card);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-sub);
+}
+.btn-ghost:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.btn-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+.btn-danger:hover {
+  background-color: var(--danger);
+  color: #fff;
+}
+
+/* --- Sizes --- */
+.size-sm {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+.size-base {
+  padding: 10px 20px;
+  font-size: 1rem;
+}
+.size-lg {
+  padding: 14px 28px;
+  font-size: 1.1rem;
+}
+
+.fullWidth {
+  width: 100%;
+}
+.iconWrapper {
+  display: flex;
+  align-items: center;
+}
+.text {
+  line-height: 1;
+}

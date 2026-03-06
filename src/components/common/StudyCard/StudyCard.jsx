@@ -11,7 +11,7 @@ const StudyCard = ({
   status = { known: 0, unknown: 0, unlearned: 0 },
   tags = [],
   isFavorite = false,
-  onClick, // 플레이 버튼 대신 카드 전체 클릭 핸들러 사용
+  onClick,
 }) => {
   return (
     <div className={styles.card} onClick={onClick}>
@@ -20,7 +20,7 @@ const StudyCard = ({
         {/* 별 버튼 클릭 시 카드 클릭 이벤트 전파 방지 필수 */}
         <div onClick={(e) => e.stopPropagation()}>
           <Star
-            size={22}
+            size={25}
             className={isFavorite ? styles.starActive : styles.starIcon}
             fill={isFavorite ? "var(--warning)" : "none"}
           />
@@ -39,16 +39,16 @@ const StudyCard = ({
           ></div>
         </div>
         <div className={styles.statusGroup}>
-          <Badge type="outline">알아 {status.known}</Badge>
+          <Badge type="success">알아 {status.known}</Badge>
           <Badge type="danger">몰라 {status.unknown}</Badge>
-          <Badge type="tag">미학습 {status.unlearned}</Badge>
+          <Badge type="outline">미학습 {status.unlearned}</Badge>
         </div>
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.tags}>
+        <div className={styles.tags} onClick={(e) => e.stopPropagation()}>
           {tags.map((tag) => (
-            <Badge key={tag} type="tag">
+            <Badge key={tag} type="tag-ghost">
               {tag}
             </Badge>
           ))}

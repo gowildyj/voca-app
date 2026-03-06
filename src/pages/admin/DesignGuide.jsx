@@ -36,6 +36,26 @@ const DesignGuide = () => {
     "관광",
   ];
 
+  const items = [
+    "여행",
+    "음식",
+    "비즈니스",
+    "일상",
+    "교통",
+    "쇼핑",
+    "관광",
+    "취미",
+    "스포츠",
+    "IT",
+    "언어",
+    "문화",
+    "자기계발",
+    "건강",
+    "영화",
+    "음악",
+    "게임",
+  ];
+
   const [hideMode, setHideMode] = useState(null);
   const [revealedIds, setRevealedIds] = useState([]);
   const [sortType, setSortType] = useState("default");
@@ -91,9 +111,15 @@ const DesignGuide = () => {
           <div className={styles.item}>
             <h3>Level Badges (Text Only)</h3>
             <div className={styles.flex}>
-              <Badge type="primary">초급</Badge>
-              <Badge type="primary">중급</Badge>
-              <Badge type="outline">고급</Badge>
+              <Badge type="hash">hash</Badge>
+              <Badge type="tag">tag</Badge>
+              <Badge type="tag-ghost">tag-ghost</Badge>
+              <Badge type="primary">primary</Badge>
+              <Badge type="outline">outline</Badge>
+              <Badge type="ghost">ghost</Badge>
+              <Badge type="danger">danger</Badge>
+              <Badge type="success">success</Badge>
+              <Badge type="emoji">emoji</Badge>
             </div>
           </div>
 
@@ -128,34 +154,34 @@ const DesignGuide = () => {
       {/* SearchBar 섹션 */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Forms & Inputs</h2>
-        <div className={styles.grid}>
-          <div className={styles.item}>
-            <h3>SearchBar</h3>
-            <SearchBar
-              value={searchTerm}
-              onChange={setSearchTerm}
-              placeholder="언어 또는 태그 검색..."
-            />
-            <p
-              style={{
-                marginTop: "12px",
-                fontSize: "0.85rem",
-                color: "var(--text-sub)",
-                background: "var(--bg-layer)",
-                padding: "8px",
-                borderRadius: "6px",
-              }}
-            >
-              🔍 실시간 입력값: <strong>{searchTerm || "(내용 없음)"}</strong>
-            </p>
-          </div>
+        {/* <div className={styles.grid}> */}
+        <div className={styles.item}>
+          <h3>SearchBar</h3>
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="언어 또는 태그 검색..."
+          />
+          <p
+            style={{
+              marginTop: "12px",
+              fontSize: "0.85rem",
+              color: "var(--text-sub)",
+              background: "var(--bg-layer)",
+              padding: "8px",
+              borderRadius: "6px",
+            }}
+          >
+            🔍 실시간 입력값: <strong>{searchTerm || "(내용 없음)"}</strong>
+          </p>
         </div>
+        {/* </div> */}
       </section>
 
       {/* FilterBar 섹션 */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Navigation (Tabs)</h2>
-        <div className={styles.item} style={{ maxWidth: "500px" }}>
+        <div className={styles.item}>
           <FilterTabs
             filters={tabs}
             currentFilter={currentTab}
@@ -236,25 +262,7 @@ const DesignGuide = () => {
           <h3>2. Hashtag Style (isTag={true} + Wrap)</h3>
           <FilterBar
             isTag={true}
-            items={[
-              "여행",
-              "음식",
-              "비즈니스",
-              "일상",
-              "교통",
-              "쇼핑",
-              "관광",
-              "취미",
-              "스포츠",
-              "IT",
-              "언어",
-              "문화",
-              "자기계발",
-              "건강",
-              "영화",
-              "음악",
-              "게임",
-            ]}
+            items={items}
             activeItem={activeTagFilter}
             onSelect={setActiveTagFilter}
           />
@@ -381,7 +389,7 @@ const DesignGuide = () => {
             totalCount={50}
             progress={60}
             status={{ known: 30, unknown: 2, unlearned: 18 }}
-            tags={["회사", "메일"]}
+            tags={items}
             onPlay={() => alert("비즈니스 학습!")}
           />
         </div>

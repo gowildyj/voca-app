@@ -10,7 +10,9 @@ const Badge = ({ children, type = "tag", emoji, className = "" }) => {
   return (
     <span className={classes}>
       {/* tag 타입일 때만 # 자동 생성 */}
-      {type === "tag" && <span className={styles.hash}># </span>}
+      {(type === "tag" || type === "tag-ghost") && (
+        <span className={styles.hash}># </span>
+      )}
 
       <span className={styles.content}>{children}</span>
 

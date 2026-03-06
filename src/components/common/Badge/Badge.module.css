@@ -15,9 +15,10 @@
 
 /* 해시태그(#) 스타일 */
 .hash {
-  opacity: 0.5;
+  opacity: 0.8;
   font-weight: 500;
   margin-right: 2px;
+  color: var(--text-sub);
 }
 
 .emoji {
@@ -30,6 +31,12 @@
   background-color: var(--bg-layer);
   color: var(--text-sub);
   border: 1px solid var(--border);
+}
+
+.tag-ghost {
+  background-color: transparent;
+  color: var(--text-sub);
+  padding: 3px;
 }
 
 /* 강조형 */
@@ -58,4 +65,9 @@
   background-color: rgba(239, 68, 68, 0.1);
   color: var(--danger);
   border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.success {
+  background-color: rgba(95, 244, 90, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(40, 141, 27, 0.2);
 }

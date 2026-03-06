@@ -1,0 +1,73 @@
+/* src/components/ui/StudyControls/StudyControls.module.css */
+
+.container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 16px 24px;
+}
+
+.toolsRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(16px, 5vw, 32px);
+}
+
+.toolBtn {
+  background: var(--card);
+  border: 2px solid var(--border);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  cursor: pointer;
+  position: relative;
+
+  box-shadow: 0 3px 0 var(--border);
+  transition:
+    transform 0.1s,
+    box-shadow 0.1s;
+}
+
+.toolBtn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--border);
+}
+
+/* 활성 상태 (Active) */
+.toolBtn.active {
+  background-color: var(--primary);
+  color: var(--text-inverse);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 0 rgba(var(--primary-rgb), 0.5);
+}
+
+.toolBtn.active:active {
+  box-shadow: 0 1px 0 rgba(var(--primary-rgb), 0.5);
+}
+
+/* 아이콘 및 텍스트 스타일 */
+.playIcon {
+  margin-left: 2px;
+}
+.dimmedIcon {
+  opacity: 0.4;
+}
+.viewModeWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+.modeText {
+  font-size: 9px;
+  font-weight: 800;
+  margin-top: -2px;
+}

@@ -6,6 +6,11 @@ import styles from "./DesignGuide.module.css";
 import FilterTabs from "@/components/common/FilterTabs/FilterTabs";
 import FilterBar from "@/components/common/FilterBar/FilterBar";
 import VisibilityToggle from "@/components/common/VisibilityToggle/VisibilityToggle";
+import SortSelector from "@/components/common/SortSelector/SortSelector";
+import StudyControls from "@/components/ui/StudyControls/StudyControls";
+import StudyCard from "@/components/common/StudyCard/StudyCard";
+
+import { Star, PlayCircle, ChevronRight } from "lucide-react";
 
 const DesignGuide = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,17 +33,14 @@ const DesignGuide = () => {
     "교통",
     "쇼핑",
     "관광",
-    "관광",
-    "관광",
-    "관광",
-    "관광",
-    "관광",
-    "관광",
-    "관광",
   ];
 
   const [hideMode, setHideMode] = useState(null);
   const [revealedIds, setRevealedIds] = useState([]);
+  const [sortType, setSortType] = useState("default");
+  const [isAutoPlay, setIsAutoPlay] = useState(false);
+  const [isAutoAudio, setIsAutoAudio] = useState(true);
+  const [viewMode, setViewMode] = useState("frontFirst");
 
   const handleToggleMode = (mode) => {
     setRevealedIds([]);
@@ -297,6 +299,78 @@ const DesignGuide = () => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* 정렬 셀렉터 섹션 */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>List Sorting</h2>
+        <div className={styles.item}>
+          <h3>Sort Selector</h3>
+          <div className={styles.flex}>
+            <SortSelector
+              sortType={sortType}
+              setSortType={setSortType}
+              onShuffle={() => alert("리스트 셔플!")}
+            />
+          </div>
+          <p
+            style={{
+              marginTop: "10px",
+              fontSize: "0.8rem",
+              color: "var(--text-sub)",
+            }}
+          >
+            현재 정렬: <strong>{sortType}</strong>
+          </p>
+        </div>
+      </section>
+
+      {/* 스터디카드 컨트롤 */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Study Session Controls</h2>
+        <div className={styles.item}>
+          <StudyControls
+            onUndo={() => alert("이전 카드로!")}
+            onShuffle={() => alert("리스트 셔플!")}
+            isAutoPlay={isAutoPlay}
+            toggleAutoPlay={() => setIsAutoPlay(!isAutoPlay)}
+            isAutoAudio={isAutoAudio}
+            toggleAutoAudio={() => setIsAutoAudio(!isAutoAudio)}
+            viewMode={viewMode}
+            toggleViewMode={() =>
+              setViewMode((prev) =>
+                prev === "frontFirst" ? "backFirst" : "frontFirst",
+              )
+            }
+          />
+        </div>
+      </section>
+
+      {/* 스터디덱 카드 섹션 */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Dashboard Cards</h2>
+        <div className={styles.grid}>
+          <StudyCard
+            title="프랑스어 기초 회화"
+            lang="fr-FR"
+            totalCount={102}
+            progress={12}
+            status={{ known: 12, unknown: 5, unlearned: 85 }}
+            tags={["#여행", "#인사"]}
+            isFavorite={true}
+            onPlay={() => alert("학습 시작!")}
+          />
+
+          <StudyCard
+            title="비즈니스 영어 이메일"
+            lang="en-US"
+            totalCount={50}
+            progress={60}
+            status={{ known: 30, unknown: 2, unlearned: 18 }}
+            tags={["#회사", "#메일"]}
+            onPlay={() => alert("비즈니스 학습!")}
+          />
         </div>
       </section>
 

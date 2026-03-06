@@ -1,0 +1,95 @@
+/* src/components/common/StudyCard/StudyCard.module.css */
+.card {
+  background-color: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg, 16px);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  cursor: pointer;
+  position: relative;
+  /* transition: all 0.1s ease; */
+
+  box-shadow: 0 5px 0 var(--border);
+}
+
+.card:active {
+  transform: translateY(4px);
+  box-shadow: 0 0px 0 var(--border);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.starIcon,
+.starActive {
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.starActive {
+  color: var(--warning, #f59e0b);
+}
+
+/* 바디 (게이지바) */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.statsRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-sub);
+  font-weight: 700;
+}
+.percentText {
+  color: var(--success, #10b981);
+}
+
+.progressBar {
+  height: 8px;
+  background-color: var(--bg-layer);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.progressFill {
+  height: 100%;
+  background-color: var(--success);
+  border-radius: var(--radius-full);
+}
+
+.statusGroup {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* 하단 태그 */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 2px solid var(--border);
+  padding-top: 16px;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 100%;
+}

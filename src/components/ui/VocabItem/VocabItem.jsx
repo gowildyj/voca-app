@@ -20,6 +20,9 @@ const VocabItem = ({
 
   return (
     <div className={styles.vocabItem}>
+      <div className={styles.sideAction} onClick={onPlayAudio}>
+        <Volume2 size={25} className={styles.speakerIcon} />
+      </div>
       <div className={styles.vocabMain}>
         <div className={styles.wordRow}>
           <div className="hide-wrapper">
@@ -36,9 +39,6 @@ const VocabItem = ({
             )}
           </div>
           <div className={styles.vocabActions}>
-            {/* <button className={styles.iconBtn} onClick={onPlayAudio}>
-              <Volume2 size={18} />
-            </button> */}
             <button className={styles.iconBtn} onClick={onToggleFavorite}>
               <Star
                 size={25}

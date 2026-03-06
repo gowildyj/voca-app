@@ -1,10 +1,11 @@
 /* @/styles/main.css */
 
-@import "@/styles/base/variables.css";
 /* @import "@/styles/theme/admin-variables.css"; */
 /* @import "@/styles/theme/user-variables.css"; */
-@import "@/styles//base/reset.css";
+@import "@/styles/base/reset.css";
+@import "@/styles/base/variables.css";
 @import "@/styles/base/typography.css";
+@import "@/styles/base/common.css";
 
 /* @import "./global.css"; */
 

@@ -73,3 +73,35 @@
   font-weight: bold;
   border: 1px solid var(--border);
 }
+
+/* visibilitty toggle */
+
+.testContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: var(--bg);
+  padding: 20px;
+  border-radius: var(--radius-lg);
+}
+
+.wordCardSample {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background-color: var(--bg-layer);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.wordText {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.meaningText {
+  font-size: 0.95rem;
+  color: var(--text-sub);
+}

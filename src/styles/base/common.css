@@ -1,0 +1,23 @@
+/* src/styles/base/common.css */
+
+.hide-wrapper {
+  position: relative;
+  display: block;
+  width: 100%; /* 단어길이만큼 가리려면 fit-content */
+  min-height: 1.5em;
+  min-width: 120px;
+}
+
+.hide-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.2s;
+}
+
+.hide-overlay:hover {
+  background-color: var(--border);
+}

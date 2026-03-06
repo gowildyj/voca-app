@@ -5,6 +5,7 @@ import SearchBar from "@/components/common/SearchBar/SearchBar";
 import styles from "./DesignGuide.module.css";
 import FilterTabs from "@/components/common/FilterTabs/FilterTabs";
 import FilterBar from "@/components/common/FilterBar/FilterBar";
+import VisibilityToggle from "@/components/common/VisibilityToggle/VisibilityToggle";
 
 const DesignGuide = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,6 +36,18 @@ const DesignGuide = () => {
     "관광",
     "관광",
   ];
+
+  const [hideMode, setHideMode] = useState(null);
+  const [revealedIds, setRevealedIds] = useState([]);
+
+  const handleToggleMode = (mode) => {
+    setRevealedIds([]);
+    setHideMode((prevMode) => (prevMode === mode ? null : mode));
+  };
+
+  const handleReveal = (id) => {
+    setRevealedIds((prev) => [...prev, id]);
+  };
 
   return (
     <div className={styles.container}>
@@ -214,16 +227,76 @@ const DesignGuide = () => {
               "비즈니스",
               "일상",
               "교통",
-              "교통",
-              "교통",
-              "교통",
-              "교통",
-              "교통",
-              "교통",
+              "쇼핑",
+              "관광",
+              "취미",
+              "스포츠",
+              "IT",
+              "언어",
+              "문화",
+              "자기계발",
+              "건강",
+              "영화",
+              "음악",
+              "게임",
             ]}
             activeItem={activeTagFilter}
             onSelect={setActiveTagFilter}
           />
+        </div>
+      </section>
+
+      {/* VisibilityToggle 섹션 */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Content Controls</h2>
+        <div className={styles.item}>
+          <h3>Visibility Toggle & Gray Overlay Test</h3>
+          <div style={{ marginBottom: "20px" }}>
+            <VisibilityToggle
+              hideMode={hideMode}
+              onToggleMode={handleToggleMode}
+            />
+          </div>
+
+          {/* 길이가 다른 3가지 샘플 세트 */}
+          <div className={styles.testContainer}>
+            {[
+              { id: 0, word: "Oui", meaning: "네 / 예" },
+              { id: 1, word: "Enchanté", meaning: "만나서 반가워요" },
+              {
+                id: 2,
+                word: "Je m'appelle Stella",
+                meaning: "제 이름은 스텔라입니다",
+              },
+            ].map((item) => (
+              <div key={item.id} className={styles.wordCardSample}>
+                {/* 1. 단어 영역 */}
+                <div className="hide-wrapper">
+                  <span className={styles.wordText}>{item.word}</span>
+                  {/* 전체 모드가 'word'이고, 개별 해제 목록에 없으면 가림 */}
+                  {hideMode === "word" &&
+                    !revealedIds.includes(`${item.id}-word`) && (
+                      <div
+                        className="hide-overlay"
+                        onClick={() => handleReveal(`${item.id}-word`)}
+                      />
+                    )}
+                </div>
+
+                {/* 2. 뜻 영역 */}
+                <div className="hide-wrapper">
+                  <span className={styles.meaningText}>{item.meaning}</span>
+                  {hideMode === "meaning" &&
+                    !revealedIds.includes(`${item.id}-meaning`) && (
+                      <div
+                        className="hide-overlay"
+                        onClick={() => handleReveal(`${item.id}-meaning`)}
+                      />
+                    )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

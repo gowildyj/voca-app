@@ -62,7 +62,7 @@
 }
 .viewModeWrapper {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   line-height: 1;
 }

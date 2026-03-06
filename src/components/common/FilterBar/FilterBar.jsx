@@ -8,11 +8,13 @@ const FilterBar = ({
   activeItem,
   onSelect,
   isTag = false,
+  isScroll = false,
   className = "",
 }) => {
   return (
     <nav className={`${styles.filterBar} ${className}`}>
-      <div className={styles.scrollContainer}>
+      {/* isScroll 값에 따라 다른 컨테이너 스타일 적용 */}
+      <div className={isScroll ? styles.scrollContainer : styles.wrapContainer}>
         {items.map((item) => {
           const isActive = activeItem === item;
           return (

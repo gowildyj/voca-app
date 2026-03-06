@@ -1,55 +1,43 @@
 /* src/components/common/FilterBar/FilterBar.module.css */
 .filterBar {
   width: 100%;
-  overflow: hidden;
   padding: 12px 0;
 }
 
-/* 세로로 여러줄 */
-.scrollContainer {
+/* 세로 줄바꿈 모드 */
+.wrapContainer {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   padding: 0;
 }
 
-/* 가로스크롤 */
-/* .scrollContainer {
+/* 가로 스크롤 모드 */
+.scrollContainer {
   display: flex;
   align-items: center;
   gap: 8px;
   overflow-x: auto;
   padding: 0 24px;
-  &::after {
-    content: "";
-    padding-right: 24px;
-  }
   -webkit-overflow-scrolling: touch;
-
   scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 .scrollContainer::-webkit-scrollbar {
   display: none;
-} */
+}
+.scrollContainer::after {
+  content: "";
+  padding-right: 24px;
+}
 
 .badgeWrapper {
   cursor: pointer;
-  transition: transform 0.1s ease;
   flex-shrink: 0;
 }
 
-.badgeWrapper:hover {
-  transform: translateY(-2px);
-}
-
-.badgeWrapper:active {
-  transform: translateY(0) scale(0.95);
-}
-
 .activeTag {
-  border-color: var(--primary) !important;
-  color: var(--primary) !important;
-  background-color: rgba(var(--primary-rgb), 0.05) !important;
+  background-color: var(--primary);
+  color: var(--text-inverse);
+  border-color: var(--primary);
 }

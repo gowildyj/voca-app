@@ -26,7 +26,8 @@
   justify-content: center;
   align-items: center;
   gap: 3px;
-  padding: 5px 0;
+  padding: 5px;
+  white-space: nowrap;
   border: none;
   background: transparent;
   color: var(--text-sub);
@@ -50,10 +51,11 @@
 .count {
   font-size: 0.7rem;
   font-weight: 800;
-  padding: 2px 6px;
+  padding: 2px 5px;
   background-color: var(--bg-layer);
   border-radius: 6px;
   opacity: 0.7;
+  margin-left: 2px;
 }
 
 .active .count {

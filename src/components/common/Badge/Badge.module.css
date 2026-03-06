@@ -25,35 +25,35 @@
   font-style: normal;
 }
 
-/* 태그형: # 여행 */
+/* 태그형 */
 .tag {
   background-color: var(--bg-layer);
   color: var(--text-sub);
   border: 1px solid var(--border);
 }
 
-/* 2. 강조형: 초급, 중급 */
+/* 강조형 */
 .primary {
-  background-color: rgba(var(--primary-rgb, 99, 102, 241), 0.1);
-  color: var(--primary);
-  border: 1px solid rgba(var(--primary-rgb, 99, 102, 241), 0.2);
+  background-color: var(--primary);
+  color: var(--text-inverse);
+  border: 1px solid var(--primary);
 }
 
-/* 3. 아웃라인형 */
+/* 아웃라인형 */
 .outline {
   background-color: transparent;
   border: 1px solid var(--border);
   color: var(--text-sub);
 }
 
-/* 4. 고스트형 */
+/* 고스트형 */
 .ghost {
   background-color: transparent;
   color: var(--text-muted);
   padding: 0;
 }
 
-/* 5. 위험/경고형 */
+/* 위험/경고형 */
 .danger {
   background-color: rgba(239, 68, 68, 0.1);
   color: var(--danger);

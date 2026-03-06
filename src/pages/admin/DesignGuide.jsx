@@ -16,10 +16,11 @@ const DesignGuide = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentTab, setCurrentTab] = useState("list");
   const tabs = [
-    { id: "list", label: "목록 관리" },
-    { id: "add", label: "대량 등록" },
-    { id: "edit", label: "대량 수정" },
-    { id: "edit2", label: "대량 수정2" },
+    { id: "list", label: "전체" },
+    { id: "add", label: "중요" },
+    { id: "edit", label: "미학습" },
+    { id: "known", label: "알아" },
+    { id: "unknown", label: "몰라" },
   ];
 
   const [activeFilter, setActiveFilter] = useState("전체");
@@ -159,7 +160,13 @@ const DesignGuide = () => {
             filters={tabs}
             currentFilter={currentTab}
             setFilter={setCurrentTab}
-            filterCounts={{ list: 12, add: 0, edit: 5 }}
+            filterCounts={{
+              list: 12,
+              add: 0,
+              edit: 5,
+              known: 3,
+              unknown: 1000,
+            }}
           />
           <p
             style={{
@@ -174,6 +181,7 @@ const DesignGuide = () => {
       </section>
 
       {/* FilterBar 섹션 */}
+      {/* 1. 가로 스크롤 네비게이션 섹션 */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>
           Horizontal Navigation (FilterBar)
@@ -189,6 +197,7 @@ const DesignGuide = () => {
             ← 가로로 스크롤 해보세요
           </p>
           <FilterBar
+            isScroll={true}
             items={filterItems}
             activeItem={activeFilter}
             onSelect={setActiveFilter}
@@ -207,11 +216,14 @@ const DesignGuide = () => {
         </div>
       </section>
 
+      {/* 2. 필터바 변형 섹션 (줄바꿈 모드) */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>FilterBar Variants</h2>
 
+        {/* 카테고리 스타일 */}
         <div className={styles.item}>
           <h3>1. Category Style (초급/중급/고급)</h3>
+          {/* 기본값인 줄바꿈 모드로 렌더링 */}
           <FilterBar
             items={["전체", "초급", "중급", "고급"]}
             activeItem={activeFilter}
@@ -219,8 +231,9 @@ const DesignGuide = () => {
           />
         </div>
 
-        <div className={styles.item} style={{ marginTop: "20px" }}>
-          <h3>2. Hashtag Style (isTag={true})</h3>
+        {/* 해시태그 스타일 */}
+        <div className={styles.item} style={{ marginTop: "30px" }}>
+          <h3>2. Hashtag Style (isTag={true} + Wrap)</h3>
           <FilterBar
             isTag={true}
             items={[
@@ -357,7 +370,7 @@ const DesignGuide = () => {
             totalCount={102}
             progress={12}
             status={{ known: 12, unknown: 5, unlearned: 85 }}
-            tags={["#여행", "#인사"]}
+            tags={["여행", "인사"]}
             isFavorite={true}
             onPlay={() => alert("학습 시작!")}
           />
@@ -368,7 +381,7 @@ const DesignGuide = () => {
             totalCount={50}
             progress={60}
             status={{ known: 30, unknown: 2, unlearned: 18 }}
-            tags={["#회사", "#메일"]}
+            tags={["회사", "메일"]}
             onPlay={() => alert("비즈니스 학습!")}
           />
         </div>

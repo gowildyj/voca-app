@@ -4,6 +4,7 @@ import Badge from "@/components/common/Badge/Badge";
 import SearchBar from "@/components/common/SearchBar/SearchBar";
 import styles from "./DesignGuide.module.css";
 import FilterTabs from "@/components/common/FilterTabs/FilterTabs";
+import FilterBar from "@/components/common/FilterBar/FilterBar";
 
 const DesignGuide = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,6 +14,19 @@ const DesignGuide = () => {
     { id: "add", label: "대량 등록" },
     { id: "edit", label: "대량 수정" },
     { id: "edit2", label: "대량 수정2" },
+  ];
+
+  const [activeFilter, setActiveFilter] = useState("전체");
+  const [activeTagFilter, setActiveTagFilter] = useState("전체");
+  const filterItems = [
+    "전체",
+    "여행",
+    "음식",
+    "비즈니스",
+    "일상",
+    "교통",
+    "쇼핑",
+    "관광",
   ];
 
   return (
@@ -134,6 +148,63 @@ const DesignGuide = () => {
           >
             현재 선택된 탭: <strong>{currentTab}</strong>
           </p>
+        </div>
+      </section>
+
+      {/* FilterBar 섹션 */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>
+          Horizontal Navigation (FilterBar)
+        </h2>
+        <div className={styles.item}>
+          <p
+            style={{
+              marginBottom: "10px",
+              fontSize: "0.8rem",
+              color: "var(--text-sub)",
+            }}
+          >
+            ← 가로로 스크롤 해보세요
+          </p>
+          <FilterBar
+            items={filterItems}
+            activeItem={activeFilter}
+            onSelect={setActiveFilter}
+          />
+          <div
+            style={{
+              padding: "20px",
+              textAlign: "center",
+              background: "var(--bg-layer)",
+              borderRadius: "12px",
+              marginTop: "10px",
+            }}
+          >
+            현재 선택된 카테고리: <strong>{activeFilter}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>FilterBar Variants</h2>
+
+        <div className={styles.item}>
+          <h3>1. Category Style (초급/중급/고급)</h3>
+          <FilterBar
+            items={["전체", "초급", "중급", "고급"]}
+            activeItem={activeFilter}
+            onSelect={setActiveFilter}
+          />
+        </div>
+
+        <div className={styles.item} style={{ marginTop: "20px" }}>
+          <h3>2. Hashtag Style (isTag={true})</h3>
+          <FilterBar
+            isTag={true}
+            items={["여행", "음식", "비즈니스", "일상", "교통"]}
+            activeItem={activeTagFilter}
+            onSelect={setActiveTagFilter}
+          />
         </div>
       </section>
 

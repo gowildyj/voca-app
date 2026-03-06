@@ -1,0 +1,45 @@
+/* src/components/common/FilterBar/FilterBar.module.css */
+.filterBar {
+  width: 100%;
+  overflow: hidden;
+  padding: 12px 0;
+}
+
+.scrollContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 24px;
+  &::after {
+    content: "";
+    padding-right: 24px;
+  }
+  -webkit-overflow-scrolling: touch;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.badgeWrapper {
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  flex-shrink: 0;
+}
+
+.badgeWrapper:hover {
+  transform: translateY(-2px);
+}
+
+.badgeWrapper:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.activeTag {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background-color: rgba(var(--primary-rgb), 0.05) !important;
+}

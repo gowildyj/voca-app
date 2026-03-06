@@ -1,12 +1,19 @@
-import React, { useState } from "react"; // 1. useState 임포트 확인
+import React, { useState } from "react";
 import Button from "@/components/common/Button/Button";
 import Badge from "@/components/common/Badge/Badge";
-import SearchBar from "@/components/common/SearchBar/SearchBar"; // 2. 중괄호 제거 (Default Export)
+import SearchBar from "@/components/common/SearchBar/SearchBar";
 import styles from "./DesignGuide.module.css";
+import FilterTabs from "@/components/common/FilterTabs/FilterTabs";
 
 const DesignGuide = () => {
-  // 🌟 3. useState는 반드시 컴포넌트 '내부'에 있어야 합니다.
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentTab, setCurrentTab] = useState("list");
+  const tabs = [
+    { id: "list", label: "목록 관리" },
+    { id: "add", label: "대량 등록" },
+    { id: "edit", label: "대량 수정" },
+    { id: "edit2", label: "대량 수정2" },
+  ];
 
   return (
     <div className={styles.container}>
@@ -105,6 +112,28 @@ const DesignGuide = () => {
               🔍 실시간 입력값: <strong>{searchTerm || "(내용 없음)"}</strong>
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* FilterBar 섹션 */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Navigation (Tabs)</h2>
+        <div className={styles.item} style={{ maxWidth: "500px" }}>
+          <FilterTabs
+            filters={tabs}
+            currentFilter={currentTab}
+            setFilter={setCurrentTab}
+            filterCounts={{ list: 12, add: 0, edit: 5 }}
+          />
+          <p
+            style={{
+              marginTop: "12px",
+              textAlign: "center",
+              color: "var(--text-sub)",
+            }}
+          >
+            현재 선택된 탭: <strong>{currentTab}</strong>
+          </p>
         </div>
       </section>
 

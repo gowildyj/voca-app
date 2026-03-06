@@ -27,6 +27,13 @@ const DesignGuide = () => {
     "교통",
     "쇼핑",
     "관광",
+    "관광",
+    "관광",
+    "관광",
+    "관광",
+    "관광",
+    "관광",
+    "관광",
   ];
 
   return (
@@ -201,7 +208,19 @@ const DesignGuide = () => {
           <h3>2. Hashtag Style (isTag={true})</h3>
           <FilterBar
             isTag={true}
-            items={["여행", "음식", "비즈니스", "일상", "교통"]}
+            items={[
+              "여행",
+              "음식",
+              "비즈니스",
+              "일상",
+              "교통",
+              "교통",
+              "교통",
+              "교통",
+              "교통",
+              "교통",
+              "교통",
+            ]}
             activeItem={activeTagFilter}
             onSelect={setActiveTagFilter}
           />

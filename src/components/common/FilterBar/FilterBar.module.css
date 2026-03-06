@@ -5,7 +5,25 @@
   padding: 12px 0;
 }
 
+/* src/components/common/FilterBar/FilterBar.module.css */
+
+.filterBar {
+  width: 100%;
+  padding: 12px 0;
+  /* 가로 스크롤을 막기 위해 overflow: hidden 유지 혹은 제거 */
+}
+
+/* 세로로 여러줄 */
 .scrollContainer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+}
+
+/* 가로스크롤 */
+/* .scrollContainer {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -22,7 +40,7 @@
 }
 .scrollContainer::-webkit-scrollbar {
   display: none;
-}
+} */
 
 .badgeWrapper {
   cursor: pointer;

@@ -9,6 +9,7 @@
   font-weight: 700;
   line-height: 1.2;
   white-space: nowrap;
+  flex-shrink: 0;
   transition: all var(--transition-base, 0.2s ease);
 }
 

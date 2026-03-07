@@ -1,0 +1,222 @@
+/* src/components/ui/StudyFlashCard/StudyFlashCard.module.css */
+
+.container {
+  perspective: 1000px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card {
+  width: 100%;
+  height: 450px;
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+
+.flipped {
+  transform: rotateY(180deg);
+}
+
+.cardFront,
+.cardBack {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden; /* 뒷면일 때 안 보이게 처리 */
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  border: 3px solid var(--border);
+  /* box-shadow: 0 10px 0 var(--border); */
+  background-color: var(--card);
+}
+
+.cardBack {
+  transform: rotateY(180deg);
+  background-color: var(--bg-layer);
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--primary);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.wordText,
+.meaningText {
+  font-size: 2.2rem;
+  font-weight: 900;
+  text-align: center;
+  word-break: break-all;
+  color: var(--text-main);
+}
+
+.exampleBox {
+  margin-top: 30px;
+  padding: 16px;
+  background-color: rgba(var(--primary-rgb), 0.05);
+  border-radius: 12px;
+  border-left: 4px solid var(--primary);
+}
+
+.example {
+  font-size: 1rem;
+  color: var(--text-sub);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.hint {
+  position: absolute;
+  bottom: 20px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.actionButtons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.noBtn,
+.yesBtn {
+  width: 100%;
+  padding: 16px 32px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--border);
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.1s;
+  box-shadow: 0 4px 0 var(--border);
+}
+
+.noBtn {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+.yesBtn {
+  background-color: #dcfce7;
+  color: #22c55e;
+}
+
+.noBtn:active,
+.yesBtn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--border);
+}
+
+/* src/components/ui/StudyFlashCard/StudyFlashCard.module.css */
+
+.stampBadges {
+  position: absolute;
+  top: 40px;
+  width: 100%;
+  z-index: 20;
+  pointer-events: none; /* 클릭 방해 금지 */
+  display: flex;
+  justify-content: space-between;
+  padding: 0 30px;
+}
+
+/* 🌟 도장 공통 스타일 (Tinder 스타일) */
+.stampUnknown,
+.stampKnown {
+  border: 4px solid;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  transform: rotate(-15deg); /* 살짝 기울여서 도장 느낌 팍! */
+  opacity: 0; /* 🌟 평소엔 숨김 (스와이프 시점에 opacity 조절할 거야) */
+  transition: opacity 0.2s ease;
+}
+
+/* 디자인 가이드 확인을 위해 강제로 보이게 하고 싶다면 테스트 시 이 클래스를 활용하세요 */
+.showUnknown {
+  opacity: 1 !important;
+}
+.showKnown {
+  opacity: 1 !important;
+}
+
+.stampUnknown {
+  color: #ef4444; /* Danger 레드 */
+  border-color: #ef4444;
+}
+
+.stampKnown {
+  color: #22c55e; /* Success 그린 */
+  border-color: #22c55e;
+  transform: rotate(15deg); /* 반대 방향으로 기울임 */
+}
+
+/* 🌟 하단 텍스트 가이드 (부드러운 버전) */
+.swipeGuide {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+  padding: 0 10px;
+}
+
+.leftGuide,
+.rightGuide {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* src/components/ui/StudyFlashCard/StudyFlashCard.module.css */
+
+.wideCard {
+  width: 100%;
+  max-width: 800px;
+  height: 400px;
+  position: relative;
+  background-color: var(--card);
+  border: 3px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 10px 0 var(--border);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.contentLayer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  /* transition:
+    opacity 0.3s ease,
+    transform 0.3s ease; */
+}
+
+.show {
+  opacity: 1;
+  transform: scale(1);
+  z-index: 2;
+}
+
+.hide {
+  opacity: 0;
+  /* transform: scale(0.95); */
+  z-index: 1;
+  pointer-events: none;
+}

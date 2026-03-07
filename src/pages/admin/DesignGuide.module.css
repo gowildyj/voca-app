@@ -104,3 +104,68 @@
   font-size: 0.95rem;
   color: var(--text-sub);
 }
+
+/* 스와이프카드 */
+
+.flashcardTestContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+  background-color: var(--bg-layer);
+  border-radius: var(--radius-lg);
+  perspective: 1000px; /* 3D 효과를 위해 부모에도 설정 */
+}
+
+.guideBox {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: var(--card);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+}
+
+.guideBox h4 {
+  margin: 0 0 10px 0;
+  color: var(--text-main);
+}
+
+.guideBox ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text-sub);
+  font-size: 0.85rem;
+}
+
+.guideBox li {
+  margin-bottom: 5px;
+}
+
+/* 스와이프 카드 섹션 */
+/* DesignGuide.module.css */
+
+.stackTestArea {
+  margin: 40px 0;
+  padding: 40px;
+  background-color: var(--bg-layer);
+  border-radius: var(--radius-lg);
+  display: flex;
+  justify-content: center;
+  min-height: 550px; /* 🌟 스택 높이에 맞춰 확보 */
+}
+
+.description {
+  font-size: 0.9rem;
+  color: var(--text-sub);
+  margin-bottom: 20px;
+}
+
+.resetBtn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: var(--primary);
+  color: white;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}

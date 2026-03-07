@@ -1,0 +1,348 @@
+/* src/components/ui/StudyFlashCard/StudyFlashCard.module.css */
+
+.container {
+  perspective: 1000px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card {
+  width: 100%;
+  height: 450px;
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+
+.flipped {
+  transform: rotateY(180deg);
+}
+
+.cardFront,
+.cardBack {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden; /* 뒷면일 때 안 보이게 처리 */
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  border: 3px solid var(--border);
+  /* box-shadow: 0 10px 0 var(--border); */
+  background-color: var(--card);
+}
+
+.cardBack {
+  transform: rotateY(180deg);
+  background-color: var(--bg-layer);
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--primary);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.wordText,
+.meaningText {
+  font-size: 2.2rem;
+  font-weight: 900;
+  text-align: center;
+  word-break: break-all;
+  color: var(--text-main);
+}
+
+.exampleBox {
+  margin-top: 30px;
+  padding: 16px;
+  background-color: rgba(var(--primary-rgb), 0.05);
+  border-radius: 12px;
+  border-left: 4px solid var(--primary);
+}
+
+.example {
+  font-size: 1rem;
+  color: var(--text-sub);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.hint {
+  position: absolute;
+  bottom: 20px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.actionButtons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.noBtn,
+.yesBtn {
+  width: 100%;
+  padding: 16px 32px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--border);
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.1s;
+  box-shadow: 0 4px 0 var(--border);
+}
+
+.noBtn {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+.yesBtn {
+  background-color: #dcfce7;
+  color: #22c55e;
+}
+
+.noBtn:active,
+.yesBtn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--border);
+}
+
+/* src/components/ui/StudyFlashCard/StudyFlashCard.module.css */
+
+.stampBadges {
+  position: absolute;
+  top: 40px;
+  width: 100%;
+  z-index: 20;
+  pointer-events: none; /* 클릭 방해 금지 */
+  display: flex;
+  justify-content: space-between;
+  padding: 0 30px;
+}
+
+/* 🌟 도장 공통 스타일 (Tinder 스타일) */
+.stampUnknown,
+.stampKnown {
+  border: 4px solid;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  transform: rotate(-15deg); /* 살짝 기울여서 도장 느낌 팍! */
+  opacity: 0; /* 🌟 평소엔 숨김 (스와이프 시점에 opacity 조절할 거야) */
+  transition: opacity 0.2s ease;
+}
+
+/* 디자인 가이드 확인을 위해 강제로 보이게 하고 싶다면 테스트 시 이 클래스를 활용하세요 */
+.showUnknown {
+  opacity: 1 !important;
+}
+.showKnown {
+  opacity: 1 !important;
+}
+
+.stampUnknown {
+  color: #ef4444; /* Danger 레드 */
+  border-color: #ef4444;
+}
+
+.stampKnown {
+  color: #22c55e; /* Success 그린 */
+  border-color: #22c55e;
+  transform: rotate(15deg); /* 반대 방향으로 기울임 */
+}
+
+/* 🌟 하단 텍스트 가이드 (부드러운 버전) */
+.swipeGuide {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+  padding: 0 10px;
+}
+
+.leftGuide,
+.rightGuide {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* src/components/ui/StudyFlashCard/StudyFlashCard.module.css */
+
+.container {
+  perspective: 2000px; /* 🌟 원근감을 더 깊게 줘서 왜곡을 줄임 */
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.card {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+/* 🌟 뒤집힐 때 가로 너비를 0.7배로 수축시키며 회전 */
+.flipped {
+  transform: rotateY(180deg) scaleX(0.8);
+}
+
+/* 🌟 카드가 회전하는 중간 지점(90도)에서 가장 많이 수축되도록 애니메이션 보완 가능 */
+@keyframes shrinkFlip {
+  0% {
+    transform: rotateY(0deg) scale(1);
+  }
+  50% {
+    transform: rotateY(90deg) scale(0.6);
+  } /* 중간에 0.6배까지 촥 줄어듦 */
+  100% {
+    transform: rotateY(180deg) scale(1);
+  }
+}
+
+.cardFront,
+.cardBack {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 24px;
+  padding: 40px;
+  background-color: var(--card);
+  border: 3px solid var(--border);
+  box-shadow: 0 10px 0 var(--border);
+
+  /* 내부 컨텐츠가 찌그러지지 않게 방지 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.cardBack {
+  transform: rotateY(180deg);
+  background-color: var(--bg-layer);
+}
+
+/* 예문 영역이 길어도 가독성을 해치지 않게 조절 */
+.exampleSection {
+  margin-top: 20px;
+  padding: 15px;
+  border-left: 4px solid var(--primary);
+  background: rgba(var(--primary-rgb), 0.05);
+  width: 100%;
+  text-align: left;
+}
+
+/* src/components/ui/StudyFlashCard/StudyFlashCard.module.css */
+
+.stackWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  height: 400px;
+  cursor: pointer;
+}
+
+.layerCard {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  border: 3px solid var(--border);
+  box-shadow: 0 8px 0 var(--border);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  padding: 40px;
+}
+
+.frontLayer {
+  background-color: var(--card);
+  z-index: 2;
+}
+
+.backLayer {
+  background-color: var(--bg-layer);
+  z-index: 1;
+  transform: translateY(10px) scale(0.98); /* 살짝 뒤에 있는 느낌 */
+  opacity: 0.8;
+}
+
+/* 🌟 교체 애니메이션: 앞면이 위로 슥 빠지면서 뒤로 감 */
+.activeBack {
+  transform: translateY(-100%) scale(0.9);
+  opacity: 0;
+  z-index: 1;
+}
+
+.activeFront {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  z-index: 2;
+}
+
+/* src/components/ui/StudyFlashCard/StudyFlashCard.module.css */
+
+.fixedFrame {
+  width: 100%;
+  max-width: 800px;
+  height: 420px; /* 고정 높이 */
+  background-color: var(--card);
+  border: 3px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 10px 0 var(--border);
+  position: relative;
+  overflow: hidden; /* 🌟 내부 슬라이드가 밖으로 안 보이게 가림 */
+  cursor: pointer;
+}
+
+.contentSlider {
+  width: 100%;
+  height: 200%; /* 두 개의 패널을 세로로 배치 */
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1); /* 🌟 깔끔한 감속 애니메이션 */
+}
+
+/* 🌟 클릭 시 위로 50%만큼 슥 올림 */
+.moveUp {
+  transform: translateY(-50%);
+}
+
+.slidePanel {
+  width: 100%;
+  height: 50%; /* fixedFrame과 동일한 높이 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.meaningGroup,
+.exampleGroup {
+  width: 100%;
+  text-align: center;
+}
+
+.exampleGroup {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--border);
+  max-width: 600px;
+}

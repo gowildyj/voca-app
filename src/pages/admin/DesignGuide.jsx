@@ -10,6 +10,8 @@ import SortSelector from "@/components/common/SortSelector/SortSelector";
 import StudyControls from "@/components/ui/StudyControls/StudyControls";
 import StudyCard from "@/components/common/StudyCard/StudyCard";
 import VocabItem from "@/components/ui/VocabItem/VocabItem";
+import StudyFlashCard from "@/components/ui/StudyFlashCard/StudyFlashCard";
+import StudyCardStack from "@/components/ui/StudyCardStack/StudyCardStack";
 
 import { Star, PlayCircle, ChevronRight, Volume2 } from "lucide-react";
 
@@ -57,12 +59,64 @@ const DesignGuide = () => {
     "게임",
   ];
 
+  const sampleVocabList = [
+    {
+      id: 1,
+      word: "Épanouissement",
+      meaning: "자아실현, 꽃이 핌",
+      example: "L'épanouissement personnel est le but de la vie.",
+    },
+    {
+      id: 2,
+      word: "Bienveillance",
+      meaning: "자애로움, 친절",
+      example: "Elle traite tout le monde avec une grande bienveillance.",
+    },
+    {
+      id: 3,
+      word: "Incontournable",
+      meaning: "피할 수 없는, 필수적인",
+      example: "C'est un lieu incontournable pour les touristes à Séoul.",
+    },
+    {
+      id: 4,
+      word: "Dépaysement",
+      meaning: "낯선 곳에 있는 느낌 (기분 전환)",
+      example: "J'aime voyager pour chercher un peu de dépaysement.",
+    },
+    {
+      id: 5,
+      word: "S'adapter",
+      meaning: "적응하다",
+      example: "Il est important de s'adapter à un nouvel environnement.",
+    },
+
+    {
+      id: 6,
+      word: "Persévérance",
+      meaning: "인내, 끈기",
+      example: "La persévérance est la clé du succès.",
+    },
+    {
+      id: 7,
+      word: "Ambiguïté",
+      meaning: "모호함",
+      example: "Il n'y a aucune ambiguïté dans sa réponse.",
+    },
+  ];
+
   const [hideMode, setHideMode] = useState(null);
   const [revealedIds, setRevealedIds] = useState([]);
   const [sortType, setSortType] = useState("default");
   const [isAutoPlay, setIsAutoPlay] = useState(false);
   const [isAutoAudio, setIsAutoAudio] = useState(true);
   const [viewMode, setViewMode] = useState("frontFirst");
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const handleNext = (id) => {
+    console.log(`${id}번 카드 처리 완료!`);
+    setCurrentIndex((prev) => prev + 1);
+  };
 
   const handleToggleMode = (mode) => {
     setRevealedIds([]);
@@ -465,6 +519,70 @@ const DesignGuide = () => {
               </span>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* 스와이프카드 섹션 */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>
+          Study Flashcard Mode (Quizlet Style)
+        </h2>
+        <div className={styles.item}>
+          <p
+            style={{
+              marginBottom: "20px",
+              fontSize: "0.9rem",
+              color: "var(--text-sub)",
+            }}
+          >
+            카드를 터치하면 뒤집히고, 하단 버튼으로 학습 상태를 결정합니다.
+          </p>
+
+          <div className={styles.stackContainer}>
+            {currentIndex < sampleVocabList.length ? (
+              <StudyFlashCard
+                key={sampleVocabList[currentIndex].id}
+                item={sampleVocabList[currentIndex]}
+                onKnow={handleNext}
+                onUnknown={handleNext}
+              />
+            ) : (
+              <div className={styles.finishMessage}>
+                <h3>🎉 모든 단어를 확인했어요!</h3>
+                <button onClick={() => setCurrentIndex(0)}>다시 시작</button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* 카드 스택 섹션 */}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Study Card Stack (Tinder Style)</h2>
+        <div className={styles.item}>
+          <p className={styles.description}>
+            클릭하면 정답 확인, 좌우로 스와이프하면 학습 결과가 기록됩니다.
+          </p>
+
+          {/* 🌟 카드 스택 테스트 영역 */}
+          <div className={styles.stackTestArea}>
+            <StudyCardStack
+              items={sampleVocabList}
+              currentIndex={currentIndex}
+              onKnow={handleNext}
+              onUnknown={handleNext}
+            />
+          </div>
+
+          {/* 리셋 버튼 (테스트 편의용) */}
+          {currentIndex >= sampleVocabList.length && (
+            <button
+              className={styles.resetBtn}
+              onClick={() => setCurrentIndex(0)}
+            >
+              처음부터 다시 테스트
+            </button>
+          )}
         </div>
       </section>
 

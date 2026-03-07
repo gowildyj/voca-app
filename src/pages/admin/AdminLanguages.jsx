@@ -168,7 +168,7 @@ const AdminLanguages = () => {
   return (
     <div className="v-app-layout">
       <div className={styles.pageContainer}>
-        {/* 🌟 1. 모던 타이틀 영역 */}
+        {/* 타이틀 영역 */}
         <header className={styles.header}>
           <div className={styles.headerIconWrap}>
             <Globe size={24} />
@@ -181,9 +181,20 @@ const AdminLanguages = () => {
           </div>
         </header>
 
-        {/* 🌟 2. 빠른 등록 (Test 스타일 100% 복구) */}
+        {/* 한개 등록  */}
         <div className={styles["admin-form-box"]}>
-          <h4 className={styles["admin-form-title"]}>🌐 언어 등록/수정</h4>
+          <div className={styles.formHeader}>
+            <h4 className={styles["admin-form-title"]}>🌐 언어 등록/수정</h4>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() =>
+                setNewLang({ id: null, code: "", name: "", emoji: "" })
+              }
+            >
+              리셋
+            </Button>
+          </div>
           <div className={styles["select-group"]}>
             <input
               placeholder="ID (자동생성)"
@@ -283,22 +294,15 @@ const AdminLanguages = () => {
           {/* Test 스타일 테이블 완벽 복구 */}
           {bulkMode === "list" && (
             <div>
-              <h4 className={styles["admin-form-title"]}>
-                📋 등록된 언어 목록
-              </h4>
               <div className={styles["table-wrapper"]}>
                 <table className={styles["admin-table"]}>
                   <thead>
                     <tr>
-                      <th style={{ width: "80px" }}>ID</th>
+                      <th>ID</th>
                       <th>코드</th>
                       <th>언어명</th>
-                      <th style={{ width: "80px", textAlign: "center" }}>
-                        이모지
-                      </th>
-                      <th style={{ width: "140px", textAlign: "center" }}>
-                        관리
-                      </th>
+                      <th>이모지</th>
+                      <th>관리</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -312,7 +316,7 @@ const AdminLanguages = () => {
                             style={{ fontSize: "10px", color: "#999" }}
                             title={lang.id}
                           >
-                            {lang.id.slice(0, 8)}...
+                            {lang.id}
                           </td>
                           <td>
                             <input
@@ -402,9 +406,6 @@ const AdminLanguages = () => {
           {/* Test 스타일 대량 작업 폼 복구 */}
           {(bulkMode === "add" || bulkMode === "edit") && (
             <div>
-              <h4 className={styles["admin-form-title"]}>
-                {bulkMode === "add" ? "🌐 언어 대량 등록" : "🛠️ 언어 대량 수정"}
-              </h4>
               <textarea
                 className={styles["bulk-textarea"]}
                 value={bulkLanguage}

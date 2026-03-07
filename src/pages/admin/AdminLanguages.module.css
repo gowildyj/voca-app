@@ -44,11 +44,19 @@
   margin-bottom: 20px;
   border: 1px solid #e2e8f0;
 }
+
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
 .admin-form-title {
   font-size: 0.9rem;
   font-weight: 700;
   color: #4a5568;
-  margin-bottom: 15px;
+  margin-bottom: 0;
 }
 
 /* --- 3. Test 원본: 입력 폼 & 뱃지 --- */

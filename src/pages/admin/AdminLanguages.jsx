@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button/Button";
 import SearchBar from "@/components/common/SearchBar/SearchBar";
 import { useContentStore } from "@/store/useContentStore";
@@ -8,8 +9,16 @@ import { Globe } from "lucide-react";
 import styles from "./AdminLanguages.module.css";
 
 const AdminLanguages = () => {
-  const { languages, fetchLanguages, upsertLanguage, deleteLanguage } =
-    useContentStore();
+  const { t } = useTranslation();
+
+  const {
+    languages,
+    fetchLanguages,
+    upsertLanguage,
+    deleteLanguage,
+    appLang,
+    setAppLang,
+  } = useContentStore();
 
   const [newLang, setNewLang] = useState({
     id: null,
@@ -27,6 +36,10 @@ const AdminLanguages = () => {
   });
   const [searchTerm, setSearchTerm] = useState("");
 
+  useEffect(() => {
+    fetchLanguages();
+  }, []);
+
   // 검색 필터링 로직
   const filteredLanguages = useMemo(() => {
     if (!searchTerm.trim()) return languages;
@@ -39,6 +52,7 @@ const AdminLanguages = () => {
     );
   }, [languages, searchTerm]);
 
+  // 대량수정
   useEffect(() => {
     setEditingId(null);
     if (bulkMode === "edit" && languages.length > 0) {
@@ -50,6 +64,7 @@ const AdminLanguages = () => {
     }
   }, [bulkMode, languages]);
 
+  // 대량수정 데이터 삽입
   const loadLanguagesForEdit = () => {
     const text = languages
       .map((l) => `${l.id} | ${l.code} | ${l.name} | ${l.emoji || ""}`)
@@ -72,15 +87,16 @@ const AdminLanguages = () => {
     });
   };
 
+  // 한건 등록+수정
   const handleToSave = async () => {
     if (!newLang.code.trim() || !newLang.name.trim())
-      return toast.error("코드와 이름을 입력해주세요.");
+      return toast.error(t("required_fields"));
     try {
       await upsertLanguage(newLang);
       setNewLang({ id: null, code: "", name: "", emoji: "" });
-      toast.success("저장 완료!");
+      toast.success(t("success"));
     } catch (error) {
-      toast.error("저장 실패");
+      toast.error(t("failed"));
     }
   };
 
@@ -98,70 +114,72 @@ const AdminLanguages = () => {
       await upsertLanguage({ id, ...editFormData });
       await fetchLanguages();
       setEditingId(null);
-      toast.success("수정 완료!");
+      toast.success(t("success"));
     } catch (error) {
-      toast.error("수정 실패");
+      toast.error(t("failed"));
     }
   };
 
+  // 대량 등록
   const handleLanguageBulkRegister = async (textData) => {
-    if (!textData.trim()) return toast.error("데이터가 없습니다.");
+    if (!textData.trim()) return toast.error(t("required_fields"));
+
     const lines = textData.split(/\r?\n/).filter((line) => line.trim() !== "");
-    let successCount = 0;
-    let failCount = 0;
-    for (const line of lines) {
-      const parts = line.split("|").map((item) => item.trim());
-      if (parts.length < 2 || !parts[0] || !parts[1]) {
-        failCount++;
-        continue;
-      }
-      try {
-        await upsertLanguage({
-          code: parts[0],
-          name: parts[1],
-          emoji: parts[2] || "",
-        });
-        successCount++;
-      } catch (error) {
-        failCount++;
-      }
-    }
-    if (failCount > 0) toast.error(`${failCount}건 실패`);
-    if (successCount > 0) {
-      toast.success(`${successCount}건 등록 완료!`);
+
+    const promises = lines.map(async (line) => {
+      const [code, name, emoji] = line.split("|").map((item) => item.trim());
+      if (!code || !name) return null;
+      return upsertLanguage({ code, name, emoji: emoji || "" });
+    });
+
+    try {
+      const results = await Promise.all(promises);
+      const successCount = results.filter((r) => r !== null).length;
+
+      toast.success(`${t("success")} ${successCount}`);
       setBulkLanguage("");
+      setBulkMode("list"); // 등록 후 목록으로 이동
+    } catch (error) {
+      toast.error(t("failed"));
+      logger.error("Bulk Register Error", error);
     }
-    await fetchLanguages();
   };
 
+  // 대량 수정 수정
   const handleLanguageBulkUpdate = async (textData) => {
-    if (!textData.trim()) return toast.error("데이터가 없습니다.");
-    if (!window.confirm("입력한 내용으로 전체 데이터를 수정하시겠습니까?"))
-      return;
+    if (!textData.trim()) return toast.error(t("required_fields"));
+    if (!window.confirm(t("confirm"))) return;
+
     const lines = textData.split(/\r?\n/).filter((l) => l.trim() !== "");
-    let successCount = 0;
-    for (const line of lines) {
-      const parts = line.split("|").map((item) => item.trim());
-      const [id, code, name, emoji] = parts;
+
+    const promises = lines.map(async (line) => {
+      const [id, code, name, emoji] = line
+        .split("|")
+        .map((item) => item.trim());
       if (id && code && name) {
-        try {
-          await upsertLanguage({ id, code, name, emoji: emoji || "" });
-          successCount++;
-        } catch (err) {}
+        return upsertLanguage({ id, code, name, emoji: emoji || "" });
       }
+      return null;
+    });
+
+    try {
+      await Promise.all(promises);
+      toast.success(`${t("success")} ${successCount}`);
+      // setBulkLanguage("");
+      setBulkMode("list");
+    } catch (error) {
+      toast.error(t("failed"));
     }
-    toast.success(`${successCount}건 수정 완료!`);
-    await fetchLanguages();
   };
 
   const handleToDelete = async (id, name) => {
     if (!window.confirm(`${name}을(를) 삭제하시겠습니까?`)) return;
     try {
       await deleteLanguage(id);
-      toast.success("삭제 성공");
+      toast.success(t("success"));
       setNewLang({ id: null, code: "", name: "", emoji: "" });
     } catch (error) {
-      toast.error("삭제 실패");
+      toast.error(t("failed"));
     }
   };
 
@@ -179,6 +197,13 @@ const AdminLanguages = () => {
               플랫폼의 언어 설정을 관리하고 대량으로 데이터를 제어합니다.
             </p>
           </div>
+          <Button
+            onClick={() => {
+              setAppLang(appLang === "ko" ? "en" : "ko");
+            }}
+          >
+            aaa
+          </Button>
         </header>
 
         {/* 한개 등록  */}

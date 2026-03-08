@@ -14,6 +14,7 @@ import StudyFlashCard from "@/components/ui/StudyFlashCard/StudyFlashCard";
 import StudyCardStack from "@/components/ui/StudyCardStack/StudyCardStack";
 
 import { Star, PlayCircle, ChevronRight, Volume2 } from "lucide-react";
+import { playText } from "@/utils/ttsUtils";
 
 const DesignGuide = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -507,7 +508,10 @@ const DesignGuide = () => {
                 hideMode={hideMode} // 상단 토글 상태 연결
                 revealedIds={revealedIds}
                 onReveal={handleReveal}
-                onPlayAudio={() => console.log(`${item.word} 재생`)}
+                onPlayAudio={() => {
+                  console.log(`${item.word} 재생`);
+                  playText(item.word);
+                }}
                 onToggleFavorite={() => console.log(`${item.id} 즐겨찾기 토글`)}
               />
             ))}

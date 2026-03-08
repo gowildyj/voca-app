@@ -1,7 +1,55 @@
-// src/utils/ttsUtils.js
 /**
  * 브라우저 목소리 목록 중 품질과 성별 조건에 맞는 최적의 목소리 검색
  */
+// export const speak = (voices, langCode, preferredGender) => {
+//   if (!voices.length) return null;
+
+//   const normalizedLang = langCode.toLowerCase().replace("_", "-");
+//   const filteredVoices = voices.filter((v) =>
+//     v.lang
+//       .toLowerCase()
+//       .replace("_", "-")
+//       .startsWith(normalizedLang.split("-")[0]),
+//   );
+
+//   if (!filteredVoices.length) return voices[0];
+
+//   const hqKeywords = ["Google", "Natural", "Premium", "Siri", "Enhanced"];
+//   const genderKeywords = {
+//     female: [
+//       "Female",
+//       "Samantha",
+//       "Monica",
+//       "Google UK English Female",
+//       "Google US English Female",
+//     ],
+//     male: [
+//       "Male",
+//       "Daniel",
+//       "David",
+//       "Google UK English Male",
+//       "Google US English Male",
+//     ],
+//   };
+
+//   // 1순위: 고품질 + 성별 매칭
+//   let match = filteredVoices.find(
+//     (v) =>
+//       hqKeywords.some((hq) => v.name.includes(hq)) &&
+//       (preferredGender
+//         ? genderKeywords[preferredGender].some((gk) => v.name.includes(gk))
+//         : true),
+//   );
+
+//   // 2순위: 성별만 매칭
+//   if (!match && preferredGender) {
+//     match = filteredVoices.find((v) =>
+//       genderKeywords[preferredGender].some((gk) => v.name.includes(gk)),
+//     );
+//   }
+
+//   return match || filteredVoices[0];
+// };
 
 /**
  * 상세 이름 리스트 없이 성별/품질 키워드로만 검색
@@ -14,11 +62,11 @@ export const speak = (voices, langCode, preferredGender) => {
     v.lang.toLowerCase().replace("_", "-").startsWith(baseLang),
   );
 
-  // console.group(`🗣️ TTS Auto-Search: [${langCode}] / [${preferredGender}]`);
+  console.group(`🗣️ TTS Auto-Search: [${langCode}] / [${preferredGender}]`);
 
   if (!filteredVoices.length) {
-    // console.warn("⚠️ 해당 언어 목소리 없음");
-    // console.groupEnd();
+    console.warn("⚠️ 해당 언어 목소리 없음");
+    console.groupEnd();
     return voices[0];
   }
 
@@ -68,19 +116,19 @@ export const speak = (voices, langCode, preferredGender) => {
   // 점수 높은 순으로 정렬
   const sorted = scoredVoices.sort((a, b) => b.score - a.score);
 
-  // console.table(
-  //   sorted.map((s) => ({
-  //     Name: s.voice.name,
-  //     Score: s.score,
-  //     Reason: s.reason,
-  //   })),
-  // );
+  console.table(
+    sorted.map((s) => ({
+      Name: s.voice.name,
+      Score: s.score,
+      Reason: s.reason,
+    })),
+  );
 
   // 만약 모든 목소리가 0점이라면(성별 키워드가 하나도 없다면)?
   // 그나마 '여자' 목소리가 기본값인 경우가 많으니 첫 번째 걸 뱉습니다.
   const bestMatch = sorted[0].voice;
   console.log(`✅ 최종 선택: ${bestMatch.name}`);
-  // console.groupEnd();
+  console.groupEnd();
 
   return bestMatch;
 };

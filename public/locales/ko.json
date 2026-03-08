@@ -1,0 +1,15 @@
+{
+  "welcome": "안녕하세요, {{name}}님!",
+  "success": "성공!",
+  "failed": "실패!",
+  "error": "에러",
+  "settings": "설정",
+  "learning_lang": "배울 언어",
+  "native_lang": "모국어",
+  "save": "저장",
+  "cancel": "취소",
+  "select_lang": "언어 선택",
+  "start_learning": "학습 시작하기",
+  "required_fields": "필수값 미입력",
+  "confirm": "진짜?"
+}

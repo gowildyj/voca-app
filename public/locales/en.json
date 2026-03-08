@@ -1,0 +1,16 @@
+{
+  "success": "Success!",
+  "failed": "Failed!",
+  "error": "Error",
+  "settings": "Settings",
+  "learning_lang": "Learning Language",
+  "native_lang": "Native Language",
+  "save": "Save",
+  "cancel": "Cancel",
+  "select_lang": "Select Language",
+  "welcome": "Welcome!",
+  "start_learning": "Start Learning",
+  "not_logged_in": "You are not logged in.",
+  "logout_confirm": "Are you sure you want to log out?",
+  "confirm": "Are you sure?"
+}

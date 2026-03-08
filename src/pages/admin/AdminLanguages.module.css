@@ -13,36 +13,40 @@
   gap: 16px;
   margin-bottom: 24px;
 }
+
 .headerIconWrap {
-  background: #ffffff;
-  color: #4a90e2;
+  background: var(--card);
+  color: var(--border-active);
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
 }
+
 .title {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #333;
+  color: var(--text-main);
   margin: 0;
 }
+
 .desc {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-sub);
   margin: 4px 0 0 0;
 }
 
-/* --- 2. Test 원본: Admin Form Box --- */
+/* --- 2. Admin Form Box --- */
 .admin-form-box {
   padding: 20px;
-  background: #f8fafc;
-  border-radius: 12px;
+  background: var(--card);
+  border-radius: var(--radius-md);
   margin-bottom: 20px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .formHeader {
@@ -55,25 +59,34 @@
 .admin-form-title {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #4a5568;
+  color: var(--text-main);
   margin-bottom: 0;
 }
 
-/* --- 3. Test 원본: 입력 폼 & 뱃지 --- */
+/* --- 3. 입력 폼 & 뱃지 --- */
 .select-group {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
 }
+
 .styled-select {
   padding: 10px 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   font-size: 0.9rem;
-  background-color: #fff;
+  background-color: var(--bg);
+  color: var(--text-main);
   min-width: 100px;
   flex: 1;
+  transition: var(--transition-base);
+}
+
+.styled-select:focus {
+  outline: none;
+  border-color: var(--border-active);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
 }
 
 .lang-tag-list {
@@ -82,26 +95,29 @@
   gap: 8px;
   margin-top: 16px;
   padding: 12px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  border: 1px solid #f1f3f5;
+  background-color: var(--bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
 }
+
 .lang-badge {
   display: inline-flex;
   align-items: center;
   padding: 6px 12px;
-  background-color: #edf2f7;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  background-color: var(--bg-layer);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
   font-size: 13px;
-  color: #4a5568;
-  transition: all 0.2s;
+  color: var(--text-main);
+  transition: var(--transition-base);
   cursor: pointer;
 }
+
 .lang-badge:hover {
-  background-color: #e2e8f0;
+  background-color: var(--border);
   transform: translateY(-1px);
 }
+
 .delete-btn {
   display: flex;
   align-items: center;
@@ -110,16 +126,17 @@
   width: 16px;
   height: 16px;
   border: none;
-  background-color: #cbd5e0;
-  color: #fff;
-  border-radius: 50%;
+  background-color: var(--text-muted);
+  color: var(--text-inverse);
+  border-radius: var(--radius-full);
   font-size: 10px;
   cursor: pointer;
   line-height: 1;
-  transition: 0.2s;
+  transition: var(--transition-base);
 }
+
 .delete-btn:hover {
-  background-color: #f56565;
+  background-color: var(--danger);
 }
 
 /* --- 4. 검색바 영역 --- */
@@ -130,62 +147,72 @@
 /* --- 5. 모던 탭 (FilterTab 스타일) --- */
 .modernTabs {
   display: flex;
-  background: #edf2f7;
+  background: var(--bg-layer);
   padding: 4px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   margin-bottom: 20px;
 }
+
 .modernTabs button {
   flex: 1;
   padding: 10px 16px;
   border: none;
   background: transparent;
   font-weight: 600;
-  color: #718096;
+  color: var(--text-sub);
   font-size: 0.9rem;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s;
-}
-.modernTabs button.activeTab {
-  background: #fff;
-  color: #4a90e2;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: var(--transition-base);
 }
 
-/* --- 6. Test 원본: 테이블 & 버튼 --- */
+.modernTabs button.activeTab {
+  background: var(--active-bg);
+  color: var(--border-active);
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- 6. 테이블 & 버튼 --- */
 .table-wrapper {
   max-height: 400px;
   overflow-y: auto;
   overflow-x: auto;
-  border: 1px solid #eee;
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
 }
+
 .admin-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
-  min-width: 600px; /* 모바일 가로 스크롤 확보 */
+  min-width: 600px;
 }
+
 .admin-table th {
-  background: #f8f9fa;
+  background: var(--bg-layer);
   padding: 12px 10px;
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 2px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 10;
-  color: #4a5568;
+  color: var(--text-sub);
+  font-weight: 600;
 }
+
 .admin-table td {
   padding: 8px 10px;
   height: 50px;
   vertical-align: middle;
-  border-bottom: 1px solid #f1f3f5;
-}
-.admin-table tr:hover {
-  background-color: #f1f3f5;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-main);
 }
 
+.admin-table tr:hover {
+  background-color: var(--bg-layer);
+}
+
+/* 인라인 입력창 다크모드 방어 */
 .inline-input {
   width: 100%;
   height: 32px;
@@ -195,20 +222,22 @@
   border-radius: 4px;
   font-size: 14px;
   box-sizing: border-box;
-  color: #333;
-  transition: all 0.2s ease;
+  color: var(--text-main);
+  transition: var(--transition-base);
 }
+
 .inline-input:not(:disabled) {
-  border-color: #4a90e2;
-  background: #fff;
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+  border-color: var(--border-active);
+  background: var(--bg);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.15);
 }
+
 .inline-input:disabled {
-  color: #4a5568;
+  color: var(--text-sub);
   cursor: default;
 }
 
-/* 액션 버튼 (Test 원본 디자인) */
+/* 액션 버튼 */
 .actions {
   display: flex;
   gap: 5px;
@@ -216,6 +245,7 @@
   align-items: center;
   height: 100%;
 }
+
 .edit-inline-btn,
 .delete-inline-btn,
 .save-inline-btn,
@@ -231,58 +261,74 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  transition: all 0.2s ease;
-  border: 1px solid #ddd;
-}
-.edit-inline-btn {
-  background: #fff;
-  color: #4a90e2;
-  border-color: #4a90e2;
-}
-.edit-inline-btn:hover {
-  background: #4a90e2;
-  color: #fff;
-}
-.delete-inline-btn {
-  background: #fff;
-  color: #fa5252;
-  border-color: #fa5252;
-}
-.delete-inline-btn:hover {
-  background: #fa5252;
-  color: #fff;
-}
-.save-inline-btn {
-  background: #4a90e2;
-  color: #fff;
-  border-color: #4a90e2;
-}
-.cancel-inline-btn {
-  background: #f8f9fa;
-  color: #666;
-  border-color: #ddd;
+  transition: var(--transition-base);
+  border: 1px solid var(--border);
 }
 
-/* --- 7. Test 원본: 대량 작업 영역 --- */
+.edit-inline-btn {
+  background: var(--card);
+  color: var(--border-active);
+  border-color: var(--border-active);
+}
+.edit-inline-btn:hover {
+  background: var(--border-active);
+  color: var(--text-inverse);
+}
+
+.delete-inline-btn {
+  background: var(--card);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.delete-inline-btn:hover {
+  background: var(--danger);
+  color: var(--text-inverse);
+}
+
+.save-inline-btn {
+  background: var(--border-active);
+  color: var(--text-inverse);
+  border-color: var(--border-active);
+}
+.save-inline-btn:hover {
+  filter: brightness(0.9);
+}
+
+.cancel-inline-btn {
+  background: var(--bg-layer);
+  color: var(--text-sub);
+  border-color: var(--border);
+}
+.cancel-inline-btn:hover {
+  background: var(--border);
+}
+
+/* --- 7. 대량 작업 영역 --- */
 .bulk-textarea {
   width: 100%;
   padding: 15px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   font-family: "Fira Code", monospace;
   font-size: 13px;
   line-height: 1.6;
   resize: vertical;
+  background-color: var(--bg);
+  color: var(--text-main);
+  transition: var(--transition-base);
 }
+
 .bulk-textarea:focus {
   outline: none;
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+  border-color: var(--border-active);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.15);
 }
+
 .button-group {
   display: flex;
   justify-content: flex-end;
 }
+
 .center {
   text-align: center;
 }

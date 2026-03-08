@@ -1,45 +1,26 @@
-export const translations = {
-  "ko-KR": {
-    success: "성공!",
-    failed: "실패!",
-    error: "에러",
-    settings: "설정",
-    learning_lang: "배울 언어",
-    native_lang: "모국어",
-    save: "저장",
-    cancel: "취소",
-    select_lang: "언어 선택",
-    welcome: "안녕하세요!",
-    start_learning: "학습 시작하기",
-    not_logged_in: "로그인 상태가 아님.",
-    logout_confirm: "로그아웃 하시겠습니까?",
-  },
-  "en-US": {
-    success: "Success!",
-    failed: "Failed!",
-    error: "Error",
-    settings: "Settings",
-    learning_lang: "Learning Language",
-    native_lang: "Native Language",
-    save: "Save",
-    cancel: "Cancel",
-    select_lang: "Select Language",
-    welcome: "Welcome!",
-    start_learning: "Start Learning",
-    not_logged_in: "You are not logged in.",
-    logout_confirm: "Are you sure you want to log out?",
-  },
-  "ja-JP": {
-    success: "成功",
-    failed: "失敗",
-    settings: "設定",
-    learning_lang: "学習言語",
-    native_lang: "母国語",
-    save: "保存",
-    cancel: "キャンセル",
-    select_lang: "言語を選択",
-    welcome: "こんにちは！",
-    start_learning: "学習を始める",
-  },
-  // 필요에 따라 다른 언어 추가...
-};
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import Backend from "i18next-http-backend";
+import LanguageDetector from "i18next-browser-languagedetector";
+
+i18n
+  .use(Backend) // 백엔드 모듈 연결
+  .use(LanguageDetector) // 사용자 언어 자동 감지
+  .use(initReactI18next) // 리액트 연결
+  .init({
+    fallbackLng: "ko", // 번역 파일이 없거나 에러나면 보여줄 기본 언어
+    load: "languageOnly",
+
+    // 파일 경로 설정
+    backend: {
+      loadPath: "/voca-app/locales/{{lng}}.json",
+    },
+
+    interpolation: {
+      escapeValue: false, // 리액트는 자체적으로 XSS 방어를 하므로 false
+    },
+
+    debug: true,
+  });
+
+export default i18n;

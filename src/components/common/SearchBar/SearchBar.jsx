@@ -12,7 +12,7 @@ import styles from "./SearchBar.module.css";
 const SearchBar = ({
   value,
   onChange,
-  placeholder = "검색어를 입력하세요",
+  placeholder = "Search",
   className = "",
 }) => {
   const inputRef = useRef(null);
@@ -41,7 +41,7 @@ const SearchBar = ({
             type="button"
             onClick={handleClear}
             className={styles.clearBtn}
-            aria-label="검색어 지우기"
+            aria-label="delete search text"
           >
             <X size={16} />
           </button>

@@ -1,0 +1,12 @@
+{
+  "success": "成功",
+  "failed": "失敗",
+  "settings": "設定",
+  "learning_lang": "学習言語",
+  "native_lang": "母国語",
+  "save": "保存",
+  "cancel": "キャンセル",
+  "select_lang": "言語を選択",
+  "welcome": "こんにちは！",
+  "start_learning": "学習を始める"
+}

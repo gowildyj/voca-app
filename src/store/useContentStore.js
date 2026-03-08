@@ -6,6 +6,21 @@ import { logger } from "@/utils/logger";
 import { Languages } from "lucide-react";
 import i18next from "i18next";
 
+const withLoading = async (set, logger, label, task) => {
+  set({ isLoading: true });
+  logger.start(label);
+  try {
+    const result = await task();
+    logger.success(label, result);
+    return result;
+  } catch (error) {
+    logger.error(label, error.message);
+    throw error;
+  } finally {
+    set({ isLoading: false });
+  }
+};
+
 export const useContentStore = create(
   persist(
     (set, get) => ({
@@ -19,13 +34,6 @@ export const useContentStore = create(
       appLang: "ko",
       isLoading: false,
 
-      // // 인터페이스 번역 헬퍼 함수 -> i18n 변경
-      // t: (key) => {
-      //   const { nativeLang } = get();
-      //   const langPack = translations[nativeLang] || translations["ko-KR"];
-      //   return langPack[key] || key;
-      // },
-
       // --- Actions ---
       setLanguages: (languages) => set({ languages }),
       setTags: (tags) => set({ tags }),
@@ -35,6 +43,10 @@ export const useContentStore = create(
         set({ appLang: shortLang });
         i18next.changeLanguage(shortLang);
       },
+
+      /**
+       *  언어 관리
+       */
 
       // 언어 목록 가져오기
       fetchLanguages: async () => {
@@ -115,8 +127,12 @@ export const useContentStore = create(
         return true;
       },
 
+      /**
+       *  태그 관리
+       */
+
       // 해시태그 목록 가져오기 (master + translations)
-      fetchTags: async () => {
+      fetchTags: async (lang = null) => {
         logger.start("[content]fetchTags");
 
         const { data, error } = await supabase
@@ -282,6 +298,10 @@ export const useContentStore = create(
         set({ tags: normalized });
         logger.success("[content]fetchTagsInfoByLang", normalized);
       },
+
+      /**
+       *  단어 관리
+       */
 
       // 필터별 단어목록 가져오기
       fetchItemsByFilter: async ({

@@ -1,0 +1,444 @@
+/* src/pages/admin/AdminLanguages.module.css */
+
+.pageContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* --- 1. 모던 타이틀 영역 --- */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.headerIconWrap {
+  background: var(--card);
+  color: var(--border-active);
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.desc {
+  font-size: 0.9rem;
+  color: var(--text-sub);
+  margin: 4px 0 0 0;
+}
+
+/* --- 2. Admin Form Box --- */
+.admin-form-box {
+  padding: 20px;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.admin-form-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0;
+}
+
+/* --- 3. 입력 폼 & 뱃지 --- */
+.select-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.styled-select {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  background-color: var(--bg);
+  color: var(--text-main);
+  min-width: 100px;
+  flex: 1;
+  transition: var(--transition-base);
+}
+
+.styled-select:focus {
+  outline: none;
+  border-color: var(--border-active);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.2);
+}
+
+.lang-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px;
+  background-color: var(--bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.lang-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background-color: var(--bg-layer);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  font-size: 13px;
+  color: var(--text-main);
+  transition: var(--transition-base);
+  cursor: pointer;
+}
+
+.lang-badge:hover {
+  background-color: var(--border);
+  transform: translateY(-1px);
+}
+
+.delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  width: 16px;
+  height: 16px;
+  border: none;
+  background-color: var(--text-muted);
+  color: var(--text-inverse);
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  cursor: pointer;
+  line-height: 1;
+  transition: var(--transition-base);
+}
+
+.delete-btn:hover {
+  background-color: var(--danger);
+}
+
+/* --- 4. 검색바 영역 --- */
+.searchWrapper {
+  margin-bottom: 20px;
+}
+
+/* --- 5. 모던 탭 (FilterTab 스타일) --- */
+.modernTabs {
+  display: flex;
+  background: var(--bg-layer);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+}
+
+.modernTabs button {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  color: var(--text-sub);
+  font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.modernTabs button.activeTab {
+  background: var(--active-bg);
+  color: var(--border-active);
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- 6. 테이블 & 버튼 --- */
+.table-wrapper {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  min-width: 600px;
+}
+
+.admin-table th {
+  background: var(--bg-layer);
+  padding: 12px 10px;
+  border-bottom: 2px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  color: var(--text-sub);
+  font-weight: 600;
+}
+
+.admin-table td {
+  padding: 8px 10px;
+  height: 50px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-main);
+}
+
+.admin-table tr:hover {
+  background-color: var(--bg-layer);
+}
+
+/* 인라인 입력창 다크모드 방어 */
+.inline-input {
+  width: 100%;
+  height: 32px;
+  padding: 2px 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  color: var(--text-main);
+  transition: var(--transition-base);
+}
+
+.inline-input:not(:disabled) {
+  border-color: var(--border-active);
+  background: var(--bg);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.15);
+}
+
+.inline-input:disabled {
+  color: var(--text-sub);
+  cursor: default;
+}
+
+/* 액션 버튼 */
+.actions {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.edit-inline-btn,
+.delete-inline-btn,
+.save-inline-btn,
+.cancel-inline-btn {
+  width: 54px;
+  height: 30px;
+  padding: 0;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  transition: var(--transition-base);
+  border: 1px solid var(--border);
+}
+
+.edit-inline-btn {
+  background: var(--card);
+  color: var(--border-active);
+  border-color: var(--border-active);
+}
+.edit-inline-btn:hover {
+  background: var(--border-active);
+  color: var(--text-inverse);
+}
+
+.delete-inline-btn {
+  background: var(--card);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.delete-inline-btn:hover {
+  background: var(--danger);
+  color: var(--text-inverse);
+}
+
+.save-inline-btn {
+  background: var(--border-active);
+  color: var(--text-inverse);
+  border-color: var(--border-active);
+}
+.save-inline-btn:hover {
+  filter: brightness(0.9);
+}
+
+.cancel-inline-btn {
+  background: var(--bg-layer);
+  color: var(--text-sub);
+  border-color: var(--border);
+}
+.cancel-inline-btn:hover {
+  background: var(--border);
+}
+
+/* --- 7. 대량 작업 영역 --- */
+.bulk-textarea {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: "Fira Code", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  resize: vertical;
+  background-color: var(--bg);
+  color: var(--text-main);
+  transition: var(--transition-base);
+}
+
+.bulk-textarea:focus {
+  outline: none;
+  border-color: var(--border-active);
+  box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.15);
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.center {
+  text-align: center;
+}
+
+/* --- 아코디언 테이블 전용 스타일 --- */
+
+.expandedRow {
+  background-color: var(--bg-layer) !important;
+}
+
+.keyText {
+  font-family: "Fira Code", monospace;
+  line-height: 1.2;
+}
+
+.langCountBadge {
+  background: var(--bg);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  border: 1px solid var(--border);
+  color: var(--text-sub);
+}
+
+/* 아코디언 내부 행 설정 */
+.accordionDetailRow td {
+  padding: 0 !important;
+  border-bottom: 1px solid var(--border);
+}
+
+.translationWrapper {
+  padding: 16px 20px 16px 60px; /* 왼쪽 여백으로 계층 구조 표현 */
+  background: linear-gradient(to bottom, var(--bg-layer), var(--bg));
+  border-left: 4px solid var(--border-active);
+}
+
+/* 40개 언어를 위한 그리드 레이아웃 */
+.translationGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.translationItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: var(--transition-base);
+}
+
+.translationItem:hover {
+  border-color: var(--border-active);
+  transform: translateY(-1px);
+}
+
+.langBadgeShort {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--text-sub);
+  background: var(--bg-layer);
+  padding: 2px 4px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.tagNameText {
+  font-size: 13px;
+  color: var(--text-main);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.miniEditIcon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.4;
+  transition: 0.2s;
+}
+
+.miniEditIcon:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.addTranslationBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 12px;
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.addTranslationBtn:hover {
+  border-style: solid;
+  border-color: var(--border-active);
+  color: var(--border-active);
+  background: var(--card);
+}

@@ -172,7 +172,9 @@ const WordList = () => {
               key={item.id}
               item={item}
               hideMode={hideMode}
-              onPlay={(word) => playText(word, currentDeck?.language)}
+              onPlay={async (word) => {
+                await playText(word, currentDeck?.language);
+              }}
               onToggleWordFavorite={() =>
                 onToggleWordFavorite(item.id, item.isFavorite)
               }

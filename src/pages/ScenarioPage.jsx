@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Languages, Play, Square } from "lucide-react";
 import { hotelBreakfast } from "@/data/scenarios/hotel_breakfast";
-import { speak } from "@/utils/ttsUtils";
+import { playText } from "@/utils/ttsUtils";
 
 import StudyHeader from "@/components/ui/study/StudyHeader";
 import ScenarioHeader from "@/components/ui/scenario/ScenarioHeader";

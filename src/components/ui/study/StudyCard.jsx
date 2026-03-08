@@ -101,9 +101,12 @@ const StudyCard = ({
           <button
             className="icon-btn volume"
             onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
+            onClick={async (e) => {
               e.stopPropagation();
-              playText(cardData.word, language || "en-US");
+
+              await playText(cardData.word, language || "en-US", {
+                gender: "female",
+              });
             }}
           >
             <Volume2 size={24} />

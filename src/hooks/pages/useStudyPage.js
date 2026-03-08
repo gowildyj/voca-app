@@ -86,10 +86,31 @@ export const useStudyPage = (
 
   // --- autoAudio 읽기 --
   useEffect(() => {
-    if (words[currentIndex] && studySettings.isAutoAudio && !isFinished) {
-      playText(words[currentIndex].word, currentDeck?.language || "en-US");
-    }
-  }, [currentIndex, studySettings.isAutoAudio, isFinished, currentDeck, words]);
+    if (!words[currentIndex]) return;
+    if (!studySettings.isAutoAudio) return;
+    if (isFinished) return;
+
+    let cancelled = false;
+
+    const run = async () => {
+      try {
+        speechSynthesis.cancel(); // 이전 음성 중단
+
+        const lang = currentDeck?.language || "en-US";
+
+        await playText(words[currentIndex].word, lang);
+      } catch (err) {
+        console.error("TTS error:", err);
+      }
+    };
+
+    run();
+
+    return () => {
+      cancelled = true;
+      speechSynthesis.cancel();
+    };
+  }, [currentIndex, studySettings.isAutoAudio, isFinished]);
 
   // --- 카드 위치 초기화 ---
   const resetCardPosition = useCallback(() => {
@@ -216,34 +237,68 @@ export const useStudyPage = (
       return;
     }
 
+    let cancelled = false;
+
+    const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+
     const runAutoPlayLoop = async () => {
       const currentWord = words[currentIndex];
       if (!currentWord) return;
 
-      // playText(currentWord.word, currentDeck?.language || "en-US");
-      autoPlayTimerRef.current = setTimeout(() => {
+      const lang = currentDeck?.language || "en-US";
+
+      try {
+        speechSynthesis.cancel();
+
+        // --- AutoAudio ON ---
+        if (studySettings.isAutoAudio) {
+          await playText(currentWord.word, lang);
+        } else {
+          // 오디오 없으면 그냥 잠깐 대기
+          await delay(3000);
+        }
+
+        if (cancelled) return;
+
+        // 카드 flip
         setIsFlipped(true);
 
-        autoPlayTimerRef.current = setTimeout(() => {
-          if (currentIndex < words.length - 1) {
-            setIsFlipped(false);
-            setHistory((prev) => [
-              ...prev,
-              { index: currentIndex, status: "auto" },
-            ]);
-            setCurrentIndex((prev) => prev + 1);
-            resetCardPosition();
-          } else {
-            setIsFinished(true);
-            updateSettings({ isAutoPlay: false });
-          }
-        }, 1500);
-      }, 1500);
+        // if (studySettings.isAutoAudio && currentWord.meaning) {
+        //   await delay(300);
+        //   await playText(currentWord.meaning, lang);
+        // } else {
+        await delay(3000);
+        // }
+
+        if (cancelled) return;
+
+        // 다음 카드
+        if (currentIndex < words.length - 1) {
+          setHistory((prev) => [
+            ...prev,
+            { index: currentIndex, status: "auto" },
+          ]);
+
+          setCurrentIndex((prev) => prev + 1);
+          resetCardPosition();
+        } else {
+          setIsFinished(true);
+          updateSettings({ isAutoPlay: false });
+        }
+      } catch (err) {
+        console.error("AutoPlay error:", err);
+      }
     };
+
     runAutoPlayLoop();
-    return () => clearTimeout(autoPlayTimerRef.current);
+
+    return () => {
+      cancelled = true;
+      speechSynthesis.cancel();
+    };
   }, [
     studySettings.isAutoPlay,
+    studySettings.isAutoAudio,
     currentIndex,
     isFinished,
     words,

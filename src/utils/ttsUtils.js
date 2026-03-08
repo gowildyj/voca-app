@@ -1,80 +1,180 @@
+// src/utils/ttsUtils.js
+
+let voices = [];
+let voicesLoaded = false;
+let voiceCache = {};
+
 /**
- * 브라우저 목소리 목록 중 품질과 성별 조건에 맞는 최적의 목소리 검색
+ * 앱 시작 시 한번 실행
  */
-export const speak = (voices, langCode, preferredGender) => {
-  if (!voices.length) return null;
+export const initTTS = () => {
+  if (!window.speechSynthesis) return;
 
-  const normalizedLang = langCode.toLowerCase().replace("_", "-");
-  const filteredVoices = voices.filter((v) =>
-    v.lang
-      .toLowerCase()
-      .replace("_", "-")
-      .startsWith(normalizedLang.split("-")[0]),
-  );
-
-  if (!filteredVoices.length) return voices[0];
-
-  const hqKeywords = ["Google", "Natural", "Premium", "Siri", "Enhanced"];
-  const genderKeywords = {
-    female: [
-      "Female",
-      "Samantha",
-      "Monica",
-      "Google UK English Female",
-      "Google US English Female",
-    ],
-    male: [
-      "Male",
-      "Daniel",
-      "David",
-      "Google UK English Male",
-      "Google US English Male",
-    ],
+  const loadVoices = () => {
+    voices = window.speechSynthesis.getVoices();
+    voicesLoaded = true;
   };
 
-  // 1순위: 고품질 + 성별 매칭
-  let match = filteredVoices.find(
-    (v) =>
-      hqKeywords.some((hq) => v.name.includes(hq)) &&
-      (preferredGender
-        ? genderKeywords[preferredGender].some((gk) => v.name.includes(gk))
-        : true),
-  );
+  loadVoices();
 
-  // 2순위: 성별만 매칭
-  if (!match && preferredGender) {
-    match = filteredVoices.find((v) =>
-      genderKeywords[preferredGender].some((gk) => v.name.includes(gk)),
-    );
-  }
-
-  return match || filteredVoices[0];
+  window.speechSynthesis.onvoiceschanged = () => {
+    loadVoices();
+  };
 };
 
 /**
- * 실제로 텍스트를 읽어주는 함수
+ * 언어 normalize
  */
-export const playText = (text, langCode = "en-US") => {
-  if (!window.speechSynthesis) {
-    console.error("이 브라우저는 TTS를 지원하지 않습니다.");
-    return;
+const normalizeLang = (lang) => {
+  return lang.toLowerCase().replace("_", "-");
+};
+
+/**
+ * voice 품질 점수
+ */
+const scoreVoice = (voice) => {
+  let score = 0;
+
+  if (!voice.localService) score += 50;
+
+  if (voice.name.includes("Google")) score += 40;
+  if (voice.name.includes("Microsoft")) score += 35;
+  if (voice.name.includes("Apple")) score += 30;
+
+  if (voice.default) score += 10;
+
+  return score;
+};
+
+/**
+ * gender 추정
+ */
+const detectGender = (voice) => {
+  const name = voice.name.toLowerCase();
+
+  const femaleKeywords = [
+    "female",
+    "woman",
+    "girl",
+    "samantha",
+    "victoria",
+    "zira",
+    "anna",
+    "karen",
+    "serena",
+    "siri",
+  ];
+
+  const maleKeywords = [
+    "male",
+    "man",
+    "david",
+    "mark",
+    "daniel",
+    "alex",
+    "fred",
+  ];
+
+  if (femaleKeywords.some((k) => name.includes(k))) return "female";
+  if (maleKeywords.some((k) => name.includes(k))) return "male";
+
+  return "unknown";
+};
+
+/**
+ * 최고 voice 찾기
+ */
+export const getBestVoice = (langCode, preferredGender = "female") => {
+  if (!voicesLoaded) return null;
+
+  const cacheKey = `${langCode}_${preferredGender}`;
+
+  if (voiceCache[cacheKey]) {
+    return voiceCache[cacheKey];
   }
+
+  const normalized = normalizeLang(langCode);
+
+  const filtered = voices.filter((v) =>
+    normalizeLang(v.lang).startsWith(normalized.split("-")[0]),
+  );
+
+  if (!filtered.length) return voices[0];
+
+  // 성별 필터
+  let candidates = filtered;
+
+  if (preferredGender) {
+    const genderMatches = filtered.filter(
+      (v) => detectGender(v) === preferredGender,
+    );
+
+    if (genderMatches.length) {
+      candidates = genderMatches;
+    }
+  }
+
+  // 품질 점수 정렬
+  candidates.sort((a, b) => scoreVoice(b) - scoreVoice(a));
+
+  const best = candidates[0];
+
+  voiceCache[cacheKey] = best;
+
+  return best;
+};
+
+/**
+ * 텍스트 발음
+ */
+export const playText = (text, langCode = "en-US", options = {}) => {
+  return new Promise((resolve) => {
+    if (!window.speechSynthesis) {
+      console.error("TTS not supported");
+      resolve();
+      return;
+    }
+
+    if (!text) {
+      resolve();
+      return;
+    }
+
+    const { gender = "female", rate = 1.0, pitch = 1.0 } = options;
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    const voice = getBestVoice(langCode, gender);
+
+    if (voice) {
+      utterance.voice = voice;
+      utterance.lang = voice.lang;
+    } else {
+      utterance.lang = langCode;
+    }
+
+    utterance.rate = rate;
+    utterance.pitch = pitch;
+
+    utterance.onend = () => {
+      resolve();
+    };
+
+    utterance.onerror = () => {
+      resolve();
+    };
+
+    window.speechSynthesis.speak(utterance);
+  });
+};
+
+/**
+ * TTS 정지
+ */
+export const stopTTS = () => {
+  if (!window.speechSynthesis) return;
 
   window.speechSynthesis.cancel();
-
-  const utterance = new SpeechSynthesisUtterance(text);
-
-  const voices = window.speechSynthesis.getVoices();
-
-  const selectedVoice = speak(voices, langCode, "female");
-
-  if (selectedVoice) {
-    utterance.voice = selectedVoice;
-  }
-
-  utterance.lang = langCode;
-  utterance.rate = 1.0; // 속도
-  utterance.pitch = 1.0; // 음높이
-
-  window.speechSynthesis.speak(utterance);
 };

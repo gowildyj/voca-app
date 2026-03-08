@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo, useState } from "react";
+import React, { Suspense, useMemo, useState, useEffect } from "react";
 import {
   HashRouter as Router,
   Routes,
@@ -19,10 +19,15 @@ import { toastConfig, showToast } from "@/utils/toast";
 
 import { AppRoutesData, ROUTES } from "@/routes/AppRoutes";
 import { LANG_OPTIONS, DEFAULT_LANG } from "@/constants/languages";
+import { initTTS } from "@/utils/ttsUtils";
 
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    initTTS();
+  }, []);
 
   // [상태 관리] 사용자 선택 언어 보존 (LocalStorage)
   const [selectedLang, setSelectedLang] = useState(() => {

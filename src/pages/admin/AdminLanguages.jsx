@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { useTranslation } from "react-i18next";
 import Button from "@/components/common/Button/Button";
 import SearchBar from "@/components/common/SearchBar/SearchBar";
@@ -15,10 +16,21 @@ const AdminLanguages = () => {
     languages,
     fetchLanguages,
     upsertLanguage,
+    upsertLanguagesBulk,
     deleteLanguage,
     appLang,
     setAppLang,
-  } = useContentStore();
+  } = useContentStore(
+    useShallow((state) => ({
+      languages: state.languages,
+      fetchLanguages: state.fetchLanguages,
+      upsertLanguage: state.upsertLanguage,
+      upsertLanguagesBulk: state.upsertLanguagesBulk,
+      deleteLanguage: state.deleteLanguage,
+      appLang: state.appLang,
+      setAppLang: state.setAppLang,
+    })),
+  );
 
   const [newLang, setNewLang] = useState({
     id: null,
@@ -34,6 +46,7 @@ const AdminLanguages = () => {
     name: "",
     emoji: "",
   });
+  const [selectedIds, setSelectedIds] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -53,16 +66,16 @@ const AdminLanguages = () => {
   }, [languages, searchTerm]);
 
   // 대량수정
-  useEffect(() => {
-    setEditingId(null);
-    if (bulkMode === "edit" && languages.length > 0) {
-      setBulkLanguage(
-        languages
-          .map((l) => `${l.id} | ${l.code} | ${l.name} | ${l.emoji || ""}`)
-          .join("\n"),
-      );
-    }
-  }, [bulkMode, languages]);
+  // useEffect(() => {
+  //   setEditingId(null);
+  //   if (bulkMode === "edit" && languages.length > 0) {
+  //     setBulkLanguage(
+  //       languages
+  //         .map((l) => `${l.id} | ${l.code} | ${l.name} | ${l.emoji || ""}`)
+  //         .join("\n"),
+  //     );
+  //   }
+  // }, [bulkMode, languages]);
 
   // 대량수정 데이터 삽입
   const loadLanguagesForEdit = () => {
@@ -87,7 +100,40 @@ const AdminLanguages = () => {
     });
   };
 
-  // 한건 등록+수정
+  // 목록 전체선택
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(filteredLanguages.map((lang) => lang.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  // 목록 개별선택
+  const handleSelectOne = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  };
+
+  // 대량수정 탭에 데이터 넣기
+  const handleGoToBulkEdit = () => {
+    if (selectedIds.length === 0) {
+      return toast.error("수정할 항목을 선택해주세요.");
+    }
+
+    const selectedLangs = languages.filter((l) => selectedIds.includes(l.id));
+    const text = selectedLangs
+      .map((l) => `${l.id} | ${l.code} | ${l.name} | ${l.emoji || ""}`)
+      .join("\n");
+
+    setBulkLanguage(text);
+    setBulkMode("edit");
+
+    toast.success(`${selectedIds.length}개의 항목을 편집창으로 가져왔습니다.`);
+  };
+
+  // 개별 등록+수정
   const handleToSave = async () => {
     if (!newLang.code.trim() || !newLang.name.trim())
       return toast.error(t("required_fields"));
@@ -120,58 +166,59 @@ const AdminLanguages = () => {
     }
   };
 
-  // 대량 등록
-  const handleLanguageBulkRegister = async (textData) => {
-    if (!textData.trim()) return toast.error(t("required_fields"));
-
-    const lines = textData.split(/\r?\n/).filter((line) => line.trim() !== "");
-
-    const promises = lines.map(async (line) => {
-      const [code, name, emoji] = line.split("|").map((item) => item.trim());
-      if (!code || !name) return null;
-      return upsertLanguage({ code, name, emoji: emoji || "" });
-    });
-
-    try {
-      const results = await Promise.all(promises);
-      const successCount = results.filter((r) => r !== null).length;
-
-      toast.success(`${t("success")} ${successCount}`);
-      setBulkLanguage("");
-      setBulkMode("list"); // 등록 후 목록으로 이동
-    } catch (error) {
-      toast.error(t("failed"));
-      logger.error("Bulk Register Error", error);
-    }
-  };
-
-  // 대량 수정 수정
-  const handleLanguageBulkUpdate = async (textData) => {
+  // 대량 등록/수정
+  const handleLanguagesBulk = async (textData) => {
     if (!textData.trim()) return toast.error(t("required_fields"));
     if (!window.confirm(t("confirm"))) return;
 
     const lines = textData.split(/\r?\n/).filter((l) => l.trim() !== "");
+    const payload = [];
+    const errorLines = [];
 
-    const promises = lines.map(async (line) => {
-      const [id, code, name, emoji] = line
-        .split("|")
-        .map((item) => item.trim());
-      if (id && code && name) {
-        return upsertLanguage({ id, code, name, emoji: emoji || "" });
+    lines.forEach((line, index) => {
+      const parts = line.split("|").map((item) => item.trim());
+
+      if (bulkMode === "edit") {
+        // 수정 모드: [id | code | name | emoji]
+        const [id, code, name, emoji] = parts;
+        if (!code || !name) {
+          errorLines.push(index + 1);
+        } else {
+          payload.push({
+            id: id === "null" ? null : id,
+            code,
+            name,
+            emoji: emoji || "",
+          });
+        }
+      } else {
+        // 등록 모드: [code | name | emoji]
+        const [code, name, emoji] = parts;
+        if (!code || !name) {
+          errorLines.push(index + 1);
+        } else {
+          payload.push({ code, name, emoji: emoji || "" });
+        }
       }
-      return null;
     });
 
-    try {
-      await Promise.all(promises);
-      toast.success(`${t("success")} ${successCount}`);
-      // setBulkLanguage("");
+    if (errorLines.length > 0) {
+      return toast.error(
+        `${errorLines.join(", ")}번째 줄에 code 또는 name이 없어요!`,
+      );
+    }
+
+    if (payload.length === 0) return toast.error("처리할 데이터가 없습니다.");
+    const result = await upsertLanguagesBulk(payload);
+
+    if (result) {
+      toast.success(`${t("success")} ${result.length}`);
+      setBulkLanguage("");
       setBulkMode("list");
-    } catch (error) {
-      toast.error(t("failed"));
     }
   };
 
+  // 개별 삭제
   const handleToDelete = async (id, name) => {
     if (!window.confirm(`${name}을(를) 삭제하시겠습니까?`)) return;
     try {
@@ -180,6 +227,26 @@ const AdminLanguages = () => {
       setNewLang({ id: null, code: "", name: "", emoji: "" });
     } catch (error) {
       toast.error(t("failed"));
+    }
+  };
+
+  // 대량 삭제
+  const handleDeleteSelected = async () => {
+    if (selectedIds.length === 0) return toast.error("선택된 항목이 없습니다.");
+    if (
+      !window.confirm(
+        `선택한 ${selectedIds.length}개의 언어를 삭제하시겠습니까?`,
+      )
+    )
+      return;
+
+    try {
+      await Promise.all(selectedIds.map((id) => deleteLanguage(id)));
+      toast.success("선택된 항목이 삭제되었습니다.");
+      setSelectedIds([]);
+      fetchLanguages(); // 목록 갱신
+    } catch (error) {
+      toast.error("일부 항목 삭제에 실패했습니다.");
     }
   };
 
@@ -280,7 +347,7 @@ const AdminLanguages = () => {
           </div>
         </div>
 
-        {/* 🌟 3. 검색바 (적당한 위치에 독립적으로 배치) */}
+        {/*  검색바 (적당한 위치에 독립적으로 배치) */}
         <div className={styles.searchWrapper}>
           <SearchBar
             value={searchTerm}
@@ -289,7 +356,7 @@ const AdminLanguages = () => {
           />
         </div>
 
-        {/* 🌟 4. 데이터 관리 영역 (모던 탭 + Test 스타일 테이블) */}
+        {/*  데이터 관리 영역 */}
         <div className={styles["admin-form-box"]}>
           {/* 모던 FilterTab 스타일 */}
           <div className={styles.modernTabs}>
@@ -310,19 +377,75 @@ const AdminLanguages = () => {
             </button>
             <button
               className={bulkMode === "edit" ? styles.activeTab : ""}
-              onClick={loadLanguagesForEdit}
+              // onClick={loadLanguagesForEdit}
+              onClick={handleGoToBulkEdit}
             >
               언어 대량 수정
             </button>
           </div>
 
-          {/* Test 스타일 테이블 완벽 복구 */}
+          {/* 일괄 처리 */}
+          <div className={styles.batchControlWrapper}>
+            {/* {bulkMode === "list" && ( */}
+            <div
+              className={`${styles.batchControlBar} ${selectedIds.length > 0 ? styles.active : ""}`}
+            >
+              <div className={styles.batchInfo}>
+                <span>
+                  {selectedIds.length > 0
+                    ? `${selectedIds.length}개 선택됨`
+                    : "선택된 항목이 없습니다"}
+                </span>
+              </div>
+
+              <div className={styles.batchButtons}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleGoToBulkEdit}
+                  disabled={selectedIds.length <= 0 || bulkMode !== "list"}
+                >
+                  선택 항목 대량 수정
+                </Button>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={handleDeleteSelected}
+                  disabled={selectedIds.length <= 0 || bulkMode !== "list"}
+                >
+                  선택 삭제
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setSelectedIds([])}
+                  disabled={selectedIds.length <= 0 || bulkMode !== "list"}
+                >
+                  리셋
+                </Button>
+              </div>
+            </div>
+            {/* )} */}
+          </div>
+
+          {/* 테이블 */}
           {bulkMode === "list" && (
             <div>
               <div className={styles["table-wrapper"]}>
                 <table className={styles["admin-table"]}>
                   <thead>
                     <tr>
+                      <th style={{ width: "40px" }}>
+                        <input
+                          type="checkbox"
+                          onChange={handleSelectAll}
+                          checked={
+                            selectedIds.length === filteredLanguages.length &&
+                            filteredLanguages.length > 0
+                          }
+                        />
+                      </th>
+                      <th style={{ width: "50px" }}>No.</th>
                       <th>ID</th>
                       <th>코드</th>
                       <th>언어명</th>
@@ -331,11 +454,24 @@ const AdminLanguages = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredLanguages?.map((lang) => {
+                    {filteredLanguages?.map((lang, index) => {
                       const isEditing = editingId === lang.id;
                       const displayData = isEditing ? editFormData : lang;
+                      const isSelected = selectedIds.includes(lang.id);
+
                       return (
-                        <tr key={lang.id}>
+                        <tr
+                          key={lang.id}
+                          className={isSelected ? styles.selectedRow : ""}
+                        >
+                          <td className={styles.center}>
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => handleSelectOne(lang.id)}
+                            />
+                          </td>
+                          <td className={styles.center}>{index + 1}</td>
                           <td
                             className={styles.center}
                             style={{ fontSize: "10px", color: "#999" }}
@@ -428,7 +564,7 @@ const AdminLanguages = () => {
             </div>
           )}
 
-          {/* Test 스타일 대량 작업 폼 복구 */}
+          {/* 대량 작업 폼 */}
           {(bulkMode === "add" || bulkMode === "edit") && (
             <div>
               <textarea
@@ -449,11 +585,7 @@ const AdminLanguages = () => {
                 <Button
                   size="sm"
                   variant="primary"
-                  onClick={() =>
-                    bulkMode === "add"
-                      ? handleLanguageBulkRegister(bulkLanguage)
-                      : handleLanguageBulkUpdate(bulkLanguage)
-                  }
+                  onClick={() => handleLanguagesBulk(bulkLanguage)}
                 >
                   {bulkMode === "add" ? "일괄 등록 저장" : "일괄 수정 저장"}
                 </Button>

@@ -21,10 +21,22 @@ const withLoading = async (set, logger, label, task) => {
   }
 };
 
+const initialState = {
+  languages: [],
+  tags: [],
+  items: [],
+  statsInfo: {},
+  learningLang: "en-US",
+  nativeLang: "ko-KR",
+  appLang: "ko",
+};
+
 export const useContentStore = create(
   persist(
     (set, get) => ({
       // --- State ---
+      ...initialState, // 초기상태
+      isLoading: false,
       languages: [],
       tags: [],
       items: [],
@@ -32,17 +44,18 @@ export const useContentStore = create(
       learningLang: "en-US",
       nativeLang: "ko-KR",
       appLang: "ko",
-      isLoading: false,
 
       // --- Actions ---
       setLanguages: (languages) => set({ languages }),
       setTags: (tags) => set({ tags }),
       setItems: (items) => set({ items }),
+      setLoading: (bool) => set({ isLoading: bool }),
       setAppLang: (lang) => {
         const shortLang = lang.split("-")[0];
         set({ appLang: shortLang });
         i18next.changeLanguage(shortLang);
       },
+      reset: () => set(initialState),
 
       /**
        *  언어 관리
@@ -67,42 +80,91 @@ export const useContentStore = create(
         return data;
       },
 
-      // 언어 등록 (Upsert - 있으면 수정, 없으면 등록)
+      // 언어 한건 등록 (Upsert - 있으면 수정, 없으면 등록)
       upsertLanguage: async (langData) => {
         logger.start("[content]upsertLanguage", langData);
 
-        const saveData = { ...langData };
-        if (!saveData.id) delete saveData.id;
+        try {
+          const saveData = { ...langData };
+          if (!saveData.id) delete saveData.id;
 
-        const { data, error } = await supabase
-          .from("languages")
-          .upsert(saveData, { onConflict: "id", ignoreDuplicates: false })
-          .select()
-          .single();
+          const { data, error } = await supabase
+            .from("languages")
+            .upsert(saveData, { onConflict: "id", ignoreDuplicates: false })
+            .select()
+            .single();
 
-        if (error) {
+          if (error) {
+            logger.error("[content]upsertLanguage", error.message);
+            throw error;
+          }
+
+          const currentLanguages = get().languages || [];
+          const isExisting = currentLanguages.some(
+            (lang) => lang.id === data.id,
+          );
+
+          if (isExisting) {
+            set({
+              languages: currentLanguages.map((lang) =>
+                lang.id === data.id ? data : lang,
+              ),
+            });
+          } else {
+            const newLanguages = [...currentLanguages, data].sort((a, b) =>
+              a.code.localeCompare(b.code),
+            );
+            set({ languages: newLanguages });
+          }
+
+          logger.success("[content]upsertLanguage", data);
+          return data;
+        } catch (error) {
           logger.error("[content]upsertLanguage", error.message);
-          throw error;
+          return null;
         }
+      },
 
-        const currentLanguages = get().languages || [];
-        const isExisting = currentLanguages.some((lang) => lang.id === data.id);
+      // 언어 대량 등록
+      upsertLanguagesBulk: async (languagesList) => {
+        logger.start("[content]upsertLanguagesBulk", languagesList);
 
-        if (isExisting) {
-          set({
-            languages: currentLanguages.map((lang) =>
-              lang.id === data.id ? data : lang,
-            ),
+        try {
+          const payload = languagesList.map((lang) => {
+            const saveData = { ...lang };
+            if (!saveData.id) delete saveData.id;
+            return saveData;
           });
-        } else {
-          const newLanguages = [...currentLanguages, data].sort((a, b) =>
+
+          const { data, error } = await supabase
+            .from("languages")
+            .upsert(payload, { onConflict: "id" })
+            .select();
+          if (error) throw error;
+
+          const currentLanguages = get().languages || [];
+          const updatedLangs = [...currentLanguages];
+
+          data.forEach((newItem) => {
+            const index = updatedLangs.findIndex((l) => l.id === newItem.id);
+            if (index !== -1) {
+              updatedLangs[index] = newItem; // 수정
+            } else {
+              updatedLangs.push(newItem); // 등록
+            }
+          });
+
+          const sortedLangs = updatedLangs.sort((a, b) =>
             a.code.localeCompare(b.code),
           );
-          set({ languages: newLanguages });
-        }
 
-        logger.success("[content]upsertLanguage", data);
-        return data;
+          set({ languages: sortedLangs });
+          logger.success("[content]upsertLanguagesBulk", data);
+          return data;
+        } catch (error) {
+          logger.error("[content]upsertLanguagesBulk", error.message);
+          return null;
+        }
       },
 
       // 언어 삭제
@@ -147,6 +209,7 @@ export const useContentStore = create(
 
         set({ tags: data });
         logger.success("[content]fetchTags", data);
+        return data;
       },
 
       // 언어별 해시태그 목록 가져오기
@@ -322,7 +385,6 @@ export const useContentStore = create(
           isFavorite,
           tagId,
         });
-        set({ isLoading: true });
 
         try {
           let query = supabase
@@ -390,8 +452,6 @@ export const useContentStore = create(
           logger.success("[content]fetchItemsByFilter", normalized);
         } catch (error) {
           logger.error("[content]fetchItemsByFilter", error.message);
-        } finally {
-          set({ isLoading: false });
         }
       },
 
@@ -401,6 +461,21 @@ export const useContentStore = create(
     {
       name: "voca-app-storage",
       storage: createJSONStorage(() => localStorage),
+      version: 1,
+      migrate: (persistedState, version) => {
+        logger.start(`[Storage] Migrating from version ${version} to 2`);
+
+        if (version < 2) {
+          return {
+            ...persistedState,
+            languages: [],
+            tags: [],
+            items: [],
+            statsInfo: {},
+          };
+        }
+        return persistedState;
+      },
     },
   ),
 );

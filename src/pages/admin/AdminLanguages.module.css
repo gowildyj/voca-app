@@ -332,3 +332,68 @@
 .center {
   text-align: center;
 }
+
+/* --- 일괄 처리 바--- */
+.batchControlWrapper {
+  /* min-height: 56px; */
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.batchControlBar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: var(--bg-layer);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-sub);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+/* 선택되었을 때만 테두리 색상 강조 */
+.batchControlBar.active {
+  border-color: var(--border-active);
+  /* color: var(--border-active); */
+  /* background-color: var(--active-bg); */
+}
+
+.batchButtons {
+  display: flex;
+  gap: 10px;
+}
+
+.batchButtons button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- 테이블 체크박스 스타일 --- */
+.admin-table input[type="checkbox"] {
+  appearance: checkbox !important;
+  -webkit-appearance: checkbox !important;
+
+  /* 크기와 위치 조정 */
+  width: 18px !important;
+  height: 18px !important;
+  cursor: pointer;
+
+  /* 다크모드/라이트모드 상관없이 잘 보이게 색상 지정 */
+  accent-color: var(--border-active);
+
+  /* 투명도나 숨김 설정이 있다면 해제 */
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* 체크박스가 들어있는 칸(td) 정렬 */
+.admin-table td:first-child {
+  text-align: center;
+  vertical-align: middle;
+}

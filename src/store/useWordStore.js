@@ -203,7 +203,7 @@ export const useWordStore = create(
             .from("words")
             .select("*")
             .eq("deck_id", deckId)
-            .order("created_at", { ascending: true });
+            .order("display_order", { ascending: true });
           if (error) throw error;
 
           const normalized = (data ?? []).map((d) => ({
@@ -213,7 +213,8 @@ export const useWordStore = create(
             example: d.example,
             status: d.status,
             deckId: d.deck_id,
-            isFavorite: d.is_favorite, // DB(snake) -> App(camel) 매핑
+            isFavorite: d.is_favorite,
+            displayOrder: d.display_order,
             total: Number(d.total_count) || 0,
             progress:
               d.total_count > 0
@@ -235,17 +236,29 @@ export const useWordStore = create(
       addWord: async (deckId, wordData) => {
         logger.start("addWord", { deckId, wordData });
         try {
+          const currentWordsInDeck = get().words.filter(
+            (w) => w.deck_id === deckId,
+          );
+          const lastOrder = currentWordsInDeck.length;
+
           const { data, error } = await supabase
             .from("words")
-            .insert([{ deck_id: deckId, ...wordData, status: "none" }])
+            .insert([
+              {
+                deck_id: deckId,
+                ...wordData,
+                status: "none",
+                display_order: lastOrder,
+              },
+            ])
             .select();
           if (error) throw error;
 
-          // 🌟 [수정 완료] DB 응답을 정규화해서 저장
           const rawWord = data[0];
           const newWord = {
             ...rawWord,
             isFavorite: rawWord.is_favorite,
+            displayOrder: w.display_order,
           };
 
           set((state) => ({
@@ -264,12 +277,18 @@ export const useWordStore = create(
       addWordsBulk: async (deckId, wordsList) => {
         logger.start("addWordsBulk", { deckId, wordsList });
         try {
-          const payload = wordsList.map((w) => ({
+          const currentWordsInDeck = get().words.filter(
+            (w) => w.deck_id === deckId,
+          );
+          const startOrder = currentWordsInDeck.length;
+
+          const payload = wordsList.map((w, i) => ({
             deck_id: deckId,
             word: w.word,
             meaning: w.meaning,
             example: w.example || null,
             status: "none",
+            display_order: startOrder + i,
           }));
           const { data, error } = await supabase
             .from("words")
@@ -280,6 +299,7 @@ export const useWordStore = create(
           const normalized = data.map((w) => ({
             ...w,
             isFavorite: w.is_favorite,
+            displayOrder: w.display_order,
           }));
 
           set((state) => ({
@@ -339,6 +359,7 @@ export const useWordStore = create(
             meaning: w.meaning,
             example: w.example || null,
             deck_id: w.deck_id,
+            display_order: w.displayOrder,
           }));
 
           const { data, error } = await supabase

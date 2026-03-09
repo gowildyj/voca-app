@@ -202,15 +202,19 @@ export const useWordList = (deckId) => {
   );
 
   const onBulkEdit = useCallback(() => {
+    const baseWords = [...words]
+      .filter((w) => w.deckId === deckId)
+      .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+
     openModal("WORD_EDIT_BULK", {
-      words: filteredWords,
+      words: baseWords,
       deckId: deckId,
       onSubmit: async (updatedList) => {
         await updateWordsBulk(updatedList);
         closeModal();
       },
     });
-  }, [filteredWords, deckId, openModal, closeModal, updateWordsBulk]);
+  }, [words, deckId, openModal, closeModal, updateWordsBulk]);
 
   const onDeleteWord = useCallback(
     (wordId) => {

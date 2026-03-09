@@ -361,7 +361,7 @@ export const useWordStore = create(
             meaning: w.meaning,
             example: w.example || null,
             deck_id: w.deck_id || w.deckId,
-            display_order: w.displayOrder,
+            display_order: w.display_order ?? w.displayOrder ?? 0,
           }));
 
           const { data, error } = await supabase

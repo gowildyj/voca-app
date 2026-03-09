@@ -56,28 +56,26 @@ const WordEditBulkForm = ({
       finalPayload = editList.map((item) => ({
         ...item,
         deck_id: deckId || item.deck_id || item.deckId || currentDeckId,
+        display_order: item.display_order ?? item.displayOrder ?? 0,
       }));
     } else {
-      // 🌟 텍스트 수정: 줄 번호(index)를 기준으로 원본 ID를 다시 붙여줍니다.
       finalPayload = bulkText
         .split("\n")
         .map((line) => line.trim())
         .filter((line) => line !== "")
         .map((line, index) => {
           const parts = line.split("|").map((p) => p.trim());
-
-          // 🌟 화면엔 없지만, 우리가 가진 words[index]에 ID가 살아있어요!
           const original = words[index];
 
           return {
-            id: original?.id, // 원본 ID 복구
+            id: original?.id,
             deck_id:
               deckId || original?.deck_id || original?.deckId || currentDeckId,
             word: parts[0] || "",
             meaning: parts[1] || "",
             example: parts[2] || null,
             display_order:
-              original?.displayOrder ?? original?.display_order ?? index,
+              original?.display_order ?? original?.displayOrder ?? index,
             status: original?.status || "none",
           };
         });

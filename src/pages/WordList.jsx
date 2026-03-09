@@ -167,10 +167,11 @@ const WordList = () => {
       {/* 6. 단어 카드 목록 */}
       <main className="v-word-card-stack">
         {displayWords && displayWords.length > 0 ? (
-          displayWords.map((item) => (
+          displayWords.map((item, index) => (
             <WordCard
               key={item.id}
               item={item}
+              index={item.displayOrder}
               hideMode={hideMode}
               onPlay={async (word) => {
                 await playText(word, currentDeck?.language);

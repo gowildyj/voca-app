@@ -3,16 +3,21 @@ import BottomSheet from "@/components/modals/BottomSheet";
 import { StyledInput, StyledTextArea } from "@/components/common/FormElements";
 import Button from "@/components/common/Button";
 
-const WordEditBulkForm = ({ isOpen, onClose, words = [], onSubmit }) => {
+const WordEditBulkForm = ({
+  isOpen,
+  onClose,
+  deckId,
+  words = [],
+  onSubmit,
+}) => {
   const [activeTab, setActiveTab] = useState("list");
   const [editList, setEditList] = useState([]);
   const [bulkText, setBulkText] = useState("");
   const inputRef = useRef(null);
 
-  // 🌟 [핵심 수정 1] deckId(Store용)와 deck_id(DB용) 둘 다 확인!
   // Store에서 가져온 words는 'deckId'를 가지고 있습니다.
   const currentDeckId =
-    words.length > 0 ? words[0].deck_id || words[0].deckId : null;
+    deckId || (words.length > 0 ? words[0].deck_id || words[0].deckId : null);
 
   useEffect(() => {
     if (isOpen) {
@@ -20,8 +25,8 @@ const WordEditBulkForm = ({ isOpen, onClose, words = [], onSubmit }) => {
 
       const text = words
         .map((w) => {
-          const examplePart = w.example ? `:${w.example}` : "";
-          return `${w.word}:${w.meaning}${examplePart}`;
+          const ex = w.example || "";
+          return `${w.word} | ${w.meaning} | ${ex}`;
         })
         .join("\n");
       setBulkText(text);
@@ -45,43 +50,43 @@ const WordEditBulkForm = ({ isOpen, onClose, words = [], onSubmit }) => {
   };
 
   const handleSave = () => {
+    let finalPayload = [];
+
     if (activeTab === "list") {
-      // 🌟 [핵심 수정 2] 목록 수정 시에도 deckId 체크
-      const safeEditList = editList.map((item) => ({
+      finalPayload = editList.map((item) => ({
         ...item,
-        // item에도 deckId가 있을 수 있고 deck_id가 있을 수 있음
-        deck_id: item.deck_id || item.deckId || currentDeckId,
+        deck_id: deckId || item.deck_id || item.deckId || currentDeckId,
       }));
-      onSubmit?.(safeEditList);
     } else {
-      const updatedWords = bulkText
+      // 🌟 텍스트 수정: 줄 번호(index)를 기준으로 원본 ID를 다시 붙여줍니다.
+      finalPayload = bulkText
         .split("\n")
-        .filter((line) => line.trim() !== "")
+        .map((line) => line.trim())
+        .filter((line) => line !== "")
         .map((line, index) => {
-          let separator = ":";
-          if (line.includes("|")) separator = "|";
+          const parts = line.split("|").map((p) => p.trim());
 
-          const parts = line.split(separator);
-          const word = parts[0]?.trim() || "";
-          const meaning = parts[1]?.trim() || "";
-          const example = parts.slice(2).join(separator).trim();
-
-          const originalWord = words[index];
+          // 🌟 화면엔 없지만, 우리가 가진 words[index]에 ID가 살아있어요!
+          const original = words[index];
 
           return {
-            id: originalWord?.id,
-
-            // 🌟 [핵심 수정 3] 텍스트 수정 시에도 deckId 체크
+            id: original?.id, // 원본 ID 복구
             deck_id:
-              originalWord?.deck_id || originalWord?.deckId || currentDeckId,
-
-            word,
-            meaning,
-            example,
+              deckId || original?.deck_id || original?.deckId || currentDeckId,
+            word: parts[0] || "",
+            meaning: parts[1] || "",
+            example: parts[2] || null,
+            display_order:
+              original?.displayOrder ?? original?.display_order ?? index,
+            status: original?.status || "none",
           };
         });
-      onSubmit?.(updatedWords);
     }
+
+    // ID가 유실된 유령 데이터 방지
+    const cleanData = finalPayload.filter((w) => w.id && w.deck_id);
+
+    onSubmit?.(cleanData);
     onClose();
   };
 

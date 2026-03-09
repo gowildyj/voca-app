@@ -41,7 +41,7 @@ export const useWordStore = create(
             language: d.lang_code,
             icon: d.icon,
             description: d.description,
-            isFavorite: d.is_favorite, // DB(snake) -> App(camel)
+            isFavorite: d.is_favorite,
             total: Number(d.total_count) || 0,
             progress:
               d.total_count > 0
@@ -236,10 +236,9 @@ export const useWordStore = create(
       addWord: async (deckId, wordData) => {
         logger.start("addWord", { deckId, wordData });
         try {
-          const currentWordsInDeck = get().words.filter(
-            (w) => w.deck_id === deckId,
-          );
-          const lastOrder = currentWordsInDeck.length;
+          // 1. 현재 덱의 단어 수로 다음 정렬 순서 결정
+          const wordsInDeck = get().words.filter((w) => w.deckId === deckId);
+          const nextOrder = wordsInDeck.length;
 
           const { data, error } = await supabase
             .from("words")
@@ -248,7 +247,7 @@ export const useWordStore = create(
                 deck_id: deckId,
                 ...wordData,
                 status: "none",
-                display_order: lastOrder,
+                display_order: nextOrder, // 🌟 display_order 할당
               },
             ])
             .select();
@@ -257,8 +256,9 @@ export const useWordStore = create(
           const rawWord = data[0];
           const newWord = {
             ...rawWord,
+            deckId: rawWord.deck_id, // 🌟 deckId 매핑 보정
             isFavorite: rawWord.is_favorite,
-            displayOrder: w.display_order,
+            displayOrder: rawWord.display_order, // 🌟 camelCase 매핑 보정
           };
 
           set((state) => ({
@@ -277,10 +277,8 @@ export const useWordStore = create(
       addWordsBulk: async (deckId, wordsList) => {
         logger.start("addWordsBulk", { deckId, wordsList });
         try {
-          const currentWordsInDeck = get().words.filter(
-            (w) => w.deck_id === deckId,
-          );
-          const startOrder = currentWordsInDeck.length;
+          const wordsInDeck = get().words.filter((w) => w.deckId === deckId);
+          const startOrder = wordsInDeck.length;
 
           const payload = wordsList.map((w, i) => ({
             deck_id: deckId,
@@ -288,7 +286,7 @@ export const useWordStore = create(
             meaning: w.meaning,
             example: w.example || null,
             status: "none",
-            display_order: startOrder + i,
+            display_order: startOrder + i, // 🌟 순차적 순서 할당
           }));
           const { data, error } = await supabase
             .from("words")
@@ -298,6 +296,7 @@ export const useWordStore = create(
 
           const normalized = data.map((w) => ({
             ...w,
+            deckId: w.deck_id, // 🌟 deckId 매핑 추가
             isFavorite: w.is_favorite,
             displayOrder: w.display_order,
           }));
@@ -338,7 +337,9 @@ export const useWordStore = create(
                 ? {
                     ...w,
                     ...data,
+                    deckId: data.deck_id,
                     isFavorite: data.is_favorite,
+                    displayOrder: data.display_order,
                   }
                 : w,
             ),
@@ -352,13 +353,14 @@ export const useWordStore = create(
 
       updateWordsBulk: async (wordsList) => {
         logger.start("updateWordsBulk", { wordsList });
+
         try {
           const payload = wordsList.map((w) => ({
             id: w.id,
             word: w.word,
             meaning: w.meaning,
             example: w.example || null,
-            deck_id: w.deck_id,
+            deck_id: w.deck_id || w.deckId,
             display_order: w.displayOrder,
           }));
 
@@ -377,7 +379,9 @@ export const useWordStore = create(
                 return {
                   ...w,
                   ...updated,
-                  isFavorite: updated.is_favorite, // DB(snake) -> App(camel)
+                  deckId: updated.deck_id,
+                  isFavorite: updated.is_favorite,
+                  displayOrder: updated.display_order, // 🌟 로컬 상태 반영 누락 수정
                 };
               }
               return w;
@@ -389,7 +393,7 @@ export const useWordStore = create(
           set((state) => ({
             decks: state.decks.map((deck) => {
               const deckWords = updatedWords.filter(
-                (w) => w.deck_id === deck.id,
+                (w) => w.deckId === deck.id,
               );
               const knownCount = deckWords.filter(
                 (w) => w.status === "know",
@@ -415,7 +419,7 @@ export const useWordStore = create(
       deleteWord: async (id) => {
         logger.start("deleteWord", { id });
         const targetWord = get().words.find((w) => w.id === id);
-        const deckId = targetWord?.deck_id;
+        const deckId = targetWord?.deckId;
 
         try {
           const { error } = await supabase.from("words").delete().eq("id", id);
@@ -444,7 +448,7 @@ export const useWordStore = create(
 
         const nextWords = prevWords.map((w) => {
           if (w.id === id) {
-            targetDeckId = w.deck_id;
+            targetDeckId = w.deckId;
             return { ...w, status: newStatus };
           }
           return w;
@@ -453,7 +457,7 @@ export const useWordStore = create(
         const nextDecks = prevDecks.map((deck) => {
           if (deck.id === targetDeckId) {
             const deckWords = nextWords.filter(
-              (w) => w.deck_id === targetDeckId,
+              (w) => w.deckId === targetDeckId,
             );
             const knownCount = deckWords.filter(
               (w) => w.status === "know",
@@ -478,7 +482,7 @@ export const useWordStore = create(
             .eq("id", id);
           if (error) throw error;
         } catch (error) {
-          set({ words: prevWords, decks: prevDecks }); // Rollback
+          set({ words: prevWords, decks: prevDecks });
         }
       },
 
@@ -495,7 +499,7 @@ export const useWordStore = create(
         try {
           const { error } = await supabase
             .from("words")
-            .update({ is_favorite: isFavorite }) // DB 컬럼명 is_favorite
+            .update({ is_favorite: isFavorite })
             .eq("id", id);
           if (error) throw error;
 
@@ -507,14 +511,12 @@ export const useWordStore = create(
       },
     }),
 
-    // --- [Persist Configuration] ---
     {
       name: "word-app-storage",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         decks: state.decks,
         words: state.words,
-
         lastFetchedLang: state.lastFetchedLang,
       }),
     },

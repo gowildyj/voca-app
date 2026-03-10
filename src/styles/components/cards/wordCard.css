@@ -131,7 +131,7 @@
   border-radius: 4px;
   user-select: none;
   display: inline-block;
-  min-width: 120px;
+  width: 100%;
   vertical-align: middle;
   text-align: center;
 }

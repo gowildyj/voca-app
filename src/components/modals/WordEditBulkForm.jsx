@@ -188,7 +188,6 @@ const WordEditBulkForm = ({
                     onChange={(e) =>
                       handleListChange(index, "example", e.target.value)
                     }
-                    style={{ fontSize: "0.9rem", backgroundColor: "#f9f9f9" }}
                   />
                 </div>
               ))}

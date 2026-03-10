@@ -24,6 +24,7 @@
   font-family: inherit;
   box-sizing: border-box;
   transition: all var(--transition-base);
+  color: var(--text-main);
 }
 
 .styled-input:focus {

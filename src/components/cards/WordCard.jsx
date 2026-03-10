@@ -29,6 +29,18 @@ const WordCard = ({
     }
   }, [hideMode]);
 
+  const isRTL = (text) => {
+    if (!text) return false;
+
+    const rtlRegex =
+      /[\p{Script=Arabic}\p{Script=Hebrew}\p{Script=Syriac}\p{Script=Thaana}]/u;
+    return rtlRegex.test(text);
+  };
+
+  const wordDir = isRTL(item.word) ? "rtl" : "ltr";
+  const meaningDir = isRTL(item.meaning) ? "rtl" : "ltr";
+  const exampleDir = isRTL(item.example) ? "rtl" : "ltr";
+
   return (
     <div className={`v-word-card ${statusClass}`}>
       {/* 1. 오디오 버튼 */}
@@ -49,17 +61,24 @@ const WordCard = ({
       <div
         className="v-word-body"
         onClick={handleBodyClick}
-        style={{ cursor: hideMode ? "pointer" : "default" }}
+        style={{
+          cursor: hideMode ? "pointer" : "default",
+          textAlign: wordDir === "rtl" ? "right" : "left",
+        }}
       >
-        <div className="v-word-main-wrapper">
+        <div className="v-word-main-wrapper" dir={wordDir}>
           <span className={`v-word-main ${isWordHidden ? "v-masked" : ""}`}>
             {item.word}
           </span>
         </div>
 
-        <span className={`v-word-sub ${isMeaningHidden ? "v-masked" : ""}`}>
-          {item.meaning}
-        </span>
+        <div className="v-word-sub-wrapper" dir={meaningDir}>
+          <span
+            className={`v-word-sub ${hideMode === "meaning" && !tempShow ? "v-masked" : ""}`}
+          >
+            {item.meaning}
+          </span>
+        </div>
 
         {/* 🌟 예문 표시 (값이 있을 때만 렌더링) */}
         {item.example && (

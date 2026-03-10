@@ -1,6 +1,14 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { Plus, FilePenLine, PencilLine, Trash2, Star } from "lucide-react";
+import {
+  Plus,
+  FilePenLine,
+  PencilLine,
+  Trash2,
+  Star,
+  RotateCcw,
+  Trash,
+} from "lucide-react";
 import "@/styles/pages/wordList.css";
 
 import { toast } from "react-hot-toast";
@@ -56,6 +64,8 @@ const WordList = () => {
     onToggleDeckFavorite,
 
     observerTarget,
+    onResetStatus,
+    onDeleteAll,
   } = useWordList(deckId);
 
   return (
@@ -98,7 +108,20 @@ const WordList = () => {
             >
               <PencilLine size={16} />
             </button>
-
+            <button
+              className="v-icon-action-btn"
+              onClick={onResetStatus}
+              title="학습 상태 초기화"
+            >
+              <RotateCcw size={16} />
+            </button>
+            <button
+              className="v-icon-action-btn danger"
+              onClick={onDeleteAll}
+              title="전체 단어 삭제"
+            >
+              <Trash size={16} />
+            </button>
             <button
               className="v-icon-action-btn danger"
               onClick={onDeleteDeck}

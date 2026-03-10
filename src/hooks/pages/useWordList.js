@@ -30,6 +30,10 @@ export const useWordList = (deckId) => {
   const deleteDeck = useWordStore((state) => state.deleteDeck);
   const updateWordFavorite = useWordStore((state) => state.updateWordFavorite);
   const updateDeckFavorite = useWordStore((state) => state.updateDeckFavorite);
+  const deleteAllWordsByDeck = useWordStore(
+    (state) => state.deleteAllWordsByDeck,
+  );
+  const resetAllWordStatus = useWordStore((state) => state.resetAllWordStatus);
 
   // --- [2] 로컬 상태 (UI Control) ---
   const [searchQuery, setSearchQuery] = useState("");
@@ -272,6 +276,29 @@ export const useWordList = (deckId) => {
     [updateDeckFavorite],
   );
 
+  const onResetStatus = useCallback(() => {
+    openModal("CONFIRM_DELETE", {
+      title: "학습 상태 초기화",
+      message: "모든 단어의 '알아/몰라' 기록을 지우고 미학습 상태로 돌릴까요?",
+      onConfirm: async () => {
+        await resetAllWordStatus(deckId);
+        closeModal();
+      },
+    });
+  }, [deckId, openModal, closeModal, resetAllWordStatus]);
+
+  const onDeleteAll = useCallback(() => {
+    openModal("CONFIRM_DELETE", {
+      title: "단어 전체 삭제",
+      message:
+        "이 단어장의 모든 단어가 영구적으로 삭제됩니다. 정말 삭제할까요?",
+      onConfirm: async () => {
+        await deleteAllWordsByDeck(deckId);
+        closeModal();
+      },
+    });
+  }, [deckId, openModal, closeModal, deleteAllWordsByDeck]);
+
   return {
     filter,
     sortType,
@@ -296,5 +323,7 @@ export const useWordList = (deckId) => {
     onBulkEdit,
     onToggleWordFavorite,
     onToggleDeckFavorite,
+    onResetStatus,
+    onDeleteAll,
   };
 };

@@ -486,6 +486,56 @@ export const useWordStore = create(
         }
       },
 
+      deleteAllWordsByDeck: async (deckId) => {
+        logger.start("deleteAllWordsByDeck", { deckId });
+        try {
+          const { error } = await supabase
+            .from("words")
+            .delete()
+            .eq("deck_id", deckId);
+
+          if (error) throw error;
+
+          set((state) => ({
+            words: state.words.filter((w) => w.deckId !== deckId),
+            decks: state.decks.map((d) =>
+              d.id === deckId ? { ...d, total: 0, progress: 0 } : d,
+            ),
+          }));
+
+          toast.success("모든 단어가 삭제되었습니다.");
+        } catch (error) {
+          logger.error("deleteAllWordsByDeck", error);
+          toast.error("삭제 중 오류가 발생했습니다.");
+        }
+      },
+
+      resetAllWordStatus: async (deckId) => {
+        logger.start("resetAllWordStatus", { deckId });
+        try {
+          const { error } = await supabase
+            .from("words")
+            .update({ status: "none" })
+            .eq("deck_id", deckId);
+
+          if (error) throw error;
+
+          set((state) => ({
+            words: state.words.map((w) =>
+              w.deckId === deckId ? { ...w, status: "none" } : w,
+            ),
+            decks: state.decks.map((d) =>
+              d.id === deckId ? { ...d, progress: 0 } : d,
+            ),
+          }));
+
+          toast.success("학습 상태가 초기화되었습니다.");
+        } catch (error) {
+          logger.error("resetAllWordStatus", error);
+          toast.error("초기화 중 오류가 발생했습니다.");
+        }
+      },
+
       updateWordFavorite: async (id, isFavorite) => {
         logger.start("updateWordFavorite", { id, isFavorite });
         const prevWords = get().words;

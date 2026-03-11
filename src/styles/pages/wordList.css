@@ -88,32 +88,37 @@
 }
 
 .v-intro-top {
-  display: flex;
+  /* display: flex; */
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
 }
 
-.v-intro-actions {
+.v-word-list-sub-actions {
+  padding: 0 0 10px 0;
+  margin-bottom: 1px;
+}
+
+.v-action-group {
   display: flex;
   gap: 2px;
-  align-items: center;
-  margin-right: -4px;
+  padding: 10px 0px;
+  border-radius: 12px;
+  justify-content: end;
 }
 
 .v-icon-action-btn {
-  width: auto;
-  height: auto;
-  padding: 8px;
-
-  background: none;
-  border: none;
-  color: var(--text-sub);
-  cursor: pointer;
-  border-radius: 10px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-sub);
+  padding: 4px 8px;
+  cursor: pointer;
   transition: all 0.2s;
 }
 
@@ -121,6 +126,14 @@
   width: 20px;
   height: 20px;
   display: block;
+}
+
+.v-icon-action-btn span {
+  white-space: nowrap;
+}
+
+.v-icon-action-btn.danger {
+  color: var(--danger);
 }
 
 .v-icon-action-btn:active {
@@ -168,6 +181,7 @@
   font-weight: 800;
   color: var(--text-main);
   margin-bottom: 4px;
+  word-break: break-all;
 }
 
 .v-deck-desc {
@@ -187,3 +201,28 @@
 .v-word-list-header-group .hero-card {
   margin-top: 4px;
 }
+
+/* .v-icon-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-sub);
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.v-icon-action-btn span {
+  white-space: nowrap;
+}
+
+.v-icon-action-btn.favorite.active {
+  color: #facc15;
+}
+.v-icon-action-btn.danger {
+  color: var(--danger);
+} */

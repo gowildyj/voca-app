@@ -72,11 +72,67 @@ const WordList = () => {
     <div className="v-word-list-page">
       {/* 1. 헤더 영역 */}
       <header className="v-word-list-intro">
+        <section className="v-word-list-sub-actions">
+          <div className="v-action-group">
+            <button
+              className={`v-icon-action-btn favorite ${
+                currentDeck?.isFavorite ? "active" : ""
+              }`}
+              onClick={() =>
+                currentDeck &&
+                onToggleDeckFavorite(currentDeck.id, currentDeck.isFavorite)
+              }
+              title="즐겨찾기 등록"
+            >
+              <Star
+                size={10}
+                fill={currentDeck?.isFavorite ? "currentColor" : "none"}
+              />
+            </button>
+
+            <button
+              className="v-icon-action-btn"
+              onClick={onBulkEdit}
+              title="일괄 편집"
+            >
+              <FilePenLine size={16} />
+            </button>
+
+            <button
+              className="v-icon-action-btn"
+              onClick={onEditDeck}
+              title="단어장 수정"
+            >
+              <PencilLine size={16} />
+            </button>
+            <button
+              className="v-icon-action-btn"
+              onClick={onResetStatus}
+              title="학습 상태 초기화"
+            >
+              <RotateCcw size={16} />
+            </button>
+            <button
+              className="v-icon-action-btn danger"
+              onClick={onDeleteAll}
+              title="전체 단어 삭제"
+            >
+              <Trash size={16} />
+            </button>
+            <button
+              className="v-icon-action-btn danger"
+              onClick={onDeleteDeck}
+              title="단어장 삭제"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        </section>
         <div className="v-intro-top">
           <h1 className="v-deck-title">
             {currentDeck?.name || currentDeck?.deck_name || ""}
           </h1>
-          <div className="v-intro-actions">
+          {/* <div className="v-intro-actions">
             <button
               className={`v-icon-action-btn favorite ${
                 currentDeck?.isFavorite ? "active" : ""
@@ -129,7 +185,7 @@ const WordList = () => {
             >
               <Trash2 size={16} />
             </button>
-          </div>
+          </div> */}
         </div>
 
         <div className="v-intro-content">
@@ -139,6 +195,64 @@ const WordList = () => {
           </p>
         </div>
       </header>
+
+      {/* 아이콘 리스트 */}
+      {/* <section className="v-word-list-sub-actions">
+        <div className="v-action-group">
+          <button
+            className={`v-icon-action-btn favorite ${
+              currentDeck?.isFavorite ? "active" : ""
+            }`}
+            onClick={() =>
+              currentDeck &&
+              onToggleDeckFavorite(currentDeck.id, currentDeck.isFavorite)
+            }
+            title="즐겨찾기 등록"
+          >
+            <Star
+              size={10}
+              fill={currentDeck?.isFavorite ? "currentColor" : "none"}
+            />
+          </button>
+
+          <button
+            className="v-icon-action-btn"
+            onClick={onBulkEdit}
+            title="일괄 편집"
+          >
+            <FilePenLine size={16} />
+          </button>
+
+          <button
+            className="v-icon-action-btn"
+            onClick={onEditDeck}
+            title="단어장 수정"
+          >
+            <PencilLine size={16} />
+          </button>
+          <button
+            className="v-icon-action-btn"
+            onClick={onResetStatus}
+            title="학습 상태 초기화"
+          >
+            <RotateCcw size={16} />
+          </button>
+          <button
+            className="v-icon-action-btn danger"
+            onClick={onDeleteAll}
+            title="전체 단어 삭제"
+          >
+            <Trash size={16} />
+          </button>
+          <button
+            className="v-icon-action-btn danger"
+            onClick={onDeleteDeck}
+            title="단어장 삭제"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+      </section> */}
 
       {/* 2. 학습 시작 배너 */}
       <section className="v-word-list-header">

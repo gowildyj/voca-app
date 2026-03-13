@@ -24,6 +24,9 @@ export const useWordList = (deckId) => {
   const addWord = useWordStore((state) => state.addWord);
   const addWordsBulk = useWordStore((state) => state.addWordsBulk);
   const updateWordsBulk = useWordStore((state) => state.updateWordsBulk);
+  const updateWordOrderBulk = useWordStore(
+    (state) => state.updateWordOrderBulk,
+  );
   const updateWord = useWordStore((state) => state.updateWord);
   const deleteWord = useWordStore((state) => state.deleteWord);
   const updateDeck = useWordStore((state) => state.updateDeck);
@@ -117,6 +120,11 @@ export const useWordList = (deckId) => {
     }
     return result;
   }, [words, filter, debouncedQuery, sortType, shuffleSeed]);
+
+  // 현재 화면에 실제로 렌더링되는 단어 목록 (무한스크롤 적용)
+  const displayWords = useMemo(() => {
+    return filteredWords.slice(0, displayLimit);
+  }, [filteredWords, displayLimit]);
 
   // --- [6] 통계 데이터 계산 ---
   const filterCounts = useMemo(
@@ -299,13 +307,26 @@ export const useWordList = (deckId) => {
     });
   }, [deckId, openModal, closeModal, deleteAllWordsByDeck]);
 
+  const saveReorderedWords = useCallback(
+    async (orderedList) => {
+      const payload = orderedList.map((word, index) => ({
+        id: word.id,
+        display_order: index,
+      }));
+
+      await updateWordOrderBulk(payload);
+    },
+    [updateWordOrderBulk],
+  );
+
   return {
+    words,
     filter,
     sortType,
     searchQuery,
     filterCounts,
     filteredWords,
-    displayWords: filteredWords.slice(0, displayLimit),
+    displayWords,
     currentDeck,
     loading,
     totalCount: words.length,
@@ -325,5 +346,6 @@ export const useWordList = (deckId) => {
     onToggleDeckFavorite,
     onResetStatus,
     onDeleteAll,
+    saveReorderedWords,
   };
 };

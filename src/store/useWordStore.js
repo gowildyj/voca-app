@@ -416,6 +416,19 @@ export const useWordStore = create(
         }
       },
 
+      updateWordOrderBulk: async (orderList) => {
+        const promises = orderList.map((w) =>
+          supabase
+            .from("words")
+            .update({ display_order: w.display_order })
+            .eq("id", w.id),
+        );
+
+        const results = await Promise.all(promises);
+
+        return results;
+      },
+
       deleteWord: async (id) => {
         logger.start("deleteWord", { id });
         const targetWord = get().words.find((w) => w.id === id);

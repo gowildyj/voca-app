@@ -11,6 +11,7 @@
     "test": "jest --watchAll"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "@supabase/supabase-js": "^2.95.3",
     "framer-motion": "^12.34.3",
     "lucide-react": "^0.563.0",

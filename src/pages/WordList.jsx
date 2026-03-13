@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   Plus,
@@ -8,6 +8,7 @@ import {
   Star,
   RotateCcw,
   Trash,
+  ArrowUpDown,
 } from "lucide-react";
 import "@/styles/pages/wordList.css";
 
@@ -22,6 +23,8 @@ import WordCard from "@/components/cards/WordCard";
 import AddWordCard from "@/components/cards/AddWordCard";
 import StudyPage from "@/pages/StudyPage";
 
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+
 import { playText } from "@/utils/ttsUtils";
 import { useWordList } from "@/hooks/pages/useWordList";
 
@@ -35,13 +38,16 @@ const filterOptions = [
 
 const WordList = () => {
   const { deckId } = useParams();
-  const [isStudyOpen, setIsStudyOpen] = React.useState(false);
+  const [isStudyOpen, setIsStudyOpen] = useState(false);
+  const [isReorderMode, setIsReorderMode] = useState(false);
+  const [localWords, setLocalWords] = useState([]);
 
   const {
     currentDeck,
     displayWords,
     filteredWords,
     loading,
+    words,
 
     filter,
     sortType,
@@ -66,7 +72,23 @@ const WordList = () => {
     observerTarget,
     onResetStatus,
     onDeleteAll,
+    saveReorderedWords,
   } = useWordList(deckId);
+
+  useEffect(() => {
+    setLocalWords(displayWords);
+  }, [displayWords]);
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const items = Array.from(localWords);
+
+    const [moved] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, moved);
+
+    setLocalWords(items);
+  };
 
   return (
     <div className="v-word-list-page">
@@ -88,6 +110,20 @@ const WordList = () => {
                 size={10}
                 fill={currentDeck?.isFavorite ? "currentColor" : "none"}
               />
+            </button>
+
+            <button
+              className="v-icon-action-btn"
+              onClick={async () => {
+                if (isReorderMode) {
+                  await saveReorderedWords(localWords);
+                  toast.success("순서가 저장되었습니다.");
+                }
+                setIsReorderMode((prev) => !prev);
+              }}
+              title="순서 변경"
+            >
+              <ArrowUpDown size={16} />
             </button>
 
             <button
@@ -132,60 +168,6 @@ const WordList = () => {
           <h1 className="v-deck-title">
             {currentDeck?.name || currentDeck?.deck_name || ""}
           </h1>
-          {/* <div className="v-intro-actions">
-            <button
-              className={`v-icon-action-btn favorite ${
-                currentDeck?.isFavorite ? "active" : ""
-              }`}
-              onClick={() =>
-                currentDeck &&
-                onToggleDeckFavorite(currentDeck.id, currentDeck.isFavorite)
-              }
-              title="즐겨찾기 등록"
-            >
-              <Star
-                size={16}
-                fill={currentDeck?.isFavorite ? "currentColor" : "none"}
-              />
-            </button>
-
-            <button
-              className="v-icon-action-btn"
-              onClick={onBulkEdit}
-              title="일괄 편집"
-            >
-              <FilePenLine size={16} />
-            </button>
-
-            <button
-              className="v-icon-action-btn"
-              onClick={onEditDeck}
-              title="단어장 수정"
-            >
-              <PencilLine size={16} />
-            </button>
-            <button
-              className="v-icon-action-btn"
-              onClick={onResetStatus}
-              title="학습 상태 초기화"
-            >
-              <RotateCcw size={16} />
-            </button>
-            <button
-              className="v-icon-action-btn danger"
-              onClick={onDeleteAll}
-              title="전체 단어 삭제"
-            >
-              <Trash size={16} />
-            </button>
-            <button
-              className="v-icon-action-btn danger"
-              onClick={onDeleteDeck}
-              title="단어장 삭제"
-            >
-              <Trash2 size={16} />
-            </button>
-          </div> */}
         </div>
 
         <div className="v-intro-content">
@@ -195,64 +177,6 @@ const WordList = () => {
           </p>
         </div>
       </header>
-
-      {/* 아이콘 리스트 */}
-      {/* <section className="v-word-list-sub-actions">
-        <div className="v-action-group">
-          <button
-            className={`v-icon-action-btn favorite ${
-              currentDeck?.isFavorite ? "active" : ""
-            }`}
-            onClick={() =>
-              currentDeck &&
-              onToggleDeckFavorite(currentDeck.id, currentDeck.isFavorite)
-            }
-            title="즐겨찾기 등록"
-          >
-            <Star
-              size={10}
-              fill={currentDeck?.isFavorite ? "currentColor" : "none"}
-            />
-          </button>
-
-          <button
-            className="v-icon-action-btn"
-            onClick={onBulkEdit}
-            title="일괄 편집"
-          >
-            <FilePenLine size={16} />
-          </button>
-
-          <button
-            className="v-icon-action-btn"
-            onClick={onEditDeck}
-            title="단어장 수정"
-          >
-            <PencilLine size={16} />
-          </button>
-          <button
-            className="v-icon-action-btn"
-            onClick={onResetStatus}
-            title="학습 상태 초기화"
-          >
-            <RotateCcw size={16} />
-          </button>
-          <button
-            className="v-icon-action-btn danger"
-            onClick={onDeleteAll}
-            title="전체 단어 삭제"
-          >
-            <Trash size={16} />
-          </button>
-          <button
-            className="v-icon-action-btn danger"
-            onClick={onDeleteDeck}
-            title="단어장 삭제"
-          >
-            <Trash2 size={16} />
-          </button>
-        </div>
-      </section> */}
 
       {/* 2. 학습 시작 배너 */}
       <section className="v-word-list-header">
@@ -303,23 +227,63 @@ const WordList = () => {
 
       {/* 6. 단어 카드 목록 */}
       <main className="v-word-card-stack">
-        {displayWords && displayWords.length > 0 ? (
-          displayWords.map((item, index) => (
-            <WordCard
-              key={item.id}
-              item={item}
-              index={item.displayOrder}
-              hideMode={hideMode}
-              onPlay={async (word) => {
-                await playText(word, currentDeck?.language);
-              }}
-              onToggleWordFavorite={() =>
-                onToggleWordFavorite(item.id, item.isFavorite)
-              }
-              onEdit={() => onEditWord(item)}
-              onDelete={() => onDeleteWord(item.id)}
-            />
-          ))
+        {/* 단어 카드 */}
+        {localWords && localWords.length > 0 ? (
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="word-list">
+              {(provided) => (
+                <div ref={provided.innerRef} {...provided.droppableProps}>
+                  {localWords.map((item, index) => (
+                    <Draggable
+                      key={item.id}
+                      draggableId={String(item.id)}
+                      index={index}
+                      isDragDisabled={!isReorderMode}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          style={{
+                            ...provided.draggableProps.style,
+                          }}
+                          className="v-word-row"
+                        >
+                          <div
+                            className="v-drag-handle"
+                            {...provided.dragHandleProps}
+                            style={{
+                              display: isReorderMode ? "flex" : "none",
+                            }}
+                          >
+                            ☰
+                          </div>
+
+                          <div className="v-word-card-wrapper">
+                            <WordCard
+                              item={item}
+                              index={item.displayOrder}
+                              hideMode={hideMode}
+                              onPlay={async (word) => {
+                                await playText(word, currentDeck?.language);
+                              }}
+                              onToggleWordFavorite={() =>
+                                onToggleWordFavorite(item.id, item.isFavorite)
+                              }
+                              onEdit={() => onEditWord(item)}
+                              onDelete={() => onDeleteWord(item.id)}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
         ) : (
           <AddWordCard searchQuery={searchQuery} onClick={onAddWord} />
         )}

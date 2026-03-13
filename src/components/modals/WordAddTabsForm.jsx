@@ -44,21 +44,16 @@ const WordAddTabsForm = ({ isOpen, onClose, onSubmit }) => {
 
       const wordsList = lines
         .map((line) => {
-          // 1. 구분자 찾기 (파이프 > 탭 > 콜론 > 콤마)
-          let separator = ",";
+          // 1. 구분자 찾기
+          let separator = ":";
           if (line.includes("|")) separator = "|";
-          else if (line.includes("\t")) separator = "\t";
+          // else if (line.includes("\t")) separator = "\t";
           else if (line.includes(":")) separator = ":";
 
-          // 🌟 [핵심 수정] split 할 때 trim()을 바로 하지 않음! (띄어쓰기 보존)
           const parts = line.split(separator);
 
           const word = parts[0]?.trim() || "";
           const meaning = parts[1]?.trim() || "";
-
-          // 🌟 [핵심 수정] 3번째 조각부터 끝까지는 '구분자'를 포함해 다시 합침
-          // 예: "A, B, I like A, B." -> parts는 ["A", " B", " I like A", " B."]
-          // slice(2) -> [" I like A", " B."] -> join(",") -> " I like A, B." -> trim()
           const example = parts.slice(2).join(separator).trim();
 
           return { word, meaning, example };

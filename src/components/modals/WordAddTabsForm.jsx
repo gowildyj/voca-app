@@ -45,9 +45,8 @@ const WordAddTabsForm = ({ isOpen, onClose, onSubmit }) => {
       const wordsList = lines
         .map((line) => {
           // 1. 구분자 찾기
-          let separator = ":";
+          let separator = "|";
           if (line.includes("|")) separator = "|";
-          // else if (line.includes("\t")) separator = "\t";
           else if (line.includes(":")) separator = ":";
 
           const parts = line.split(separator);
@@ -151,7 +150,7 @@ const WordAddTabsForm = ({ isOpen, onClose, onSubmit }) => {
                 lineHeight: "1.5",
               }}
             >
-              <strong>단어, 뜻, 예문</strong>을 콤마(,)나 콜론(:)으로
+              <strong>단어, 뜻, 예문</strong>을 수직선( | )이나 콜론( : )으로
               구분하세요.
               <br />
               예문 내의 쉼표와 띄어쓰기는 그대로 유지됩니다.
@@ -160,7 +159,7 @@ const WordAddTabsForm = ({ isOpen, onClose, onSubmit }) => {
               ref={inputRef}
               name="bulkText"
               label="추가할 단어 목록"
-              placeholder={`Apple, 사과, I like apples, and bananas.\nRun: 달리다: I can run fast.`}
+              placeholder={`Apple | 사과 | I like apples, and bananas.\nRun | 달리다 | I can run fast.`}
               style={{
                 minHeight: "180px",
                 fontFamily: "monospace",

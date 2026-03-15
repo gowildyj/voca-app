@@ -30,12 +30,10 @@ export const initTTS = () => {
  */
 const scoreVoice = (voice, targetLang) => {
   let score = 0;
-
   const vLang = voice.lang.toLowerCase().replace("_", "-");
   const vName = voice.name.toLowerCase();
 
   // 1. 언어+국가 완전 일치 혹은 광둥어 별칭 인정 (+100점)
-  // 사파리의 yue-hk와 우리의 zh-hk를 매칭시켜주는 핵심 로직입니다.
   const isExactMatch = vLang === targetLang;
   const isCantoneseAlias = targetLang === "zh-hk" && vLang === "yue-hk";
 
@@ -75,7 +73,6 @@ const scoreVoice = (voice, targetLang) => {
  */
 export const getBestVoice = (langCode) => {
   if (!voicesLoaded || voices.length === 0) return null;
-
   if (voiceCache[langCode]) return voiceCache[langCode];
 
   const normalized = langCode.toLowerCase().replace("_", "-");
@@ -145,6 +142,10 @@ export const playText = (text, langCode = "en-US", options = {}) => {
       utterance.lang = voice.lang;
     } else {
       utterance.lang = langCode;
+    }
+
+    if (langCode.toLowerCase() === "zh-hk" && !utterance.lang.includes("HK")) {
+      utterance.lang = "yue-HK";
     }
 
     utterance.rate = rate;

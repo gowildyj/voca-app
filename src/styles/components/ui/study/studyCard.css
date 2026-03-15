@@ -90,20 +90,22 @@
 
 /* 텍스트 스타일링 */
 .word-text,
+.meaning-text,
 .next-card-preview {
-  font-size: 2.5rem;
+  /* font-size: 2.5rem; */
+  font-size: 30px;
   font-weight: 700;
   color: var(--text-main);
   margin-bottom: 1rem;
   word-break: keep-all;
 }
 
-.meaning-text {
+/* .meaning-text {
   font-size: 1.8rem;
   font-weight: 600;
   color: var(--text-main);
   word-break: keep-all;
-}
+} */
 
 .hint-text {
   position: absolute;

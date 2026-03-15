@@ -88,37 +88,33 @@ export const getBestVoice = (langCode, preferredGender = "female") => {
   if (!voicesLoaded) return null;
 
   const cacheKey = `${langCode}_${preferredGender}`;
-
-  if (voiceCache[cacheKey]) {
-    return voiceCache[cacheKey];
-  }
+  if (voiceCache[cacheKey]) return voiceCache[cacheKey];
 
   const normalized = normalizeLang(langCode);
 
-  const filtered = voices.filter((v) =>
-    normalizeLang(v.lang).startsWith(normalized.split("-")[0]),
-  );
+  let candidates = voices.filter((v) => normalizeLang(v.lang) === normalized);
 
-  if (!filtered.length) return voices[0];
+  if (candidates.length === 0) {
+    candidates = voices.filter((v) =>
+      normalizeLang(v.lang).startsWith(normalized.split("-")[0]),
+    );
+  }
 
-  // 성별 필터
-  let candidates = filtered;
+  if (!candidates.length) return voices[0];
 
+  // 성별 필터링
+  let finalCandidates = candidates;
   if (preferredGender) {
-    const genderMatches = filtered.filter(
+    const genderMatches = candidates.filter(
       (v) => detectGender(v) === preferredGender,
     );
-
-    if (genderMatches.length) {
-      candidates = genderMatches;
-    }
+    if (genderMatches.length) finalCandidates = genderMatches;
   }
 
   // 품질 점수 정렬
-  candidates.sort((a, b) => scoreVoice(b) - scoreVoice(a));
+  finalCandidates.sort((a, b) => scoreVoice(b) - scoreVoice(a));
 
-  const best = candidates[0];
-
+  const best = finalCandidates[0];
   voiceCache[cacheKey] = best;
 
   return best;

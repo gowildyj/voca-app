@@ -9,10 +9,11 @@ const WordCard = ({
   onPlay,
   onToggleWordFavorite,
   hideMode,
+  langCode = "en-US",
 }) => {
   const [tempShow, setTempShow] = useState(false);
 
-  // 모드가 바뀌면 임시로 보여주던 것 다시 가리기
+  // 모드가 바뀌면 임시 보여주기 상태 리셋
   useEffect(() => {
     setTempShow(false);
   }, [hideMode]);
@@ -23,15 +24,8 @@ const WordCard = ({
   const isWordHidden = hideMode === "word" && !tempShow;
   const isMeaningHidden = hideMode === "meaning" && !tempShow;
 
-  const handleBodyClick = useCallback(() => {
-    if (hideMode) {
-      setTempShow((prev) => !prev);
-    }
-  }, [hideMode]);
-
   const isRTL = (text) => {
     if (!text) return false;
-
     const rtlRegex =
       /[\p{Script=Arabic}\p{Script=Hebrew}\p{Script=Syriac}\p{Script=Thaana}]/u;
     return rtlRegex.test(text);
@@ -41,58 +35,102 @@ const WordCard = ({
   const meaningDir = isRTL(item.meaning) ? "rtl" : "ltr";
   const exampleDir = isRTL(item.example) ? "rtl" : "ltr";
 
+  // 🌟 [스펙 수정 1] 행 전체를 클릭했을 때의 동작
+  const handleRowClick = useCallback(
+    (text, lang) => {
+      if (hideMode) {
+        // 가리기 모드일 때 행을 누르면: 음성 재생 없이 오직 가리기 토글만 수행!
+        setTempShow((prev) => !prev);
+      } else {
+        // 가리기 모드가 아닐 때 행을 누르면: 정상 음성 재생!
+        if (onPlay) onPlay(text, lang);
+      }
+    },
+    [hideMode, onPlay],
+  );
+
+  // 🌟 [스펙 수정 2] 오디오 버튼만 단독으로 클릭했을 때의 동작
+  const handleAudioButtonClick = useCallback(
+    (e, text, lang) => {
+      e.stopPropagation(); // 💡 중요: 행 전체 클릭 이벤트가 발동해서 토글이 되어버리는 것을 원천 차단!
+      if (onPlay) {
+        onPlay(text, lang); // 가리기 모드든 아니든 오디오 버튼은 무조건 묻지도 따지지도 않고 재생!
+      }
+    },
+    [onPlay],
+  );
+
   return (
     <div className={`v-word-card ${statusClass}`}>
-      {/* 1. 오디오 버튼 */}
-      <div className="v-word-icon-section">
-        <button
-          className="v-word-audio-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (onPlay) onPlay(item.word);
-          }}
-          aria-label="발음 듣기"
+      {/* 본문 영역 */}
+      <div className="v-word-body">
+        {/* 🅰️ 단어 행 */}
+        <div
+          className="v-word-row-wrapper clickable-row"
+          onClick={() => handleRowClick(item.word, langCode)}
         >
-          <Volume2 size={20} />
-        </button>
-      </div>
-
-      {/* 2. 단어 본문 (클릭 시 가림 토글) */}
-      <div
-        className="v-word-body"
-        onClick={handleBodyClick}
-        style={{
-          cursor: hideMode ? "pointer" : "default",
-          textAlign: wordDir === "rtl" ? "right" : "left",
-        }}
-      >
-        <div className="v-word-main-wrapper" dir={wordDir}>
-          <span className={`v-word-main ${isWordHidden ? "v-masked" : ""}`}>
-            {item.word}
-          </span>
+          <div className="v-card-audio-zone">
+            <button
+              className="v-word-audio-btn-sm"
+              onClick={(e) => handleAudioButtonClick(e, item.word, langCode)}
+              aria-label="단어 발음 듣기"
+            >
+              <Volume2 size={16} />
+            </button>
+          </div>
+          <div className="v-word-main-wrapper" dir={wordDir}>
+            <span className={`v-word-main ${isWordHidden ? "v-masked" : ""}`}>
+              {item.word}
+            </span>
+          </div>
         </div>
 
-        <div className="v-word-sub-wrapper" dir={meaningDir}>
-          <span
-            className={`v-word-sub ${hideMode === "meaning" && !tempShow ? "v-masked" : ""}`}
-          >
-            {item.meaning}
-          </span>
+        {/* 🅱️ 뜻 행 */}
+        <div
+          className="v-word-row-wrapper clickable-row"
+          onClick={() => handleRowClick(item.meaning, "ko-KR")}
+        >
+          <div className="v-card-audio-zone">
+            <button
+              className="v-word-audio-btn-sm"
+              onClick={(e) => handleAudioButtonClick(e, item.meaning, "ko-KR")}
+              aria-label="뜻 듣기"
+            >
+              <Volume2 size={16} />
+            </button>
+          </div>
+          <div className="v-word-sub-wrapper" dir={meaningDir}>
+            <span className={`v-word-sub ${isMeaningHidden ? "v-masked" : ""}`}>
+              {item.meaning}
+            </span>
+          </div>
         </div>
 
-        {/* 🌟 예문 표시 (값이 있을 때만 렌더링) */}
+        {/* 🆃 예문 행 (값이 있을 때만) */}
         {item.example && (
-          <span
-            className={`v-word-sub example-text ${isMeaningHidden ? "v-masked" : ""}`}
-            style={{
-              marginTop: "4px",
-              color: "#888",
-              fontSize: "0.9em",
-              fontStyle: "italic",
-            }}
+          <div
+            className="v-word-row-wrapper clickable-row"
+            onClick={() => handleRowClick(item.example, langCode)}
           >
-            {item.example}
-          </span>
+            <div className="v-card-audio-zone">
+              <button
+                className="v-word-audio-btn-sm"
+                onClick={(e) =>
+                  handleAudioButtonClick(e, item.example, langCode)
+                }
+                aria-label="예문 발음 듣기"
+              >
+                <Volume2 size={16} />
+              </button>
+            </div>
+            <div className="v-word-sub-wrapper" dir={exampleDir}>
+              <span
+                className={`v-word-sub example-text ${isMeaningHidden ? "v-masked" : ""}`}
+              >
+                {item.example}
+              </span>
+            </div>
+          </div>
         )}
       </div>
 
@@ -136,7 +174,6 @@ const WordCard = ({
   );
 };
 
-// 🌟 React.memo 최적화
 export default React.memo(WordCard, (prev, next) => {
   return (
     prev.item.id === next.item.id &&

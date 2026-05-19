@@ -22,7 +22,7 @@
 }
 
 /* 섹션 1: 오디오 영역 */
-.v-word-icon-section {
+/* .v-word-icon-section {
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -44,10 +44,10 @@
 
 .v-word-audio-btn:active {
   transform: scale(0.9);
-}
+} */
 
 /* 섹션 2: 단어 텍스트 본문 */
-.v-word-body {
+/* .v-word-body {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -65,6 +65,89 @@
   font-size: 1rem;
   color: var(--text-sub);
   opacity: 1;
+} */
+
+/* 섹션 1: 오디오 영역 */
+.v-word-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+/* 오디오 버튼과 텍스트를 한 줄로 묶어주는 래퍼 */
+.v-word-row-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+}
+
+/* 오디오 버튼이 차지할 고정 너비 확보 공간 */
+.v-card-audio-zone {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+}
+
+.v-word-audio-btn-sm {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--bg);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    transform 0.1s,
+    background-color 0.15s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.v-word-audio-btn-sm svg {
+  width: 22px;
+  height: 22px;
+}
+
+.v-word-audio-placeholder {
+  width: 44px;
+  height: 44px;
+}
+
+.v-word-main-wrapper,
+.v-word-sub-wrapper {
+  flex: 1;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding-top: 2px;
+}
+
+.v-word-main {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+.v-word-sub {
+  font-size: 1rem;
+  color: var(--text-sub);
+  line-height: 1.5;
+}
+
+.example-text {
+  color: #777;
+  font-size: 0.95em;
+  font-style: italic;
 }
 
 /* 섹션 3: 액션 버튼들 (세로형 컴팩트) */
@@ -156,4 +239,24 @@
   color: var(--text-sub);
   font-size: 1rem;
   font-weight: 700;
+}
+
+.v-word-row-wrapper.clickable-row {
+  cursor: pointer;
+  border-radius: var(--radius-md, 8px);
+  transition: background-color 0.15s ease;
+}
+
+/* 행 전체에 마우스를 올렸을 때 은은하게 불이 들어오고 안의 오디오 버튼도 같이 반응 */
+.v-word-row-wrapper.clickable-row:hover {
+  background-color: rgba(0, 0, 0, 0.015);
+}
+
+.v-word-row-wrapper.clickable-row:hover .v-word-audio-btn-sm {
+  background-color: rgba(0, 0, 0, 0.06);
+  transform: scale(1.05);
+}
+
+[data-theme="dark"] .v-word-row-wrapper.clickable-row:hover {
+  background-color: rgba(255, 255, 255, 0.03);
 }

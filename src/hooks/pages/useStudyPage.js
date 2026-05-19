@@ -98,7 +98,13 @@ export const useStudyPage = (
 
         const lang = currentDeck?.language || "en-US";
 
-        await playText(words[currentIndex].word, lang);
+        if (studySettings.viewMode === "backFirst") {
+          // 뜻 먼저 보기 모드면 ➡️ 한국어 뜻으로 자동 재생!
+          await playText(words[currentIndex].meaning, "ko-KR");
+        } else {
+          // 단어 먼저 보기 모드면 ➡️ 외국어 단어로 자동 재생!
+          await playText(words[currentIndex].word, lang);
+        }
       } catch (err) {
         console.error("TTS error:", err);
       }
@@ -231,6 +237,7 @@ export const useStudyPage = (
   );
 
   // --- AutoPlay ---
+  // --- AutoPlay --- (수정본)
   useEffect(() => {
     if (!studySettings.isAutoPlay || isFinished) {
       clearTimeout(autoPlayTimerRef.current);
@@ -238,7 +245,6 @@ export const useStudyPage = (
     }
 
     let cancelled = false;
-
     const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
     const runAutoPlayLoop = async () => {
@@ -250,29 +256,39 @@ export const useStudyPage = (
       try {
         speechSynthesis.cancel();
 
-        // --- AutoAudio ON ---
+        // 🌟 [수정 포인트 1] 첫 번째 면 자동 재생 분기
         if (studySettings.isAutoAudio) {
-          await playText(currentWord.word, lang);
+          if (studySettings.viewMode === "backFirst") {
+            await playText(currentWord.meaning, "ko-KR"); // 뜻 먼저 보기 모드면 한국어
+          } else {
+            await playText(currentWord.word, lang); // 단어 먼저 보기 모드면 외국어
+          }
         } else {
-          // 오디오 없으면 그냥 잠깐 대기
           await delay(3000);
         }
 
         if (cancelled) return;
 
-        // 카드 flip
+        // 카드 flip (뒤집기)
         setIsFlipped(true);
 
-        // if (studySettings.isAutoAudio && currentWord.meaning) {
-        //   await delay(300);
-        //   await playText(currentWord.meaning, lang);
-        // } else {
-        await delay(3000);
-        // }
+        // 🌟 [수정 포인트 2] 카드가 뒤집힌 후 (두 번째 면) 자동 재생 보완
+        // 기존에 주석 처리되어 있던 기능을 살려서 뒤집힌 면의 소리도 교차로 읽어줍니다!
+        if (studySettings.isAutoAudio) {
+          await delay(500); // 뒤집히는 애니메이션 시간 확보
+          if (studySettings.viewMode === "backFirst") {
+            await playText(currentWord.word, lang); // 뜻을 먼저 읽었으니 뒤집힌 후엔 외국어 단어!
+          } else {
+            await playText(currentWord.meaning, "ko-KR"); // 단어를 먼저 읽었으니 뒤집힌 후엔 한국어 뜻!
+          }
+          await delay(2000); // 소리 읽고 머무는 시간
+        } else {
+          await delay(3000);
+        }
 
         if (cancelled) return;
 
-        // 다음 카드
+        // 다음 카드 전환 로직 (기존과 동일)
         if (currentIndex < words.length - 1) {
           setHistory((prev) => [
             ...prev,
@@ -299,6 +315,7 @@ export const useStudyPage = (
   }, [
     studySettings.isAutoPlay,
     studySettings.isAutoAudio,
+    studySettings.viewMode, // 🌟 의존성 배열에 viewMode 추가
     currentIndex,
     isFinished,
     words,

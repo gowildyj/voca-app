@@ -104,9 +104,19 @@ const StudyCard = ({
             onClick={async (e) => {
               e.stopPropagation();
 
-              await playText(cardData.word, language || "en-US", {
-                gender: "female",
-              });
+              const isShowingMeaning =
+                (!isFlipped && viewMode === "backFirst") ||
+                (isFlipped && viewMode === "frontFirst");
+
+              if (isShowingMeaning) {
+                // 한국어 뜻 재생
+                await playText(cardData.meaning, "ko-KR");
+              } else {
+                // 외국어 단어 재생
+                await playText(cardData.word, language || "en-US", {
+                  gender: "female",
+                });
+              }
             }}
           >
             <Volume2 size={24} />

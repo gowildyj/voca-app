@@ -14,8 +14,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  // GitHub Pages 배포 시 리포지토리 이름을 넣으세요.
-  // 만약 루트 도메인이면 "/"로 수정하면 됩니다.
+
   base: "/voca-app/",
   build: {
     rollupOptions: {

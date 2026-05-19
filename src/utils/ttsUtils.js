@@ -126,15 +126,68 @@ export const getBestVoice = (langCode) => {
 /**
  * 텍스트 발음 (핵심 로직 단순화)
  */
+// export const playText = (text, langCode = "en-US", options = {}) => {
+//   return new Promise((resolve) => {
+//     if (!window.speechSynthesis || !text) return resolve();
+
+//     const { rate = 1.0, pitch = 1.0 } = options;
+
+//     window.speechSynthesis.cancel();
+
+//     const utterance = new SpeechSynthesisUtterance(text);
+//     const voice = getBestVoice(langCode);
+
+//     if (voice) {
+//       utterance.voice = voice;
+//       utterance.lang = voice.lang;
+//     } else {
+//       utterance.lang = langCode;
+//     }
+
+//     if (langCode.toLowerCase() === "zh-hk" && !utterance.lang.includes("HK")) {
+//       utterance.lang = "yue-HK";
+//     }
+
+//     utterance.rate = rate;
+//     utterance.pitch = pitch;
+//     utterance.onend = () => resolve();
+//     utterance.onerror = () => resolve();
+
+//     window.speechSynthesis.speak(utterance);
+//   });
+// };
+
+/**
+ * 텍스트 발음 (크롬 오디오 잘림 현상 철벽 방어 버전)
+ */
 export const playText = (text, langCode = "en-US", options = {}) => {
   return new Promise((resolve) => {
     if (!window.speechSynthesis || !text) return resolve();
 
     const { rate = 1.0, pitch = 1.0 } = options;
 
+    // 🌟 [핵심 개선 1] 즉시 cancel하지 않고, 큐를 초기화하되
+    // 크롬 오디오 엔진이 완전히 셧다운 후 재시작하면서 첫 음절을 먹는 현상을 줄입니다.
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    let processedText = text;
+    const isChrome =
+      /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    const isJapanese = langCode.toLowerCase().startsWith("ja");
+
+    if (isChrome) {
+      if (isJapanese) {
+        if (text.length <= 2) {
+          // 다른 짧은 일본어 한자들의 씹힘 방지를 위해 앞뒤로 온전한 공백과 마침표를 패딩
+          processedText = "．． " + text + " ．";
+        }
+      } else if (text.length <= 3) {
+        // 일반 다국어 크롬 씹힘 방지 패딩 강화
+        processedText = "．． " + text;
+      }
+    }
+
+    const utterance = new SpeechSynthesisUtterance(processedText);
     const voice = getBestVoice(langCode);
 
     if (voice) {
@@ -153,7 +206,9 @@ export const playText = (text, langCode = "en-US", options = {}) => {
     utterance.onend = () => resolve();
     utterance.onerror = () => resolve();
 
-    window.speechSynthesis.speak(utterance);
+    setTimeout(() => {
+      window.speechSynthesis.speak(utterance);
+    }, 180);
   });
 };
 

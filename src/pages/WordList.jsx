@@ -264,8 +264,15 @@ const WordList = () => {
                               item={item}
                               index={item.displayOrder}
                               hideMode={hideMode}
-                              onPlay={async (word) => {
-                                await playText(word, currentDeck?.language);
+                              // onPlay={async (word) => {
+                              //   await playText(word, currentDeck?.language);
+                              // }}
+                              langCode={currentDeck?.language}
+                              onPlay={async (text, lang) => {
+                                await playText(
+                                  text,
+                                  lang || currentDeck?.language,
+                                );
                               }}
                               onToggleWordFavorite={() =>
                                 onToggleWordFavorite(item.id, item.isFavorite)

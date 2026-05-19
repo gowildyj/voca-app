@@ -57,6 +57,12 @@ export const useStudyPage = (
     });
   }, []);
 
+  const getMeaningLang = (text) => {
+    if (!text) return "ko-KR";
+    const hasKorean = /[\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318F]/u.test(text);
+    return hasKorean ? "ko-KR" : "en-US";
+  };
+
   // --- 테두리 색상 감지 ---
   useEffect(() => {
     const unsubscribe = x.on("change", (latestX) => {
@@ -90,6 +96,8 @@ export const useStudyPage = (
     if (!studySettings.isAutoAudio) return;
     if (isFinished) return;
 
+    if (studySettings.isAutoPlay) return;
+
     let cancelled = false;
 
     const run = async () => {
@@ -100,7 +108,8 @@ export const useStudyPage = (
 
         if (studySettings.viewMode === "backFirst") {
           // 뜻 먼저 보기 모드면 ➡️ 한국어 뜻으로 자동 재생!
-          await playText(words[currentIndex].meaning, "ko-KR");
+          const meaningLang = getMeaningLang(words[currentIndex].meaning);
+          await playText(words[currentIndex].meaning, meaningLang);
         } else {
           // 단어 먼저 보기 모드면 ➡️ 외국어 단어로 자동 재생!
           await playText(words[currentIndex].word, lang);
@@ -116,7 +125,15 @@ export const useStudyPage = (
       cancelled = true;
       speechSynthesis.cancel();
     };
-  }, [currentIndex, studySettings.isAutoAudio, isFinished]);
+  }, [
+    currentIndex,
+    studySettings.isAutoAudio,
+    studySettings.isAutoPlay,
+    studySettings.viewMode,
+    isFinished,
+    words,
+    currentDeck,
+  ]);
 
   // --- 카드 위치 초기화 ---
   const resetCardPosition = useCallback(() => {
@@ -237,7 +254,6 @@ export const useStudyPage = (
   );
 
   // --- AutoPlay ---
-  // --- AutoPlay --- (수정본)
   useEffect(() => {
     if (!studySettings.isAutoPlay || isFinished) {
       clearTimeout(autoPlayTimerRef.current);
@@ -259,7 +275,10 @@ export const useStudyPage = (
         // 🌟 [수정 포인트 1] 첫 번째 면 자동 재생 분기
         if (studySettings.isAutoAudio) {
           if (studySettings.viewMode === "backFirst") {
-            await playText(currentWord.meaning, "ko-KR"); // 뜻 먼저 보기 모드면 한국어
+            await playText(
+              currentWord.meaning,
+              getMeaningLang(currentWord.meaning),
+            );
           } else {
             await playText(currentWord.word, lang); // 단어 먼저 보기 모드면 외국어
           }
@@ -279,7 +298,10 @@ export const useStudyPage = (
           if (studySettings.viewMode === "backFirst") {
             await playText(currentWord.word, lang); // 뜻을 먼저 읽었으니 뒤집힌 후엔 외국어 단어!
           } else {
-            await playText(currentWord.meaning, "ko-KR"); // 단어를 먼저 읽었으니 뒤집힌 후엔 한국어 뜻!
+            await playText(
+              currentWord.meaning,
+              getMeaningLang(currentWord.meaning),
+            );
           }
           await delay(2000); // 소리 읽고 머무는 시간
         } else {

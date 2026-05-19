@@ -21,6 +21,12 @@ const StudyCard = ({
 }) => {
   if (!cardData) return null;
 
+  const getMeaningLang = (text) => {
+    if (!text) return "ko-KR";
+    const hasKorean = /[\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318F]/u.test(text);
+    return hasKorean ? "ko-KR" : "en-US";
+  };
+
   const isBackFirst = viewMode === "backFirst";
   const frontContent = isBackFirst ? cardData.meaning : cardData.word;
   const backContent = isBackFirst ? cardData.word : cardData.meaning;
@@ -109,8 +115,9 @@ const StudyCard = ({
                 (isFlipped && viewMode === "frontFirst");
 
               if (isShowingMeaning) {
-                // 한국어 뜻 재생
-                await playText(cardData.meaning, "ko-KR");
+                // 뜻 재생
+                const meaningLang = getMeaningLang(cardData.meaning);
+                await playText(cardData.meaning, meaningLang);
               } else {
                 // 외국어 단어 재생
                 await playText(cardData.word, language || "en-US", {

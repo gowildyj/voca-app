@@ -35,7 +35,16 @@ const WordCard = ({
   const meaningDir = isRTL(item.meaning) ? "rtl" : "ltr";
   const exampleDir = isRTL(item.example) ? "rtl" : "ltr";
 
-  // 🌟 [스펙 수정 1] 행 전체를 클릭했을 때의 동작
+  const getMeaningLang = (text) => {
+    if (!text) return "ko-KR";
+
+    // 한글 유니코드 범위(\uAC00-\uD7A3, \u1100-\u11FF 등)가 포함되어 있는지 검사
+    const hasKorean = /[\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318F]/u.test(text);
+
+    // 한글이 있으면 한국어, 없으면 영어(en-US)를 기본값으로 반환!
+    return hasKorean ? "ko-KR" : "en-US";
+  };
+
   const handleRowClick = useCallback(
     (text, lang) => {
       if (hideMode) {
@@ -49,7 +58,6 @@ const WordCard = ({
     [hideMode, onPlay],
   );
 
-  // 🌟 [스펙 수정 2] 오디오 버튼만 단독으로 클릭했을 때의 동작
   const handleAudioButtonClick = useCallback(
     (e, text, lang) => {
       e.stopPropagation(); // 💡 중요: 행 전체 클릭 이벤트가 발동해서 토글이 되어버리는 것을 원천 차단!
@@ -88,12 +96,20 @@ const WordCard = ({
         {/* 🅱️ 뜻 행 */}
         <div
           className="v-word-row-wrapper clickable-row"
-          onClick={() => handleRowClick(item.meaning, "ko-KR")}
+          onClick={() =>
+            handleRowClick(item.meaning, getMeaningLang(item.meaning))
+          }
         >
           <div className="v-card-audio-zone">
             <button
               className="v-word-audio-btn-sm"
-              onClick={(e) => handleAudioButtonClick(e, item.meaning, "ko-KR")}
+              onClick={(e) =>
+                handleAudioButtonClick(
+                  e,
+                  item.meaning,
+                  getMeaningLang(item.meaning),
+                )
+              }
               aria-label="뜻 듣기"
             >
               <Volume2 size={16} />
